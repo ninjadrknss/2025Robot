@@ -59,4 +59,13 @@ public class Superstructure extends SubsystemBase {
             systemState = nextState;
         }
     }
+
+    public void unsetAllRequests() {
+        requestHome = false;
+    }
+
+    public void requestHome() {
+        unsetAllRequests();
+        requestHome = true;
+    }
 }
