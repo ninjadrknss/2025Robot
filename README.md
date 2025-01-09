@@ -6,6 +6,7 @@
 <ul>
     <li> CTRE's Phoenix generated swerve</li>
     <li> Choreo Autonomous path planning</li>
+    <li> Limelight and Photonvision April tag localization</li>
     <li> Superstructure request based controls</li>
     <li> Driver Assistance with scoring</li>
 </ul>
