@@ -12,6 +12,8 @@ public class ControlBoard {
     /* Subsystems */
     private final Superstructure superstructure;
 
+    /* Commands */
+
     private ControlBoard() {
         superstructure = Superstructure.getInstance();
 

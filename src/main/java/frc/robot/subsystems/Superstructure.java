@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
@@ -7,7 +8,7 @@ import org.littletonrobotics.junction.Logger;
 public class Superstructure extends SubsystemBase {
     private static Superstructure instance = null;
 
-    enum SuperstructureState {
+    enum SuperstructureState { // TODO: did I miss some?
         PRE_HOME,
         IDLE,
         CHUTE_INTAKE,
@@ -20,6 +21,7 @@ public class Superstructure extends SubsystemBase {
     }
 
     /* Subsystems */
+    private final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
 
     /* State Flags */
     boolean requestHome = true;
@@ -42,20 +44,21 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Superstructure/loopCycleTime", Logger.getRealTimestamp()/1.0E6 - lastFPGATimestamp);
+        double time = RobotController.getFPGATime() / 1.0E6;
+        Logger.recordOutput("Superstructure/loopCycleTime", time - lastFPGATimestamp);
 
-        lastFPGATimestamp = Logger.getRealTimestamp()/1.0E6;
+        lastFPGATimestamp = time;
         SmartDashboard.putString("Superstructure State", systemState.toString());
 
         SuperstructureState nextState = systemState;
-        // TODO: Figure out how to handle climber stuff, most likely in ControlBoard.java
+        // TODO: implement all states
         switch (systemState) {
             case IDLE -> {}
             default -> throw new IllegalArgumentException("Guess I missed a state");
         }
 
         if (nextState != systemState) {
-            mStateStartTime = Logger.getRealTimestamp() / 1.0E6;
+            mStateStartTime = RobotController.getFPGATime() / 1.0E6;
             systemState = nextState;
         }
     }
