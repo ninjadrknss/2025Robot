@@ -25,6 +25,14 @@ public class Superstructure extends SubsystemBase {
 
     /* State Flags */
     boolean requestHome = true;
+    boolean requestIdle = false;
+    boolean requestChuteIntake = false;
+    boolean requestGroundIntake = false;
+    boolean requestL1Score = false;
+    boolean requestL2Score = false;
+    boolean requestL3Score = false;
+    boolean requestL4Score = false;
+    boolean requestClimb = false;
 
     /* Other Variables */
     private double mStateStartTime = 0.0;
@@ -65,10 +73,62 @@ public class Superstructure extends SubsystemBase {
 
     public void unsetAllRequests() {
         requestHome = false;
+        requestIdle = false;
+        requestChuteIntake = false;
+        requestGroundIntake = false;
+        requestL1Score = false;
+        requestL2Score = false;
+        requestL3Score = false;
+        requestL4Score = false;
+        requestClimb = false;
     }
 
     public void requestHome() {
         unsetAllRequests();
         requestHome = true;
+    }
+
+    public void requestIdle() {
+        unsetAllRequests();
+        requestIdle = true;
+    }
+
+    public void requestChuteIntake() {
+        unsetAllRequests();
+        requestChuteIntake = true;
+    }
+
+    public void requestGroundIntake() {
+        unsetAllRequests();
+        requestGroundIntake = true;
+    }
+
+    public void requestL1Score() {
+        unsetAllRequests();
+        requestL1Score = true;
+    }
+
+    public void requestL2Score() {
+        unsetAllRequests();
+        requestL2Score = true;
+    }
+
+    public void requestL3Score() {
+        unsetAllRequests();
+        requestL3Score = true;
+    }
+
+    public void requestL4Score() {
+        unsetAllRequests();
+        requestL4Score = true;
+    }
+
+    public void requestClimb() {
+        unsetAllRequests();
+        requestClimb = true;
+    }
+
+    public boolean isAtPosition() {
+        return elevator.isAtPosition();
     }
 }

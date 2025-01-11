@@ -1,5 +1,8 @@
 package frc.robot.util;
 
+import frc.robot.commands.ChuteIntakeCommand;
+import frc.robot.commands.GroundIntakeCommand;
+import frc.robot.commands.ScoreCommand;
 import frc.robot.subsystems.Superstructure;
 
 public class ControlBoard {
@@ -13,9 +16,23 @@ public class ControlBoard {
     private final Superstructure superstructure;
 
     /* Commands */
+    private final ChuteIntakeCommand chuteIntakeCommand;
+    private final GroundIntakeCommand groundIntakeCommand;
+    private final ScoreCommand L1ScoreCommand;
+    private final ScoreCommand L2ScoreCommand;
+    private final ScoreCommand L3ScoreCommand;
+    private final ScoreCommand L4ScoreCommand;
 
     private ControlBoard() {
         superstructure = Superstructure.getInstance();
+
+        chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
+        groundIntakeCommand = new GroundIntakeCommand(superstructure);
+
+        L1ScoreCommand = new ScoreCommand(superstructure, 1);
+        L2ScoreCommand = new ScoreCommand(superstructure, 2);
+        L3ScoreCommand = new ScoreCommand(superstructure, 3);
+        L4ScoreCommand = new ScoreCommand(superstructure, 4);
 
         configureDriverBindings();
         configureOperatorBindings();
