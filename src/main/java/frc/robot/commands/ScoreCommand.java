@@ -23,6 +23,7 @@ public class ScoreCommand extends Command {
             case 2 -> superstructure.requestL2Score();
             case 3 -> superstructure.requestL3Score();
             case 4 -> superstructure.requestL4Score();
+            case 5 -> superstructure.requestBargeScore();
         }
     }
 

@@ -19,14 +19,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    enum ElevatorState {
-        DEFAULT(0, 0),
+    enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
+        HOME(0, 0),
         CHUTE_INTAKE(0, 0),
         GROUND_INTAKE(0, 0),
         L1_SCORE(0, 0),
         L2_SCORE(0, 0),
         L3_SCORE(0, 0),
-        L4_SCORE(0, 0);
+        L4_SCORE(0, 0),
+        BARGE_SCORE(0, 0);
 
         /** The height of the elevator in inches. */
         private final int height;
@@ -47,9 +48,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /* Motors and Request */
-    private ElevatorState state = ElevatorState.DEFAULT;
+    private ElevatorState state = ElevatorState.HOME;
     private final TalonFX leader = new TalonFX(Constants.Elevator.rightElevatorMotor, Constants.canbus);
-    private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
+    private final PositionTorqueCurrentFOC leaderControl;
 
     private final TalonFX follower = new TalonFX(Constants.Elevator.leftElevatorMotor, Constants.canbus);
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
@@ -58,25 +59,26 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(0);
 
     /* State Request Flags */
-    private boolean requestDefault = false;
+    private boolean requestHome = false;
     private boolean requestChuteIntake = false;
     private boolean requestGroundIntake = false;
     private boolean requestL1Score = false;
     private boolean requestL2Score = false;
     private boolean requestL3Score = false;
     private boolean requestL4Score = false;
+    private boolean requestBargeScore = false;
 
     /* Other Variables */
     private boolean homedOnce = false;
-    private DigitalInput homeSwitch = new DigitalInput(Constants.Elevator.homeSwitch);
+    private final DigitalInput homeSwitch = new DigitalInput(Constants.Elevator.homeSwitch);
 
     private boolean elevatorAtPosition = false;
-    private Debouncer elevatorDebouncer = new Debouncer(0.1);
-    private StatusSignal<Angle> elevatorStatus = leader.getPosition();
+    private final Debouncer elevatorDebouncer = new Debouncer(0.1);
+    private final StatusSignal<Angle> elevatorStatus = leader.getPosition();
 
     private boolean wristAtPosition = false;
-    private Debouncer wristDebouncer = new Debouncer(0.1);
-    private StatusSignal<Angle> wristStatus = wrist.getPosition();
+    private final Debouncer wristDebouncer = new Debouncer(0.1);
+    private final StatusSignal<Angle> wristStatus = wrist.getPosition();
 
     /**
      * Creates a new instance of this ElevatorSubsystem. This constructor
@@ -92,16 +94,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         leaderConfig.Slot0.kG = 0;
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
-        leaderConfig.Feedback.RotorToSensorRatio = 1;
-        leaderConfig.Feedback.SensorToMechanismRatio = 1;
-
-        leaderConfig.HardwareLimitSwitch.ForwardLimitEnable = true;
-        leaderConfig.HardwareLimitSwitch.ForwardLimitType = ForwardLimitTypeValue.NormallyOpen;
-        leaderConfig.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
+        leaderConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
+        leaderConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
 
         leader.getConfigurator().apply(leaderConfig);
         leader.setNeutralMode(NeutralModeValue.Brake);
 
+        leaderControl = new PositionTorqueCurrentFOC(0).withLimitForwardMotion(homeSwitch.get()); // TODO: or is it withLimitReverse motion?
         // TODO: add configs for follower
         TalonFXConfiguration followerConfig = new TalonFXConfiguration();
 
@@ -139,7 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         ElevatorState nextState = state;
 
-        if (requestDefault) nextState = ElevatorState.DEFAULT;
+        if (requestHome) nextState = ElevatorState.HOME;
         else if (requestChuteIntake) nextState = ElevatorState.CHUTE_INTAKE;
         else if (requestGroundIntake) nextState = ElevatorState.GROUND_INTAKE;
         else if (requestL1Score) nextState = ElevatorState.L1_SCORE;
@@ -175,18 +174,19 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     private void unsetAllRequests() {
-        requestDefault = false;
+        requestHome = false;
         requestChuteIntake = false;
         requestGroundIntake = false;
         requestL1Score = false;
         requestL2Score = false;
         requestL3Score = false;
         requestL4Score = false;
+        requestBargeScore = false;
     }
 
-    public void requestDefault() {
+    public void requestHome() {
         unsetAllRequests();
-        requestDefault = true;
+        requestHome = true;
     }
 
     public void requestChuteIntake() {
@@ -217,5 +217,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void requestL4Score() {
         unsetAllRequests();
         requestL4Score = true;
+    }
+
+    public void requestBargeScore() {
+        unsetAllRequests();
+        requestBargeScore = true;
     }
 }

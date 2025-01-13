@@ -22,6 +22,7 @@ public class ControlBoard {
     private final ScoreCommand L2ScoreCommand;
     private final ScoreCommand L3ScoreCommand;
     private final ScoreCommand L4ScoreCommand;
+    private final ScoreCommand BargeScoreCommand;
 
     private ControlBoard() {
         superstructure = Superstructure.getInstance();
@@ -33,6 +34,7 @@ public class ControlBoard {
         L2ScoreCommand = new ScoreCommand(superstructure, 2);
         L3ScoreCommand = new ScoreCommand(superstructure, 3);
         L4ScoreCommand = new ScoreCommand(superstructure, 4);
+        BargeScoreCommand = new ScoreCommand(superstructure, 5);
 
         configureDriverBindings();
         configureOperatorBindings();
@@ -44,10 +46,10 @@ public class ControlBoard {
     }
 
     private void configureDriverBindings() {
-
+        // TODO: configure driver bindings
     }
 
     private void configureOperatorBindings() {
-
+        // TODO: configure operator bindings
     }
 }

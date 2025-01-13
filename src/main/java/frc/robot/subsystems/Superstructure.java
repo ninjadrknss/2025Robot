@@ -8,7 +8,7 @@ import org.littletonrobotics.junction.Logger;
 public class Superstructure extends SubsystemBase {
     private static Superstructure instance = null;
 
-    enum SuperstructureState { // TODO: did I miss some?
+    enum SuperstructureState { // TODO: ? add algae L2 and L3 Intake States
         PRE_HOME,
         IDLE,
         CHUTE_INTAKE,
@@ -17,6 +17,7 @@ public class Superstructure extends SubsystemBase {
         L2_SCORE,
         L3_SCORE,
         L4_SCORE,
+        BARGE_SCORE,
         CLIMB
     }
 
@@ -32,6 +33,7 @@ public class Superstructure extends SubsystemBase {
     boolean requestL2Score = false;
     boolean requestL3Score = false;
     boolean requestL4Score = false;
+    boolean requestBargeScore = false;
     boolean requestClimb = false;
 
     /* Other Variables */
@@ -80,6 +82,7 @@ public class Superstructure extends SubsystemBase {
         requestL2Score = false;
         requestL3Score = false;
         requestL4Score = false;
+        requestBargeScore = false;
         requestClimb = false;
     }
 
@@ -121,6 +124,11 @@ public class Superstructure extends SubsystemBase {
     public void requestL4Score() {
         unsetAllRequests();
         requestL4Score = true;
+    }
+
+    public void requestBargeScore() {
+        unsetAllRequests();
+        requestBargeScore = true;
     }
 
     public void requestClimb() {
