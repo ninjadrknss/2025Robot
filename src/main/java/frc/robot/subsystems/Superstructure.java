@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
@@ -22,7 +23,7 @@ public class Superstructure extends SubsystemBase {
     }
 
     /* Subsystems */
-    private final ElevatorSubsystem elevator = ElevatorSubsystem.getInstance();
+    private final ElevatorArmSubsystem elevator = ElevatorArmSubsystem.getInstance();
 
     /* State Flags */
     boolean requestHome = true;

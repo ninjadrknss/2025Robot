@@ -5,18 +5,18 @@ import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
 import frc.robot.subsystems.Superstructure;
 
 
-public class ChuteIntakeCommand extends Command {
+public class HomeCommand extends Command {
     private final ElevatorArmSubsystem elevatorArmSubsystem = ElevatorArmSubsystem.getInstance();
     private final Superstructure superstructure;
 
-    public ChuteIntakeCommand(Superstructure superstructure) {
+    public HomeCommand(Superstructure superstructure) {
         this.superstructure = superstructure;
         addRequirements(this.elevatorArmSubsystem);
     }
 
     @Override
     public void initialize() {
-        superstructure.requestChuteIntake();
+        superstructure.requestHome();
     }
 
     @Override

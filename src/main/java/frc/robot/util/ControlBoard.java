@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import frc.robot.commands.ChuteIntakeCommand;
 import frc.robot.commands.GroundIntakeCommand;
+import frc.robot.commands.HomeCommand;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.subsystems.Superstructure;
 
@@ -16,6 +17,7 @@ public class ControlBoard {
     private final Superstructure superstructure;
 
     /* Commands */
+    private final HomeCommand homeCommand;
     private final ChuteIntakeCommand chuteIntakeCommand;
     private final GroundIntakeCommand groundIntakeCommand;
     private final ScoreCommand L1ScoreCommand;
@@ -24,8 +26,12 @@ public class ControlBoard {
     private final ScoreCommand L4ScoreCommand;
     private final ScoreCommand BargeScoreCommand;
 
+    private int level = 0;
+
     private ControlBoard() {
         superstructure = Superstructure.getInstance();
+
+        homeCommand = new HomeCommand(superstructure);
 
         chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
         groundIntakeCommand = new GroundIntakeCommand(superstructure);
