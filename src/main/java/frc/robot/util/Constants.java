@@ -5,12 +5,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Constants {
-    /** Use {@see Robot.canivorebus #} instead */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
+
     public static final String canbus = "";
-
-
 
 
     public static enum GameElement {
@@ -118,5 +114,4 @@ public class Constants {
         }
     }
 
-    
 }
