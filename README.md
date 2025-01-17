@@ -1,12 +1,12 @@
 <h1> 2025 Robot code for FRC Reefscape </h1>
 <h3> Robot Name: </h3>
-<p> <b>Contributors:</b> Peter Zhao, Alex Petry, Owen Gregson</p>
+<p> <b>Contributors:</b> Alex Petry, Peter Zhao, Owen Gregson</p>
 
 <h3> Highlights </h3>
 <ul>
-    <li> CTRE's Phoenix generated swerve</li>
-    <li> Choreo Autonomous path planning</li>
+    <li> CTRE Phoenix 6's generated swerve</li>
+    <li> Choreo autonomous path planning</li>
     <li> Limelight and Photonvision April tag localization</li>
-    <li> Superstructure request based controls</li>
-    <li> Driver Assistance with scoring and intake</li>
+    <li> Superstructure state request based controls</li>
+    <li> Driver Assistance with scoring and intaking</li>
 </ul>
