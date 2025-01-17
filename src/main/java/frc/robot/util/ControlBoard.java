@@ -7,7 +7,7 @@ import frc.robot.commands.ScoreCommand;
 import frc.robot.subsystems.Superstructure;
 
 public class ControlBoard {
-    private static ControlBoard instance = null;
+    private static ControlBoard instance;
 
     /* Controllers */
     private final PS5Controller driver = new PS5Controller(0);
