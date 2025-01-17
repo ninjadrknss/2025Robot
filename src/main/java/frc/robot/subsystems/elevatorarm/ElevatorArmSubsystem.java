@@ -3,17 +3,21 @@ package frc.robot.subsystems.elevatorarm;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.Robot;
 
 public class ElevatorArmSubsystem extends SubsystemBase {
@@ -47,13 +51,13 @@ public class ElevatorArmSubsystem extends SubsystemBase {
 
     /* Motors and Request */
     private ElevatorState state = ElevatorState.HOME;
-    private final TalonFX leader = new TalonFX(ElevatorArmConstants.rightElevatorMotor, Robot.canivorebus);
+    private final TalonFX leader = new TalonFX(ElevatorArmConstants.rightElevatorMotor, Robot.drivebus);
     private final PositionTorqueCurrentFOC leaderControl;
 
-    private final TalonFX follower = new TalonFX(ElevatorArmConstants.leftElevatorMotor, Robot.canivorebus);
+    private final TalonFX follower = new TalonFX(ElevatorArmConstants.leftElevatorMotor, Robot.drivebus);
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
 
-    private final TalonFX wrist = new TalonFX(ElevatorArmConstants.wristMotor, Robot.canivorebus);
+    private final TalonFX wrist = new TalonFX(ElevatorArmConstants.wristMotor, Robot.drivebus);
     private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(0);
 
     /* State Request Flags */
@@ -99,6 +103,7 @@ public class ElevatorArmSubsystem extends SubsystemBase {
         leader.setNeutralMode(NeutralModeValue.Brake);
 
         leaderControl = new PositionTorqueCurrentFOC(0).withLimitForwardMotion(homeSwitch.get()); // TODO: or is it withLimitReverse motion?
+
         // TODO: add configs for follower
         TalonFXConfiguration followerConfig = new TalonFXConfiguration();
 

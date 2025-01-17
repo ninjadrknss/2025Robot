@@ -12,27 +12,24 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
+import frc.robot.util.TunableParameter;
 
 public class Robot extends TimedRobot {
     public static final CANBus riobus = new CANBus("rio");
     @SuppressWarnings("deprecation")
-    public static final CANBus canivorebus = new CANBus(Constants.canbus);
+    public static final CANBus drivebus = new CANBus(Constants.drivebus);
 
     private Command autonomousCommand;
 
-    private final RobotContainer robotContainer;
     private final ControlBoard controlBoard;
 
     public Robot() {
-        if (Constants.canbus.equals("")) throw new IllegalStateException("CAN Bus ID not set in Constants.java");
-        if (!canivorebus.isNetworkFD()) throw new IllegalStateException("CANivore bus is not in FD mode");
-
-        robotContainer = new RobotContainer();
         controlBoard = ControlBoard.getInstance();
     }
 
     @Override
     public void robotPeriodic() {
+        TunableParameter.updateAll();
         CommandScheduler.getInstance().run();
     }
 
@@ -51,7 +48,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = robotContainer.getAutonomousCommand();
+        autonomousCommand = null; // TODO: fetch from auton command chooser
 
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
@@ -64,9 +61,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        if (autonomousCommand != null) {
-            autonomousCommand.cancel();
-        }
+        if (autonomousCommand != null) autonomousCommand.cancel();
     }
 
     @Override
