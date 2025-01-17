@@ -1,6 +1,6 @@
 <h1> 2025 Robot code for FRC Reefscape </h1>
 <h3> Robot Name: </h3>
-<p> <b>Contributors:</b> <h3>Peter Zhao</h3>, Alex Petry, Owen Gregson</p>
+<p> <b>Contributors:</b> ** Peter Zhao ** , Alex Petry, Owen Gregson</p>
 
 <h3> Highlights </h3>
 <ul>
