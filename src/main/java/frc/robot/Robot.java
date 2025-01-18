@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
 import frc.robot.util.TunableParameter;
@@ -22,20 +23,23 @@ public class Robot extends TimedRobot {
     private Command autonomousCommand;
 
     private final ControlBoard controlBoard;
+    private final CommandScheduler scheduler;
 
     public Robot() {
+        scheduler = CommandScheduler.getInstance();
         controlBoard = ControlBoard.getInstance();
+        SwerveSubsystem.getInstance();
     }
 
     @Override
     public void robotPeriodic() {
         TunableParameter.updateAll();
-        CommandScheduler.getInstance().run();
+        scheduler.run();
     }
 
     @Override
     public void disabledInit() {
-        ElevatorArmSubsystem.getInstance().setCoastMode();
+        // ElevatorArmSubsystem.getInstance().setCoastMode();
     }
 
     @Override
@@ -43,7 +47,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledExit() {
-        ElevatorArmSubsystem.getInstance().setBrakeMode();
+        // ElevatorArmSubsystem.getInstance().setBrakeMode();
     }
 
     @Override

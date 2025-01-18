@@ -11,17 +11,19 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import frc.robot.subsystems.swerve.generated.TunerConstants;
 import frc.robot.subsystems.swerve.generated.TunerConstants.TunerSwerveDrivetrain;
+
 import frc.robot.util.ControlBoard;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
@@ -102,6 +104,17 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     /* The SysId routine to test */
     private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    
+    private static SwerveSubsystem instance = null;
+
+    public static SwerveSubsystem getInstance() {
+        if (instance == null) {
+            instance = new SwerveSubsystem(TunerConstants.DrivetrainConstants, 
+            TunerConstants.FrontLeft, TunerConstants.FrontRight, 
+            TunerConstants.BackLeft, TunerConstants.BackRight);
+        }
+        return instance;
+    }
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -115,7 +128,12 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      */
     public SwerveSubsystem(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
+
+        CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
+
         if (Utils.isSimulation()) startSimThread();
+
+        System.out.println("Swerve Starting!");
     }
 
     /**
@@ -170,7 +188,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             });
         }
 
-        applyRequest(ControlBoard.getInstance()::getDriverRequest);
+        Supplier<SwerveRequest> request = ControlBoard.getInstance()::getDriverRequest;
+        applyRequest(request);
     }
 
     private void startSimThread() {
