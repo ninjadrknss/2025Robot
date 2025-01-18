@@ -2,6 +2,7 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import choreo.trajectory.SwerveSample;
@@ -230,6 +231,14 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
                         .withWheelForceFeedforwardsX(sample.moduleForcesX())
                         .withWheelForceFeedforwardsY(sample.moduleForcesY())
         );
+    }
+
+    public Command trajectoryCommand(Optional<SwerveSample> sample) {
+        return run(() -> sample.ifPresent(this::followPath));
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
     }
 
     private void startSimThread() {

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.auton.AutonSubsystem;
 import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Constants;
@@ -24,10 +25,12 @@ public class Robot extends TimedRobot {
 
     private final ControlBoard controlBoard;
     private final CommandScheduler scheduler;
+    private final AutonSubsystem autonSubsystem;
 
     public Robot() {
         scheduler = CommandScheduler.getInstance();
         controlBoard = ControlBoard.getInstance();
+        autonSubsystem = AutonSubsystem.getInstance();
         SwerveSubsystem.getInstance();
     }
 
@@ -52,7 +55,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = null; // TODO: fetch from auton command chooser
+        autonomousCommand = autonSubsystem.getSelectedAuton(); // TODO: fetch from auton command chooser
 
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
