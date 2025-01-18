@@ -10,8 +10,8 @@ public class Constants {
     @Deprecated
     public static final String drivebus = "Drivebase";
 
-
-    public static enum GameElement {
+    // TODO: Validate these coords
+    public enum GameElement {
         // Reefs
         REEF_RED(new Pose2d(12.0, 0.0, Rotation2d.fromDegrees(0)), false),
         REEF_BLUE(new Pose2d(12.0, 26.5, Rotation2d.fromDegrees(180)), true),

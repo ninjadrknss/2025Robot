@@ -4,12 +4,15 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.function.Supplier;
 
+import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -102,6 +105,14 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         )
     );
 
+    /* Autonomous Controllers */
+    private final PIDController m_pathXController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController m_pathYController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController m_pathThetaController = new PIDController(0.1, 0.0, 0.0);
+    private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
+        .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+        .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+
     /* The SysId routine to test */
     private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
     
@@ -188,8 +199,36 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             });
         }
 
-        Supplier<SwerveRequest> request = ControlBoard.getInstance()::getDriverRequest;
-        applyRequest(request);
+        SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
+        setControl(request);
+    }
+
+    /**
+     * Follows the given field-centric path sample with PID.
+     *
+     * @param sample Sample along the path to follow
+     */
+    public void followPath(SwerveSample sample) {
+        m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+        var pose = getState().Pose;
+
+        var targetSpeeds = sample.getChassisSpeeds();
+        targetSpeeds.vxMetersPerSecond += m_pathXController.calculate(
+                pose.getX(), sample.x
+        );
+        targetSpeeds.vyMetersPerSecond += m_pathYController.calculate(
+                pose.getY(), sample.y
+        );
+        targetSpeeds.omegaRadiansPerSecond += m_pathThetaController.calculate(
+                pose.getRotation().getRadians(), sample.heading
+        );
+
+        setControl(
+                m_pathApplyFieldSpeeds.withSpeeds(targetSpeeds)
+                        .withWheelForceFeedforwardsX(sample.moduleForcesX())
+                        .withWheelForceFeedforwardsY(sample.moduleForcesY())
+        );
     }
 
     private void startSimThread() {
