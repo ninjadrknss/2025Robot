@@ -53,21 +53,21 @@ public class LimelightSubsystem extends SubsystemBase {
         return LimelightHelpers.getBotPose2d(this.name).getRotation().getDegrees();
     }
 
-	public PoseEstimate getPoseEstimate(Pose2d previousRobotPose) {
-        PoseEstimate pose = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+	public PoseEstimate getPoseEstimate(Pose2d previousRobotPose, double rotationRate, boolean resetRobotRotation) {
 
-
-        LimelightHelpers.SetRobotOrientation("limelight", previousRobotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        if (resetRobotRotation) LimelightHelpers.SetRobotOrientation("limelight", 0, 0, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        if( mt2.tagCount > 0) {
+        if(Math.abs(rotationRate) < 360 || mt2.tagCount > 0 || mt2.pose.getTranslation().getDistance(previousRobotPose.getTranslation()) < 1) { // TODO: rotation rate has to be less than 1 rotation per second and the pose has to be less than 1 meter off
             SmartDashboard.putNumber("Limelight X", mt2.pose.getX());
             SmartDashboard.putNumber("Limelight Y", mt2.pose.getY());
-
             return mt2;
         }
         return null;
 	}
 
+    public PoseEstimate getPoseEstimate(Pose2d previousRobotPose, double rotationRate) {
+        return getPoseEstimate(previousRobotPose, rotationRate, false);
+    }
 
     /**
      * 0 is x, 1 is y, 2 z, 3 rotation x, 4 rotation y, 5 rotation z
@@ -90,6 +90,6 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-       
+        
     }
 }
