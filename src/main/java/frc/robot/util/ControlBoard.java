@@ -30,8 +30,8 @@ public class ControlBoard {
 //    private final ScoreCommand BargeScoreCommand;
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
-            //.withDeadband(SwerveConstants.maxSpeed * 0.1) // Add a 10% deadband
-            //.withRotationalDeadband(SwerveConstants.maxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(SwerveConstants.maxSpeed * 0.005) // Add a 10% deadband
+            .withRotationalDeadband(SwerveConstants.maxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
             .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
@@ -71,6 +71,6 @@ public class ControlBoard {
     public SwerveRequest getDriverRequest() {
         return driveRequest.withVelocityX(driver.leftVerticalJoystick.getAsDouble())
                 .withVelocityY(driver.leftHorizontalJoystick.getAsDouble())
-                .withRotationalRate(driver.rightHorizontalJoystick.getAsDouble());
+                .withRotationalRate(-driver.rightHorizontalJoystick.getAsDouble());
     }
 }
