@@ -4,6 +4,8 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.util.LimelightHelpers.*;
 
@@ -40,16 +42,39 @@ public class Odometry extends SubsystemBase {
             }
         }
 
+        public static class Velocity2D {
+            private final double x; 
+            private final double y;
+        
+            public Velocity2D(double x, double y) {
+                this.x = x;
+                this.y = y;
+            }
+        
+            public double getX() {
+                return x;
+            }
+        
+            public double getY() {
+                return y;
+            }
+        }
+
         public Pose2d pose;
+        public Velocity2D velocity;
         public AngularVelocity3D angularVelocity;
 
-        public RobotState(Pose2d pose, AngularVelocity3D angularVelocity) {
+        public RobotState(Pose2d pose, Velocity2D velocity, AngularVelocity3D angularVelocity) {
             this.pose = pose;
+            this.velocity = velocity;
             this.angularVelocity = angularVelocity;
         }
         
         public Pose2d getPose() {
             return pose;
+        }
+        public Velocity2D getVelocity() {
+            return velocity;
         }
         public AngularVelocity3D getAngularVelocity() {
             return angularVelocity;
@@ -77,7 +102,7 @@ public class Odometry extends SubsystemBase {
     }
 
     public RobotState getRobotState(){
-        return new RobotState(getRobotPose(), new RobotState.AngularVelocity3D(getFieldPitchRate(), getFieldRawRate(), getFieldRollRate()));
+        return new RobotState(getRobotPose(), new RobotState.Velocity2D(0, 0), new RobotState.AngularVelocity3D(getFieldPitchRate(), getFieldRawRate(), getFieldRollRate()));
     }
 
     public Pose2d getRobotPose(){
@@ -95,7 +120,13 @@ public class Odometry extends SubsystemBase {
         return gyro.getAngularVelocityXWorld().getValueAsDouble();
     }
 
+    public void resetGyro(){
+        gyro.reset();
+        swerve.resetRotation(new Rotation2d(0));
+    }
+
     public void resetOdometry(){
+        resetGyro();
         odometryResetRequested = true;
     }
 

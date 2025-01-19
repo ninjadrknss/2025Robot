@@ -31,7 +31,7 @@ public class ControlBoard {
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(SwerveConstants.maxSpeed * 0.005) // Add a 10% deadband
-            .withRotationalDeadband(SwerveConstants.maxAngularRate * 0.1) // Add a 10% deadband
+            .withRotationalDeadband(SwerveConstants.maxAngularSpeed * 0.1) // Add a 10% deadband
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
             .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
 
