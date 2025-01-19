@@ -6,7 +6,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.util.LimelightHelpers.*;
-import edu.wpi.first.math.geometry.Rotation3d;
 
 public class Odometry extends SubsystemBase {
     private static Odometry instance;
@@ -14,8 +13,51 @@ public class Odometry extends SubsystemBase {
     private LimelightSubsystem limelight;
     private Pigeon2 gyro;
 
+    public static class RobotState {
+        public static class AngularVelocity3D {
+            private final double x; // Roll, degrees/second
+            private final double y; // Pitch, degrees/second
+            private final double z; // Yaw, degrees/second
+        
+            public AngularVelocity3D(double x, double y, double z) {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+        
+            public double getRoll() {
+                return x;
+            }
+        
+            public double getPitch() {
+                return y;
+            }
+        
+            public double getYaw() {
+                return z;
+            }
+        }
+
+        public Pose2d pose;
+        public AngularVelocity3D angularVelocity;
+
+        public RobotState(Pose2d pose, AngularVelocity3D angularVelocity) {
+            this.pose = pose;
+            this.angularVelocity = angularVelocity;
+        }
+        
+        public Pose2d getPose() {
+            return pose;
+        }
+        public AngularVelocity3D getAngularVelocity() {
+            return angularVelocity;
+        }
+    }
+
     private Odometry() {
         this.swerve = SwerveSubsystem.getInstance();
+        this.limelight = LimelightSubsystem.getInstance();
+        this.gyro = swerve.getPigeon2();
     }
 
     public static Odometry getInstance() {
@@ -24,32 +66,31 @@ public class Odometry extends SubsystemBase {
     }
 
     public void addVisionMeasurement() {
-
-        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotPose(), getRotationRate());
+        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
         if (limelightPose != null) {
-            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999)); // TODO: I have no clue what this is https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
+            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999)); // I have no clue what this is but its int eh instructions
             swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
         }
+    }
+
+    public RobotState getRobotState(){
+        
+        return new RobotState(getRobotPose(), new RobotState.AngularVelocity3D(getFieldPitchRate(), getFieldRawRate(), getFieldRollRate()));
     }
 
     public Pose2d getRobotPose(){
         return swerve.getState().Pose;
     }
 
-    public Rotation3d getRobotRotationPose(){
-        return gyro.getRotation3d();
+    public double getFieldPitchRate(){
+        return gyro.getAngularVelocityYWorld().getValueAsDouble();
     }
-
-    public Rotation3d getRobotRotationVelocity(){
-        double pitchRate = gyro.getAngularVelocityXWorld().getValueAsDouble();
-        double yawRate = gyro.getAngularVelocityZWorld().getValueAsDouble();
-        double rollRate = gyro.getAngularVelocityZWorld().getValueAsDouble();
-        return new Rotation3d(pitchRate, yawRate, rollRate);
-    }
-
-    public double getRotationRate(){
+    public double getFieldRawRate(){
         return gyro.getAngularVelocityZWorld().getValueAsDouble();
+    }
 
+    public double getFieldRollRate(){
+        return gyro.getAngularVelocityXWorld().getValueAsDouble();
     }
 
     @Override
