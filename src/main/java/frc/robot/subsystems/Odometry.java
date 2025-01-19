@@ -13,6 +13,8 @@ public class Odometry extends SubsystemBase {
     private LimelightSubsystem limelight;
     private Pigeon2 gyro;
 
+    private boolean odometryResetRequested = false;
+
     public static class RobotState {
         public static class AngularVelocity3D {
             private final double x; // Roll, degrees/second
@@ -66,15 +68,15 @@ public class Odometry extends SubsystemBase {
     }
 
     public void addVisionMeasurement() {
-        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
-        if (limelightPose != null) {
+        RobotState previousRobotState = getRobotState();
+        PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
+        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999)); // I have no clue what this is but its int eh instructions
             swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
         }
     }
 
     public RobotState getRobotState(){
-        
         return new RobotState(getRobotPose(), new RobotState.AngularVelocity3D(getFieldPitchRate(), getFieldRawRate(), getFieldRollRate()));
     }
 
@@ -93,9 +95,19 @@ public class Odometry extends SubsystemBase {
         return gyro.getAngularVelocityXWorld().getValueAsDouble();
     }
 
+    public void resetOdometry(){
+        odometryResetRequested = true;
+    }
+
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+        if (odometryResetRequested) {
+            //this needs to be in perodic because limelight might not initially see the target, so we need to wait until it does
+            PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
+            if ( limelightPose != null)
+            swerve.resetPose(limelightPose.pose);
+            odometryResetRequested = false;
+        }
     }
     
 }

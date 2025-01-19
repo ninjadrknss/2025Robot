@@ -37,7 +37,7 @@ public class LimelightSubsystem extends SubsystemBase {
         double rotationRate = previousRobotState.getAngularVelocity().getYaw();
         if (resetRobotRotation) LimelightHelpers.SetRobotOrientation("limelight", previousRobotPose.getRotation().getDegrees(), rotationRate, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-        if(Math.abs(rotationRate) < 360 && mt2.tagCount > 0 && mt2.pose.getTranslation().getDistance(previousRobotPose.getTranslation()) < 1) { // TODO: rotation rate has to be less than 1 rotation per second and the pose has to be less than 1 meter off
+        if(Math.abs(rotationRate) < 360 && mt2.tagCount > 0) { 
             SmartDashboard.putNumber("Limelight X", mt2.pose.getX());
             SmartDashboard.putNumber("Limelight Y", mt2.pose.getY());
             SmartDashboard.putNumber("Limelight Rotation", mt2.pose.getRotation().getDegrees());
