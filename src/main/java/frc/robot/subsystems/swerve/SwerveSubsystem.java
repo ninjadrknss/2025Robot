@@ -18,6 +18,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -108,8 +109,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     );
 
     /* Autonomous Controllers */
-    private final PIDController m_pathXController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController m_pathYController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController m_pathXController = new PIDController(1, 0.0, 0.0);
+    private final PIDController m_pathYController = new PIDController(1, 0.0, 0.0);
     private final PIDController m_pathThetaController = new PIDController(0.1, 0.0, 0.0);
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
         .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
@@ -201,8 +202,14 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             });
         }
 
-        SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
-        setControl(request);
+        if (!DriverStation.isAutonomous()) {
+            SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
+            setControl(request);
+        }
+
+        Pose2d pose = getPose();
+        SmartDashboard.putNumber("Swerve/Pose x", pose.getX());
+        SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
     }
 
     /**
@@ -213,7 +220,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public void followPath(SwerveSample sample) {
         m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        var pose = getState().Pose;
+        var pose = getPose();
 
         var targetSpeeds = sample.getChassisSpeeds();
         targetSpeeds.vxMetersPerSecond += m_pathXController.calculate(
@@ -231,10 +238,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
                         .withWheelForceFeedforwardsX(sample.moduleForcesX())
                         .withWheelForceFeedforwardsY(sample.moduleForcesY())
         );
-    }
-
-    public Command trajectoryCommand(Optional<SwerveSample> sample) {
-        return run(() -> sample.ifPresent(this::followPath));
     }
 
     public Pose2d getPose() {
