@@ -11,7 +11,7 @@ public class Constants {
     public static final String drivebus = "Drivebase";
 
 
-    // TODO: Validate these coords
+    // TODO: These are completely arbitrary values, replace with actual values
     public enum GameElement {
         // Reefs
         REEF_RED(new Pose2d(12.0, 0.0, Rotation2d.fromDegrees(0)), false),

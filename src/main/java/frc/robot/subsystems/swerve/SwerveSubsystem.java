@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import choreo.trajectory.SwerveSample;
@@ -16,9 +15,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -27,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.swerve.generated.TunerConstants;
 import frc.robot.subsystems.swerve.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -109,12 +109,13 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     );
 
     /* Autonomous Controllers */
-    private final PIDController m_pathXController = new PIDController(0.1, 0.0, 0.0);
-    private final PIDController m_pathYController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController m_pathXController = new PIDController(1, 0.0, 0.0);
+    private final PIDController m_pathYController = new PIDController(1, 0.0, 0.0);
     private final PIDController m_pathThetaController = new PIDController(0.1, 0.0, 0.0);
+
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
-        .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
-        .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+            .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+            .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
     /* The SysId routine to test */
     private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
@@ -202,8 +203,18 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             });
         }
 
-        SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
-        setControl(request);
+        if (!DriverStation.isAutonomous()) {
+            SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
+            setControl(request);
+        }
+
+        Pose2d pose = getPose();
+        SmartDashboard.putNumber("Swerve/Pose x", pose.getX());
+        SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
     }
 
     /**
@@ -214,7 +225,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public void followPath(SwerveSample sample) {
         m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        var pose = getState().Pose;
+        var pose = getPose();
 
         var targetSpeeds = sample.getChassisSpeeds();
         targetSpeeds.vxMetersPerSecond += m_pathXController.calculate(
@@ -234,72 +245,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         );
     }
 
-
-    public Command trajectoryCommand(Optional<SwerveSample> sample) {
-        return run(() -> sample.ifPresent(this::followPath));
-    }
-
-    public Pose2d getPose() {
-        return getState().Pose;
-    }
-
+    // TODO: Make as its own class? Also allow targetPose to be a supplier?
     public Command goToPositionCommand(Pose2d targetPose) {
-        return new Command() {
-            {
-                addRequirements(SwerveSubsystem.this);
-            }
-    
-            @Override
-            public void initialize() {
-                m_pathXController.reset();
-                m_pathYController.reset();
-                m_pathThetaController.reset();
-    
-                m_pathXController.setSetpoint(targetPose.getX());
-                m_pathYController.setSetpoint(targetPose.getY());
-                m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
-                m_pathThetaController.setSetpoint(targetPose.getRotation().getRadians());
-            }
-    
-            @Override
-            public void execute() {
-                Pose2d currentPose = getState().Pose;
-                
-    
-                // Feedforward and Feedback
-                //TODO: get velocity
-                double vx = 0
-                            + m_pathXController.calculate(currentPose.getX(), targetPose.getX());
-                double vy = 0
-                            + m_pathYController.calculate(currentPose.getY(), targetPose.getY());
-                double omega = 0
-                               + m_pathThetaController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-    
-                // Constrain velocities
-                double maxVelocity = SwerveConstants.AutonConstants.maxSpeed;
-                double maxAngularVelocity = SwerveConstants.AutonConstants.maxAngularSpeed;
-                vx = Math.max(-maxVelocity, Math.min(maxVelocity, vx));
-                vy = Math.max(-maxVelocity, Math.min(maxVelocity, vy));
-                omega = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, omega));
-    
-                // Apply speeds
-                ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, currentPose.getRotation());
-                setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
-            }
-    
-            @Override
-            public boolean isFinished() {
-                var pose = getState().Pose;
-                double positionError = Math.hypot(pose.getX() - targetPose.getX(), pose.getY() - targetPose.getY());
-                double rotationError = Math.abs(pose.getRotation().getRadians() - targetPose.getRotation().getRadians());
-                return (positionError < 0.05 && rotationError < Math.toRadians(10)); // 5 cm and 10 degrees tolerance
-            }
-    
-            @Override
-            public void end(boolean interrupted) {
-                setControl(new SwerveRequest.ApplyFieldSpeeds().withSpeeds(new ChassisSpeeds(0.0, 0.0, 0.0)));
-            }
-        };
+        return new MoveCommand(targetPose, m_pathXController, m_pathYController, m_pathThetaController);
     }
     
 
