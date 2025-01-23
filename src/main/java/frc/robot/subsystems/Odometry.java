@@ -106,7 +106,8 @@ public class Odometry extends SubsystemBase {
     }
 
     public Pose2d getRobotPose(){
-        return swerve.getState().Pose;
+        return swerve.getPose();
+        //swerve.getPose();
     }
 
     public double getFieldPitchRate(){
@@ -130,6 +131,7 @@ public class Odometry extends SubsystemBase {
         odometryResetRequested = true;
     }
 
+
     @Override
     public void periodic() {
         if (odometryResetRequested) {
@@ -138,7 +140,11 @@ public class Odometry extends SubsystemBase {
             if ( limelightPose != null)
             swerve.resetPose(limelightPose.pose);
             odometryResetRequested = false;
+        }else{
+            addVisionMeasurement();
         }
+
+
     }
     
 }
