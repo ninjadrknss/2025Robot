@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import choreo.trajectory.SwerveSample;
@@ -27,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.swerve.generated.TunerConstants;
 import frc.robot.subsystems.swerve.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -112,9 +112,10 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private final PIDController m_pathXController = new PIDController(1, 0.0, 0.0);
     private final PIDController m_pathYController = new PIDController(1, 0.0, 0.0);
     private final PIDController m_pathThetaController = new PIDController(0.1, 0.0, 0.0);
+
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
-        .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
-        .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+            .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+            .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
     /* The SysId routine to test */
     private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
@@ -212,6 +213,10 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
     }
 
+    public Pose2d getPose() {
+        return getState().Pose;
+    }
+
     /**
      * Follows the given field-centric path sample with PID.
      *
@@ -240,9 +245,11 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         );
     }
 
-    public Pose2d getPose() {
-        return getState().Pose;
+    // TODO: Make as its own class? Also allow targetPose to be a supplier?
+    public Command goToPositionCommand(Pose2d targetPose) {
+        return new MoveCommand(targetPose, m_pathXController, m_pathYController, m_pathThetaController);
     }
+    
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
