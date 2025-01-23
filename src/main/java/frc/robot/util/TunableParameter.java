@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class TunableParameter {
     private static final ArrayList<TunableParameter> parameters = new ArrayList<>();
 
-    private interface Callback {
+    public interface Callback {
         void callback(double value);
     }
 
