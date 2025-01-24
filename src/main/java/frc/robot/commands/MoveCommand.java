@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.swerve.Odometry;
 
 
 public class MoveCommand extends Command {
@@ -18,10 +19,13 @@ public class MoveCommand extends Command {
     private Pose2d targetPose;
 
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds;
+    private final Odometry m_odometry = Odometry.getInstance();
 
     private final PIDController m_pathXController;
     private final PIDController m_pathYController;
     private final PIDController m_pathThetaController;
+
+    
 
     public MoveCommand(Pose2d targetPose, PIDController pathXController, PIDController pathYController, PIDController pathThetaController) {
         this.targetPose = targetPose;

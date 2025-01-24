@@ -11,7 +11,8 @@ public class Constants {
     public static final String drivebus = "Drivebase";
 
 
-    // TODO: These are completely arbitrary values, replace with actual values
+    // Game elements, actual values from april tags. might be a bit off, as the locations are based off of april tag locations. 
+    // the pattern is as follows: everything is ordered from right to left from blue origin. 
     public enum GameElement {
         // Reefs (6 parts per reef)
         REEF_RED_1(new Pose2d(5.57, 1.59, Rotation2d.fromDegrees(0)), false),
