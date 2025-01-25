@@ -21,12 +21,12 @@ public class AssistCommand extends Command {
     public void initialize() {
 
         swerve.goToPositionCommand(new Pose2d(0, 0, new Rotation2d(0))).initialize();
-        superstructure.requestChuteIntake();
+        //superstructure.requestChuteIntake();
     }
 
     @Override
     public void execute() {
-
+        swerve.goToPositionCommand(new Pose2d(0, 0, new Rotation2d(0))).execute();
     }
 
     @Override

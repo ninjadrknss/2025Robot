@@ -133,6 +133,10 @@ public class Odometry extends SubsystemBase {
         odometryResetRequested = true;
     }
 
+    public void testResetOdo(){
+        swerve.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
+    }
+
     public void displayValues(){
         SmartDashboard.putNumber("Odometry Position x", swerve.getPose().getX());
         SmartDashboard.putNumber("Odometry Position y", swerve.getPose().getY());
