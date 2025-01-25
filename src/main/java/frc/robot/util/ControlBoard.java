@@ -2,6 +2,8 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import frc.robot.commands.AssistCommand;
 import frc.robot.commands.ChuteIntakeCommand;
 import frc.robot.commands.GroundIntakeCommand;
 import frc.robot.commands.HomeCommand;
@@ -62,6 +64,8 @@ public class ControlBoard {
 
     private void configureDriverBindings() {
         // TODO: configure driver bindings
+
+        driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
     }
 
     private void configureOperatorBindings() {

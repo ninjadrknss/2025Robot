@@ -13,6 +13,13 @@ import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.Odometry;
 
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.constraint.EllipticalRegionConstraint;
+import edu.wpi.first.math.geometry.Rotation2d;
+import java.util.List;
+
 
 public class MoveCommand extends Command {
     private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
@@ -25,7 +32,7 @@ public class MoveCommand extends Command {
     private final PIDController m_pathYController;
     private final PIDController m_pathThetaController;
 
-    
+    //TODO: final goal is to generate a smooth trajectory that avoids the reef automatically, thus the execute method should look a little like this: https://github.com/wpilibsuite/allwpilib/blob/main/wpilibNewCommands/src/main/java/edu/wpi/first/wpilibj2/command/SwerveControllerCommand.java
 
     public MoveCommand(Pose2d targetPose, PIDController pathXController, PIDController pathYController, PIDController pathThetaController) {
         this.targetPose = targetPose;
@@ -50,6 +57,25 @@ public class MoveCommand extends Command {
 
     @Override
     public void initialize() {
+
+        //test
+        TrajectoryConfig config = new TrajectoryConfig(
+            2,
+            1);
+            config.setKinematics(swerveSubsystem.getKinematics());
+
+            config.setStartVelocity(null);
+
+    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(0, 0, new Rotation2d(0)),
+            List.of(
+            ),
+            new Pose2d(1, 1, new Rotation2d(0)),
+            config);
+            exampleTrajectory.sample(0);
+        
+
+
         m_pathXController.reset();
         m_pathYController.reset();
         m_pathThetaController.reset();
