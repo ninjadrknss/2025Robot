@@ -41,8 +41,8 @@ public class MoveCommand extends Command {
                 .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
                 .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
-        this.m_pathXController = new PIDController(pathXController.getP(), pathXController.getI(), pathXController.getD());
-        this.m_pathYController = new PIDController(pathYController.getP(), pathYController.getI(), pathYController.getD());
+        this.m_pathXController = new PIDController(0.5, pathXController.getI(), pathXController.getD());
+        this.m_pathYController = new PIDController(0.5, pathYController.getI(), pathYController.getD());
         this.m_pathThetaController = new PIDController(pathThetaController.getP(), pathThetaController.getI(), pathThetaController.getD());
         addRequirements(swerveSubsystem);
     }
@@ -84,12 +84,13 @@ public class MoveCommand extends Command {
         m_pathYController.setSetpoint(targetPose.getY());
         m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
         m_pathThetaController.setSetpoint(targetPose.getRotation().getRadians());
+        System.out.println("I kove people");
     }
 
     @Override
     public void execute() {
         Pose2d currentPose = swerveSubsystem.getPose();
-
+        System.out.println("I egio people");
 
         // Feedforward and Feedback
         //TODO: get velocity
@@ -114,14 +115,17 @@ public class MoveCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        var pose = swerveSubsystem.getPose();
-        double positionError = Math.hypot(pose.getX() - targetPose.getX(), pose.getY() - targetPose.getY());
-        double rotationError = Math.abs(pose.getRotation().getRadians() - targetPose.getRotation().getRadians());
-        return (positionError < 0.05 && rotationError < Math.toRadians(10)); // 5 cm and 10 degrees tolerance
+        return false;
+        // var pose = swerveSubsystem.getPose();
+        // double positionError = Math.hypot(pose.getX() - targetPose.getX(), pose.getY() - targetPose.getY());
+        // double rotationError = Math.abs(pose.getRotation().getRadians() - targetPose.getRotation().getRadians());
+        // return (positionError < 0.05 && rotationError < Math.toRadians(10)); // 5 cm and 10 degrees tolerance
     }
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("ending mpve");
+
         swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(new ChassisSpeeds(0.0, 0.0, 0.0)));
     }
 }

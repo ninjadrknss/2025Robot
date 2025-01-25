@@ -13,7 +13,7 @@ public class SwerveConstants {
         public static final double kIAngle = 0.0;
         public static final double kDAngle = 0.0;
 
-        public static final double maxSpeed = 3.0;
-        public static final double maxAngularSpeed = 0.75;
+        public static final double maxSpeed = 2.0;
+        public static final double maxAngularSpeed = 0.5;
     }
 }
