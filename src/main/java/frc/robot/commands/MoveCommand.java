@@ -1,131 +1,137 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.swerve.SwerveModule;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.swerve.Odometry;
 
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.EllipticalRegionConstraint;
-import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class MoveCommand extends Command {
     private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
+    private final Odometry odometry = Odometry.getInstance();
+
     private Pose2d targetPose;
+    private Trajectory trajectory;
 
-    private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds;
-    private final Odometry m_odometry = Odometry.getInstance();
+    //private final HolonomicDriveController holonomicDriveController;
+    private final Timer timer = new Timer();
 
-    private final PIDController m_pathXController;
-    private final PIDController m_pathYController;
-    private final PIDController m_pathThetaController;
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
-    //TODO: final goal is to generate a smooth trajectory that avoids the reef automatically, thus the execute method should look a little like this: https://github.com/wpilibsuite/allwpilib/blob/main/wpilibNewCommands/src/main/java/edu/wpi/first/wpilibj2/command/SwerveControllerCommand.java
+    // make three profiled PId controllers for x, y, and theta
+    private ProfiledPIDController xController = new ProfiledPIDController(
+        1.5, 0.12, 0,
+        SwerveConstants.AutoConstants.kXControllerConstraints
+    );
+    private ProfiledPIDController yController = new ProfiledPIDController(
+        1.5, 0.12, 0,
+        SwerveConstants.AutoConstants.kYControllerConstraints
+    );
 
-    public MoveCommand(Pose2d targetPose, PIDController pathXController, PIDController pathYController, PIDController pathThetaController) {
+    private ProfiledPIDController thetaController;
+
+    public MoveCommand(Pose2d targetPose) {
         this.targetPose = targetPose;
 
-        this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
-                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+        this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-        this.m_pathXController = new PIDController(0.5, pathXController.getI(), pathXController.getD());
-        this.m_pathYController = new PIDController(0.5, pathYController.getI(), pathYController.getD());
-        this.m_pathThetaController = new PIDController(pathThetaController.getP(), pathThetaController.getI(), pathThetaController.getD());
+        // Initialize the HolonomicDriveController with PID and Profiled PID controllers
+
+        thetaController = new ProfiledPIDController(
+            1, 0.05, 0,
+            SwerveConstants.AutoConstants.kThetaControllerConstraints
+        );
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        thetaController.setTolerance(Math.toRadians(3), Math.toRadians(3));
+
+        
+        // holonomicDriveController = new HolonomicDriveController(
+        //         new PIDController(SwerveConstants.AutoConstants.kPXController, 0, 0),
+        //         new PIDController(SwerveConstants.AutoConstants.kPYController, 0, 0),
+        //         thetaController
+        // );
+
+        // // Enable continuous input for rotation (for swerve-specific rotational wrapping)
+        // holonomicDriveController.setEnabled(true);
+
         addRequirements(swerveSubsystem);
     }
 
-    public void setTargetPose(Pose2d targetPose) {
-        this.targetPose = targetPose;
-
-        m_pathXController.setSetpoint(targetPose.getX());
-        m_pathYController.setSetpoint(targetPose.getY());
-        m_pathThetaController.setSetpoint(targetPose.getRotation().getRadians());
-    }
-
     @Override
-    public void initialize() {
+public void initialize() {
+    // Remove the reset of PID controllers
+    System.out.println("Target Pose: " + targetPose);
+    xController.reset(odometry.getPose().getX());
+    yController.reset(odometry.getPose().getY());
+    thetaController.reset(odometry.getPose().getRotation().getRadians());
+    timer.reset();
+    timer.start();
+}
 
-        //test
-        TrajectoryConfig config = new TrajectoryConfig(
-            2,
-            1);
-            config.setKinematics(swerveSubsystem.getKinematics());
+@Override
+public void execute() {
+    Pose2d currentPose = swerveSubsystem.getPose();
 
-            config.setStartVelocity(null);
+    // Use intended motion towards the target as feedforward
+    double feedforwardVx = (targetPose.getX() - currentPose.getX()) * 0.5; // Scale feedforward by a constant factor
+    double feedforwardVy = (targetPose.getY() - currentPose.getY()) * 0.5; // Scale feedforward by a constant factor
+    double feedforwardOmega = 0; // Replace with desired baseline angular velocity if needed
 
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)),
-            List.of(
-            ),
-            new Pose2d(1, 1, new Rotation2d(0)),
-            config);
-            exampleTrajectory.sample(0);
-        
+    // Feedback control (PID)
+    double feedbackVx = xController.calculate(currentPose.getX(), targetPose.getX());
+    double feedbackVy = yController.calculate(currentPose.getY(), targetPose.getY());
+    double feedbackOmega = thetaController.calculate(
+        currentPose.getRotation().getRadians(),
+        targetPose.getRotation().getRadians()
+    );
 
+    // Combine feedforward and feedback
+    double vx = feedforwardVx + feedbackVx;
+    double vy = feedforwardVy + feedbackVy;
+    double omega = feedforwardOmega + feedbackOmega;
 
-        m_pathXController.reset();
-        m_pathYController.reset();
-        m_pathThetaController.reset();
+    // Constrain velocities
+    double maxVelocity = SwerveConstants.AutoConstants.kMaxSpeedMetersPerSecond;
+    double maxAngularVelocity = SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond;
+    vx = Math.max(-maxVelocity, Math.min(maxVelocity, vx));
+    vy = Math.max(-maxVelocity, Math.min(maxVelocity, vy));
+    omega = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, omega));
 
-        m_pathXController.setSetpoint(targetPose.getX());
-        m_pathYController.setSetpoint(targetPose.getY());
-        m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
-        m_pathThetaController.setSetpoint(targetPose.getRotation().getRadians());
-        System.out.println("I kove people");
-    }
+    // Convert field-relative to robot-relative speeds
+    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, currentPose.getRotation());
 
-    @Override
-    public void execute() {
-        Pose2d currentPose = swerveSubsystem.getPose();
-        System.out.println("I egio people");
+    // Apply the calculated speeds to the swerve subsystem
+    swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
+}
 
-        // Feedforward and Feedback
-        //TODO: get velocity
-        double vx = 0
-                + m_pathXController.calculate(currentPose.getX(), targetPose.getX());
-        double vy = 0
-                + m_pathYController.calculate(currentPose.getY(), targetPose.getY());
-        double omega = 0
-                + m_pathThetaController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+private boolean isClose() {
+    Pose2d currentPose = swerveSubsystem.getPose();
+    double positionError = Math.hypot(currentPose.getX() - targetPose.getX(), currentPose.getY() - targetPose.getY());
+    double rotationError = Math.abs(currentPose.getRotation().getRadians() - targetPose.getRotation().getRadians());
 
-        // Constrain velocities
-        double maxVelocity = SwerveConstants.AutonConstants.maxSpeed;
-        double maxAngularVelocity = SwerveConstants.AutonConstants.maxAngularSpeed;
-        vx = Math.max(-maxVelocity, Math.min(maxVelocity, vx));
-        vy = Math.max(-maxVelocity, Math.min(maxVelocity, vy));
-        omega = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, omega));
+    // Increase tolerances for smoother stops
+    return positionError < 0.1 && rotationError < Math.toRadians(5);
+}
 
-        // Apply speeds
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, currentPose.getRotation());
-        swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
-    }
+@Override
+public void end(boolean interrupted) {
+    timer.stop();
 
-    @Override
-    public boolean isFinished() {
-        return false;
-        // var pose = swerveSubsystem.getPose();
-        // double positionError = Math.hypot(pose.getX() - targetPose.getX(), pose.getY() - targetPose.getY());
-        // double rotationError = Math.abs(pose.getRotation().getRadians() - targetPose.getRotation().getRadians());
-        // return (positionError < 0.05 && rotationError < Math.toRadians(10)); // 5 cm and 10 degrees tolerance
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        System.out.println("ending mpve");
-
-        swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(new ChassisSpeeds(0.0, 0.0, 0.0)));
-    }
+    // Gradually reduce velocity to zero
+    ChassisSpeeds stopSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+    swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(stopSpeeds));
+}
 }

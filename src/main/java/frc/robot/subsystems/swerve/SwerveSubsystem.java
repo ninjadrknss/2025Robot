@@ -248,7 +248,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     // TODO: Make as its own class? Also allow targetPose to be a supplier?
     public Command goToPositionCommand(Pose2d targetPose) {
-        return new MoveCommand(targetPose, m_pathXController, m_pathYController, m_pathThetaController);
+        return new MoveCommand(targetPose);
     }
     
 

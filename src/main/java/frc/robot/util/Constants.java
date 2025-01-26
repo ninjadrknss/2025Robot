@@ -13,43 +13,45 @@ public class Constants {
 
     // Game elements, actual values from april tags. might be a bit off, as the locations are based off of april tag locations. 
     // the pattern is as follows: everything is ordered from right to left from blue origin. 
+    // everything is in meters
     public enum GameElement {
         // Reefs (6 parts per reef)
-        REEF_RED_1(new Pose2d(5.57, 1.59, Rotation2d.fromDegrees(0)), false),
-        REEF_RED_2(new Pose2d(5.30, 1.30, Rotation2d.fromDegrees(300)), false),
-        REEF_RED_3(new Pose2d(5.30, 1.87, Rotation2d.fromDegrees(60)), false),
-        REEF_RED_4(new Pose2d(4.98, 1.30, Rotation2d.fromDegrees(240)), false),
-        REEF_RED_5(new Pose2d(4.98, 1.87, Rotation2d.fromDegrees(120)), false),
-        REEF_RED_6(new Pose2d(4.81, 1.59, Rotation2d.fromDegrees(180)), false),
-
-        REEF_BLUE_1(new Pose2d(2.09, 1.59, Rotation2d.fromDegrees(0)), true),
-        REEF_BLUE_2(new Pose2d(1.93, 1.30, Rotation2d.fromDegrees(300)), true),
-        REEF_BLUE_3(new Pose2d(1.93, 1.87, Rotation2d.fromDegrees(60)), true),
-        REEF_BLUE_4(new Pose2d(1.60, 1.30, Rotation2d.fromDegrees(240)), true),
-        REEF_BLUE_5(new Pose2d(1.60, 1.87, Rotation2d.fromDegrees(120)), true),
-        REEF_BLUE_6(new Pose2d(1.44, 1.59, Rotation2d.fromDegrees(180)), true),
-
+        REEF_RED_1(new Pose2d(14.1528, 4.0386, Rotation2d.fromDegrees(0)), false),
+        REEF_RED_2(new Pose2d(13.4620, 3.3020, Rotation2d.fromDegrees(300)), false),
+        REEF_RED_3(new Pose2d(13.4620, 4.7498, Rotation2d.fromDegrees(60)), false),
+        REEF_RED_4(new Pose2d(12.6492, 3.3020, Rotation2d.fromDegrees(240)), false),
+        REEF_RED_5(new Pose2d(12.6492, 4.7498, Rotation2d.fromDegrees(120)), false),
+        REEF_RED_6(new Pose2d(12.2174, 4.0386, Rotation2d.fromDegrees(180)), false),
+    
+        // Note: REEF_BLUE_1 is intentionally unchanged
+        REEF_BLUE_1(new Pose2d(5.3086, 4.0386, Rotation2d.fromDegrees(0)), true),
+        REEF_BLUE_2(new Pose2d(4.8922, 3.3020, Rotation2d.fromDegrees(300)), true),
+        REEF_BLUE_3(new Pose2d(4.8922, 4.7498, Rotation2d.fromDegrees(60)), true),
+        REEF_BLUE_4(new Pose2d(4.0640, 3.3020, Rotation2d.fromDegrees(240)), true),
+        REEF_BLUE_5(new Pose2d(4.0640, 4.7498, Rotation2d.fromDegrees(120)), true),
+        REEF_BLUE_6(new Pose2d(3.6576, 4.0386, Rotation2d.fromDegrees(180)), true),
+    
         // Coral stations
-        CORAL_STATION_RED_1(new Pose2d(6.57, 0.26, Rotation2d.fromDegrees(126)), false),
-        CORAL_STATION_RED_2(new Pose2d(6.57, 2.91, Rotation2d.fromDegrees(234)), false),
-        CORAL_STATION_BLUE_1(new Pose2d(0.34, 0.26, Rotation2d.fromDegrees(54)), true),
-        CORAL_STATION_BLUE_2(new Pose2d(0.34, 2.91, Rotation2d.fromDegrees(306)), true),
-
+        CORAL_STATION_RED_1(new Pose2d(16.6878, 0.6604, Rotation2d.fromDegrees(126)), false),
+        CORAL_STATION_RED_2(new Pose2d(16.6878, 7.3914, Rotation2d.fromDegrees(234)), false),
+        CORAL_STATION_BLUE_1(new Pose2d(0.8636, 0.6604, Rotation2d.fromDegrees(54)), true),
+        CORAL_STATION_BLUE_2(new Pose2d(0.8636, 7.3914, Rotation2d.fromDegrees(306)), true),
+    
         // Cages on the barge
-        CAGE_RED_1(new Pose2d(3.45, 0, Rotation2d.fromDegrees(0)), false),
-        CAGE_RED_2(new Pose2d(3.45, 0.75, Rotation2d.fromDegrees(0)), false),
-        CAGE_RED_3(new Pose2d(3.45, 0, Rotation2d.fromDegrees(0)), false),
-        CAGE_BLUE_1(new Pose2d(3.45, 0, Rotation2d.fromDegrees(0)), true),
-        CAGE_BLUE_2(new Pose2d(3.45, 2.42, Rotation2d.fromDegrees(0)), true),
-        CAGE_BLUE_3(new Pose2d(3.45, 0, Rotation2d.fromDegrees(0)), true),
-
+        CAGE_RED_1(new Pose2d(8.7630, 0.0000, Rotation2d.fromDegrees(0)), false),
+        CAGE_RED_2(new Pose2d(8.7630, 1.9050, Rotation2d.fromDegrees(0)), false),
+        CAGE_RED_3(new Pose2d(8.7630, 0.0000, Rotation2d.fromDegrees(0)), false),
+        CAGE_BLUE_1(new Pose2d(8.7630, 0.0000, Rotation2d.fromDegrees(0)), true),
+        CAGE_BLUE_2(new Pose2d(8.7630, 6.1468, Rotation2d.fromDegrees(0)), true),
+        CAGE_BLUE_3(new Pose2d(8.7630, 0.0000, Rotation2d.fromDegrees(0)), true),
+    
         // Processors
-        PROCESSOR_RED(new Pose2d(4.55, 3.17, Rotation2d.fromDegrees(270)), false),
-        PROCESSOR_BLUE(new Pose2d(2.36, 0, Rotation2d.fromDegrees(90)), true),
-
+        PROCESSOR_RED(new Pose2d(11.5670, 8.0518, Rotation2d.fromDegrees(270)), false),
+        PROCESSOR_BLUE(new Pose2d(5.9944, 0.0000, Rotation2d.fromDegrees(90)), true),
+    
         // Algae scoring areas
-        ALGAE_RED(new Pose2d(3.65, 0.75, Rotation2d.fromDegrees(0)), false),
-        ALGAE_BLUE(new Pose2d(3.26, 2.42, Rotation2d.fromDegrees(180)), true);
+        ALGAE_RED(new Pose2d(9.2410, 1.9050, Rotation2d.fromDegrees(0)), false),
+        ALGAE_BLUE(new Pose2d(8.2804, 6.1468, Rotation2d.fromDegrees(180)), true);    
 
         private final Pose2d location;
         private final boolean isBlue;
@@ -65,6 +67,18 @@ public class Constants {
 
         public boolean isBlue() {
             return isBlue;
+        }
+
+        private double getXWithOffset(double offset) {
+            return location.getX() + offset * Math.cos(location.getRotation().getRadians());
+        }
+        
+        private double getYWithOffset(double offset) {
+            return location.getY() + offset * Math.sin(location.getRotation().getRadians());
+        }
+
+        public Pose2d getPoseWithOffset(double offset) {
+            return new Pose2d(getXWithOffset(offset), getYWithOffset(offset), location.getRotation());
         }
 
 
