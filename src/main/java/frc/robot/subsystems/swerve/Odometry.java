@@ -8,13 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
-
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 
@@ -33,11 +27,6 @@ public class Odometry extends SubsystemBase {
     // --- ADD THESE FIELDS FOR VELOCITY CALC ---
     private Pose2d previousPose = new Pose2d();
     private double previousTime = 0.0;
-
-    Pose3d simulationPose = new Pose3d();
-
-    StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
-        .getStructTopic("MyPose", Pose3d.struct).publish();
 
     // We'll store the linear velocity here so we can provide it in getRobotState()
     private RobotState.Velocity2D linearVelocity = new RobotState.Velocity2D(0, 0);
@@ -84,7 +73,6 @@ public class Odometry extends SubsystemBase {
         // Initialize previousPose and previousTime:
         previousPose = swerve.getPose();
         previousTime = Timer.getFPGATimestamp();
-
     }
 
     public static Odometry getInstance() {
@@ -135,15 +123,6 @@ public class Odometry extends SubsystemBase {
         return linearVelocity.y;
     }
 
-    public Pose2d getPose() {
-        return swerve.getPose();
-    }
-
-    public Pose3d getPose3d(){
-        Pose2d pose = getPose();
-        return new Pose3d(pose.getX(), pose.getY(), 0, new Rotation3d(0, 0, pose.getRotation().getRadians()));
-    }
-
     public void resetGyro() {
         gyro.reset();
         swerve.resetRotation(new Rotation2d(0)); 
@@ -169,9 +148,6 @@ public class Odometry extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        publisher.set(getPose3d());
-        
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
             if (limelightPose != null) {
