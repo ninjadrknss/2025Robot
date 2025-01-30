@@ -1,17 +1,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.Superstructure;
 
 
 public class ChuteIntakeCommand extends Command {
-    private final ElevatorArmSubsystem elevatorArmSubsystem = ElevatorArmSubsystem.getInstance();
+    private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final Superstructure superstructure;
 
     public ChuteIntakeCommand(Superstructure superstructure) {
         this.superstructure = superstructure;
-        addRequirements(this.elevatorArmSubsystem);
+        addRequirements(this.elevatorWristSubsystem);
     }
 
     @Override

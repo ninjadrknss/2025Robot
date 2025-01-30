@@ -1,19 +1,19 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.Superstructure;
 
 
 public class ScoreCommand extends Command {
-    private final ElevatorArmSubsystem elevatorArmSubsystem = ElevatorArmSubsystem.getInstance();
+    private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final Superstructure superstructure;
     private final int level;
 
     public ScoreCommand(Superstructure superstructure, int level) {
         this.superstructure = superstructure;
         this.level = level;
-        addRequirements(this.elevatorArmSubsystem);
+        addRequirements(this.elevatorWristSubsystem);
     }
 
     @Override

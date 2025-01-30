@@ -16,8 +16,9 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
 import frc.lib.TunableParameter;
+import org.littletonrobotics.junction.LoggedRobot;
 
-public class Robot extends TimedRobot {
+public class Robot extends TimedRobot /* extends LoggedRobot */ {
     public static final CANBus riobus = new CANBus("rio");
     @SuppressWarnings("deprecation")
     public static final CANBus drivebus = new CANBus(Constants.drivebus);
@@ -39,7 +40,6 @@ public class Robot extends TimedRobot {
         autonSubsystem = AutonSubsystem.getInstance();
         SwerveSubsystem.getInstance();
         odometry = Odometry.getInstance();
-
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        // ElevatorArmSubsystem.getInstance().setCoastMode();
+        // ElevatorWristSubsystem.getInstance().setCoastMode();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledExit() {
-        // ElevatorArmSubsystem.getInstance().setBrakeMode();
+        // ElevatorWristSubsystem.getInstance().setBrakeMode();
     }
 
     @Override

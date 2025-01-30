@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevatorarm;
+package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -7,7 +7,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import frc.lib.MotorConfig;
 import frc.robot.Robot;
 
-public class ElevatorArmConstants {
+public class ElevatorWristConstants {
     public static int homeCANcoderID = 0;
 
     public static MotorConfig rightElevatorMotorConfig = new MotorConfig()
@@ -54,7 +54,7 @@ public class ElevatorArmConstants {
 
         wristConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
         wristConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
-        wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorArmConstants.wristCANcoder;
+        wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristCANcoder;
         wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     }
 
