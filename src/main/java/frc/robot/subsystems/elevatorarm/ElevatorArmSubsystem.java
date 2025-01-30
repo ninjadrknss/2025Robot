@@ -2,23 +2,19 @@ package frc.robot.subsystems.elevatorarm;
 
 
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.*;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import frc.robot.Robot;
 
 public class ElevatorArmSubsystem extends SubsystemBase {
     enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
@@ -31,9 +27,13 @@ public class ElevatorArmSubsystem extends SubsystemBase {
         L4_SCORE(0, 0),
         BARGE_SCORE(0, 0);
 
-        /** The height of the elevator in inches. */
+        /**
+         * The height of the elevator in inches.
+         */
         private final int height;
-        /** The angle of the wrist in degrees. */
+        /**
+         * The angle of the wrist in degrees.
+         */
         private final int angle;
 
         ElevatorState(int height, int angle) {
@@ -44,23 +44,29 @@ public class ElevatorArmSubsystem extends SubsystemBase {
 
     private static ElevatorArmSubsystem instance;
 
-    public static ElevatorArmSubsystem getInstance() {
-        if (instance == null) instance = new ElevatorArmSubsystem();
-        return instance;
-    }
+    /* Motors and Controls */
+    private final TalonFX leader = ElevatorArmConstants.rightElevatorMotorConfig.createMotor();
+    private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
 
-    /* Motors and Request */
-    private ElevatorState state = ElevatorState.HOME;
-    private final TalonFX leader = new TalonFX(ElevatorArmConstants.rightElevatorMotor, Robot.drivebus);
-    private final PositionTorqueCurrentFOC leaderControl;
-
-    private final TalonFX follower = new TalonFX(ElevatorArmConstants.leftElevatorMotor, Robot.drivebus);
+    private final TalonFX follower = ElevatorArmConstants.leftElevatorMotorConfig.createMotor();
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
 
-    private final TalonFX wrist = new TalonFX(ElevatorArmConstants.wristMotor, Robot.drivebus);
+    private final TalonFX wrist = ElevatorArmConstants.wristMotorConfig.createMotor();
     private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(0);
 
-    /* State Request Flags */
+    private final Debouncer elevatorDebouncer = new Debouncer(0.1);
+    private final StatusSignal<Angle> elevatorStatus = leader.getPosition();
+
+    private final CANcoder homeCANcoder = new CANcoder(ElevatorArmConstants.homeCANcoderID);
+
+    //    private final DigitalInput homeSwitch = new DigitalInput(ElevatorArmConstants.homeCANcoderID);
+    private final Debouncer wristDebouncer = new Debouncer(0.1);
+    private final CANcoder wristEncoder = new CANcoder(ElevatorArmConstants.wristCANcoder);
+    private final StatusSignal<Angle> wristStatus = wristEncoder.getPosition();
+
+    /* State Machine Logic */
+    private ElevatorState state = ElevatorState.HOME;
+
     private boolean requestHome = false;
     private boolean requestChuteIntake = false;
     private boolean requestGroundIntake = false;
@@ -72,63 +78,36 @@ public class ElevatorArmSubsystem extends SubsystemBase {
 
     /* Other Variables */
     private boolean homedOnce = false;
-    private final DigitalInput homeSwitch = new DigitalInput(ElevatorArmConstants.homeSwitch);
-
     private boolean elevatorAtPosition = false;
-    private final Debouncer elevatorDebouncer = new Debouncer(0.1);
-    private final StatusSignal<Angle> elevatorStatus = leader.getPosition();
-
     private boolean wristAtPosition = false;
-    private final Debouncer wristDebouncer = new Debouncer(0.1);
-    private final StatusSignal<Angle> wristStatus = wrist.getPosition();
 
-    /**
-     * Creates a new instance of this ElevatorArmSubsystem. This constructor
-     * is private since this class is a Singleton. Code should use
-     * the {@link #getInstance()} method to get the singleton instance.
-     */
     private ElevatorArmSubsystem() {
-        // TODO: add configs for leader
-        TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
-        leaderConfig.Slot0.kP = 0;
-        leaderConfig.Slot0.kI = 0;
-        leaderConfig.Slot0.kD = 0;
-        leaderConfig.Slot0.kG = 0;
-        leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-
-        leaderConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
-        leaderConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
-
-        leader.getConfigurator().apply(leaderConfig);
+        // TODO: add configs for leader in ElevatorArmConstants
         leader.setNeutralMode(NeutralModeValue.Brake);
+        leader.setControl(leaderControl);
 
-        leaderControl = new PositionTorqueCurrentFOC(0).withLimitForwardMotion(homeSwitch.get()); // TODO: or is it withLimitReverse motion?
-
-        // TODO: add configs for follower
-        TalonFXConfiguration followerConfig = new TalonFXConfiguration();
-
-        follower.getConfigurator().apply(followerConfig);
+        // TODO: add configs for follower in ElevatorArmConstants
         follower.setNeutralMode(NeutralModeValue.Brake);
-
         follower.setControl(followerControl);
 
-        // TODO: add configs for wrist
-        TalonFXConfiguration wristConfig = new TalonFXConfiguration();
-        wristConfig.Slot0.kP = 0;
-        wristConfig.Slot0.kI = 0;
-        wristConfig.Slot0.kD = 0;
-        wristConfig.Slot0.kG = 0;
-        wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-
-        leaderConfig.Feedback.RotorToSensorRatio = 1;
-        leaderConfig.Feedback.SensorToMechanismRatio = 1;
-
-        wrist.getConfigurator().apply(wristConfig);
+        // TODO: add configs for wrist in ElevatorArmConstants
         wrist.setNeutralMode(NeutralModeValue.Brake);
+        wrist.setControl(wristControl);
+    }
+
+    public static ElevatorArmSubsystem getInstance() {
+        if (instance == null) instance = new ElevatorArmSubsystem();
+        return instance;
+    }
+
+    private void homeElevator() {
+        leaderControl.withPosition(-10).withVelocity(1).withLimitForwardMotion(true);
+        // TODO: force the elevator to move down until the home switch is pressed at a slower speed for safety
+        leader.setControl(leaderControl);
     }
 
     private void setElevatorHeight(int height) {
-        leaderControl.withPosition(height);
+        leaderControl.withPosition(height).withVelocity(0);
         leader.setControl(leaderControl);
     }
 
@@ -141,7 +120,7 @@ public class ElevatorArmSubsystem extends SubsystemBase {
     public void periodic() {
         ElevatorState nextState = state;
 
-        if (requestHome) nextState = ElevatorState.HOME;
+        if (requestHome || !homedOnce) nextState = ElevatorState.HOME;
         else if (requestChuteIntake) nextState = ElevatorState.CHUTE_INTAKE;
         else if (requestGroundIntake) nextState = ElevatorState.GROUND_INTAKE;
         else if (requestL1Score) nextState = ElevatorState.L1_SCORE;
@@ -151,27 +130,39 @@ public class ElevatorArmSubsystem extends SubsystemBase {
 
         if (nextState != state) {
             state = nextState;
-            setElevatorHeight(state.height);
+            if (state == ElevatorState.HOME) homeElevator();
+            else setElevatorHeight(state.height);
             setElevatorAngle(state.angle);
         }
 
         elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorStatus.getValueAsDouble() - state.height) < 10);
         wristAtPosition = wristDebouncer.calculate(Math.abs(wristStatus.getValueAsDouble() - state.angle) < 5);
 
-        if (homeSwitch.get()) {
+        if (/*homeSwitch.get()*/ getHomeCANcoder()) {
             /* TODO: Force the elevator position to 0 if the home switch is pressed
-              * Also STOP MOVING THE ELEVATOR
+             * Also STOP MOVING THE ELEVATOR
              */
+            leader.setPosition(0);
+            leader.setControl(leaderControl.withPosition(0));
             homedOnce = true;
         }
 
         SmartDashboard.putString("Elevator State", state.toString());
-        SmartDashboard.putBoolean("Elevator At Position", elevatorAtPosition);
-        SmartDashboard.putBoolean("Wrist At Position", wristAtPosition);
-        SmartDashboard.putBoolean("Both At Position", elevatorAtPosition && wristAtPosition);
-        SmartDashboard.putBoolean("Home Switch", homeSwitch.get());
+        SmartDashboard.putNumber("Elevator Setpoint", state.height);
+        SmartDashboard.putNumber("Wrist Setpoint", state.angle);
+
         SmartDashboard.putNumber("Elevator Height", elevatorStatus.getValueAsDouble());
         SmartDashboard.putNumber("Wrist Angle", wristStatus.getValueAsDouble());
+
+        SmartDashboard.putBoolean("Homed Once", homedOnce);
+        SmartDashboard.putBoolean("Elevator At Position", elevatorAtPosition);
+        SmartDashboard.putBoolean("Wrist At Position", wristAtPosition);
+        SmartDashboard.putBoolean("Home Switch", getHomeCANcoder());
+        SmartDashboard.putBoolean("Both At Position", elevatorAtPosition && wristAtPosition);
+    }
+
+    private boolean getHomeCANcoder() {
+        return homeCANcoder.getMagnetHealth().getValue() == MagnetHealthValue.Magnet_Red;
     }
 
     public boolean isAtPosition() {

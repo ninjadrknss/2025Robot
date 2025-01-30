@@ -12,16 +12,17 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.auton.AutonSubsystem;
-import frc.robot.subsystems.elevatorarm.ElevatorArmSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
-import frc.robot.util.TunableParameter;
+import frc.lib.TunableParameter;
 
 public class Robot extends TimedRobot {
     public static final CANBus riobus = new CANBus("rio");
     @SuppressWarnings("deprecation")
     public static final CANBus drivebus = new CANBus(Constants.drivebus);
+    @SuppressWarnings("deprecation")
+    public static final CANBus elevatorbus = new CANBus(Constants.elevatorbus);
 
     private Command autonomousCommand;
 

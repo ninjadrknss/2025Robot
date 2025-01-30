@@ -9,6 +9,9 @@ public class Constants {
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public static final String drivebus = "Drivebase";
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
+    public static final String elevatorbus = "Elevator";
 
 
     // Game elements, actual values from april tags. might be a bit off, as the locations are based off of april tag locations. 

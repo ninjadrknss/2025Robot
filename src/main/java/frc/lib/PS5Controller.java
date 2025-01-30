@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.lib;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PS5Controller.Axis;

@@ -10,7 +10,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import frc.robot.util.LimelightHelpers.PoseEstimate;
+import frc.lib.LimelightHelpers.PoseEstimate;
 
 public class Odometry extends SubsystemBase {
     private static Odometry instance;
