@@ -8,6 +8,7 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 
 import frc.robot.subsystems.swerve.Odometry;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -40,6 +41,13 @@ public class Robot extends TimedRobot /* extends LoggedRobot */ {
         autonSubsystem = AutonSubsystem.getInstance();
         SwerveSubsystem.getInstance();
         odometry = Odometry.getInstance();
+    }
+
+    @Override
+    public void robotInit() {
+        for (int port = 5800; port <= 5809; port++) {
+            PortForwarder.add(port, "limelight.local", port);
+        }
     }
 
     @Override

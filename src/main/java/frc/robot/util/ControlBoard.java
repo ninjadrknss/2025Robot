@@ -3,6 +3,7 @@ package frc.robot.util;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.Superstructure;
@@ -37,6 +38,7 @@ public class ControlBoard {
     private int level = 0;
 
     private ControlBoard() {
+        DriverStation.silenceJoystickConnectionWarning(true); // TODO: remove
         superstructure = Superstructure.getInstance();
 
 //        homeCommand = new HomeCommand(superstructure);
