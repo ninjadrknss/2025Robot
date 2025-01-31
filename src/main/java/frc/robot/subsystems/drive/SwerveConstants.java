@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.subsystems.drive;
 
 public class SwerveConstants {
     public static final double maxSpeed = 5.0;

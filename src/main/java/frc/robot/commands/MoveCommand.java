@@ -9,14 +9,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-import frc.robot.subsystems.swerve.SwerveConstants;
-import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.swerve.Odometry;
+import frc.robot.subsystems.drive.SwerveConstants;
+import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.drive.Odometry;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.EllipticalRegionConstraint;
 import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
 

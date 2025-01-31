@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 
 public class AssistCommand extends Command {
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();

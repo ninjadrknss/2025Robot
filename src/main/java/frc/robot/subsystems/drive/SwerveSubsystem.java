@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -27,10 +27,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.commands.MoveCommand;
-import frc.robot.subsystems.swerve.generated.TunerConstants;
-import frc.robot.subsystems.swerve.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.drive.generated.TunerConstants;
+import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
 
-import frc.robot.subsystems.swerve.Odometry;
 import frc.robot.util.ControlBoard;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {

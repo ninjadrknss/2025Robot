@@ -4,12 +4,10 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.swerve.SwerveConstants;
+import frc.robot.subsystems.drive.SwerveConstants;
 
 public class ControlBoard {
     private static ControlBoard instance;

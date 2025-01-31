@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
     enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
+        // height is zero at the bottom of the elevator
+        // angle is zero when the wrist is plumb to the ground
         HOME(0, 0),
         CHUTE_INTAKE(0, 0),
         GROUND_INTAKE(0, 0),
@@ -147,8 +149,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     //         setElevatorAngle(state.angle);
     //     }
 
-//        elevatorStatus.refresh(); // TODO: Run all signals in signal thread?
-//        wristStatus.refresh(); // TODO: Run all signals in signal thread?
+    //     elevatorStatus.refresh(); // TODO: Run all signals in signal thread?
+    //     wristStatus.refresh(); // TODO: Run all signals in signal thread?
 
     //     elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorStatus.getValueAsDouble() - state.height) < 10);
     //     wristAtPosition = wristDebouncer.calculate(Math.abs(wristStatus.getValueAsDouble() - state.angle) < 5);
