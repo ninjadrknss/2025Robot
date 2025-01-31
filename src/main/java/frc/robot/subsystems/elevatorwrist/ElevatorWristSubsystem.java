@@ -147,8 +147,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     //         setElevatorAngle(state.angle);
     //     }
 
-    //     elevatorStatus.refresh();
-    //     wristStatus.refresh();
+//        elevatorStatus.refresh(); // TODO: Run all signals in signal thread?
+//        wristStatus.refresh(); // TODO: Run all signals in signal thread?
 
     //     elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorStatus.getValueAsDouble() - state.height) < 10);
     //     wristAtPosition = wristDebouncer.calculate(Math.abs(wristStatus.getValueAsDouble() - state.angle) < 5);

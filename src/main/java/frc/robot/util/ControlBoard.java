@@ -4,6 +4,8 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.Superstructure;
@@ -13,8 +15,8 @@ public class ControlBoard {
     private static ControlBoard instance;
 
     /* Controllers */
-    private final PS5Controller driver = new PS5Controller(0);
-//    private final PS5Controller operator = new PS5Controller(1);
+    private PS5Controller driver = null;
+    private PS5Controller operator = null;
 
     /* Subsystems */
     private final Superstructure superstructure;
@@ -52,8 +54,17 @@ public class ControlBoard {
 //        L4ScoreCommand = new ScoreCommand(superstructure, 4);
 //        BargeScoreCommand = new ScoreCommand(superstructure, 5);
 
-        configureDriverBindings();
-        configureOperatorBindings();
+    }
+
+    public void tryInit() {
+        if (DriverStation.isJoystickConnected(0) && driver == null) {
+            driver = new PS5Controller(0);
+            configureDriverBindings();
+        }
+        if (DriverStation.isJoystickConnected(1) && operator == null) {
+            operator = new PS5Controller(1);
+            configureOperatorBindings();
+        }
     }
 
     public static ControlBoard getInstance() {
