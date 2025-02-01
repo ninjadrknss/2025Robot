@@ -1,11 +1,16 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import frc.lib.MotorConfig;
+import com.ctre.phoenix6.signals.UpdateModeValue;
+import frc.lib.TalonFXConfig;
 import frc.robot.Robot;
 
 public class IntakeConstants {
-    public static final MotorConfig intakeMotorConfig = new MotorConfig().withCanID(0).withBus(Robot.elevatorbus);
+    public static final TalonFXConfig intakeMotorConfig = new TalonFXConfig()
+            .withName("Intake Motor")
+            .withCanID(57)
+            .withBus(Robot.elevatorbus);
 
     static {
         TalonFXConfiguration intakeConfig = intakeMotorConfig.config;
@@ -21,11 +26,26 @@ public class IntakeConstants {
         intakeConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
     }
 
-    public static final int beamBreakPort = 0;
-    public static final int distanceSensorID = 0;
+    public static final int beamBreakPort = 2;
+
+    public static final int distanceSensorID = 58;
+    public static final int algaeDistanceThreshold = 0;
+
+    public static final CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();
+    static {
+        distanceSensorConfig.FovParams.FOVCenterX = 0;
+        distanceSensorConfig.FovParams.FOVCenterY = 0;
+        distanceSensorConfig.FovParams.FOVRangeX = 27; // TODO: tune (in degrees)
+        distanceSensorConfig.FovParams.FOVRangeY = 27; // TODO: tune (in degrees)
+
+        distanceSensorConfig.ProximityParams.ProximityThreshold = 0.4; // TODO: tune (in m)
+        distanceSensorConfig.ProximityParams.ProximityHysteresis = 0.05; // TODO: tune (in m)
+        distanceSensorConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 2500; // TODO: tune
+
+        distanceSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq; // TODO: change to 100hz mode?
+        distanceSensorConfig.ToFParams.UpdateFrequency = 50; // TODO: tune (in Hz)
+    }
 
     public static final double intakeSpeed = 0.5;
     public static final double spitSpeed = 0.5; // Negated in request
-
-    public static final int algaeDistanceThreshold = 0;
 }

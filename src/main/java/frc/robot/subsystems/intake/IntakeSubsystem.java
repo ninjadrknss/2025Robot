@@ -15,18 +15,18 @@ public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem instance;
 
     /* Motors */
-    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createMotor();
-    private final VelocityTorqueCurrentFOC intakeControl = new VelocityTorqueCurrentFOC(0);
+//    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createMotor();
+//    private final VelocityTorqueCurrentFOC intakeControl = new VelocityTorqueCurrentFOC(0);
 
     /* Sensors */
-    private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
-    private final CANrange algaeDistanceSensor = new CANrange(IntakeConstants.distanceSensorID);
+//    private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
+//    private final CANrange algaeDistanceSensor = new CANrange(IntakeConstants.distanceSensorID);
 
     /* Statuses */
     private boolean coralBeamBroken = false;
-    private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.1);
+//    private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.1);
 
-    private final StatusSignal<Distance> algaeDistance = algaeDistanceSensor.getDistance();
+//    private final StatusSignal<Distance> algaeDistance = algaeDistanceSensor.getDistance();
     private boolean algaeDetected = false;
 
     /* State Machine Logic */
@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param speed in rev/s
      */
     private void setIntakeMotor(double speed) {
-        intakeMotor.setControl(intakeControl.withVelocity(speed));
+//        intakeMotor.setControl(intakeControl.withVelocity(speed));
     }
 
     @Override
@@ -79,15 +79,14 @@ public class IntakeSubsystem extends SubsystemBase {
             state = IntakeState.IDLE;
         }
 
-        // This method will be called once per scheduler run
-        coralBeamBroken = coralBeamBreakDebouncer.calculate(coralBeamBreak.get());
-        algaeDistance.refresh(); // TODO: Run all signals in signal thread?
-        algaeDetected = algaeDistance.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
-
-        SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);
-        SmartDashboard.putBoolean("Intake/Algae Detected", algaeDetected);
-        SmartDashboard.putNumber("Intake/Algae Distance", algaeDistance.getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
+//        coralBeamBroken = coralBeamBreakDebouncer.calculate(coralBeamBreak.get());
+//        algaeDistance.refresh(); // TODO: Run all signals in signal thread?
+//        algaeDetected = algaeDistance.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
+//
+//        SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);
+//        SmartDashboard.putBoolean("Intake/Algae Detected", algaeDetected);
+//        SmartDashboard.putNumber("Intake/Algae Distance", algaeDistance.getValueAsDouble());
+//        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }
 
     public boolean coralBeamBroken() {

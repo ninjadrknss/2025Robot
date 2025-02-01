@@ -1,18 +1,20 @@
 package frc.robot.subsystems.elevatorwrist;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import frc.lib.MotorConfig;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import frc.lib.TalonFXConfig;
 import frc.robot.Robot;
 
 public class ElevatorWristConstants {
-    public static int homeCANcoderID = 0;
+    public static int homeCANcoderID = 52;
 
-    public static MotorConfig rightElevatorMotorConfig = new MotorConfig()
+    public static TalonFXConfig rightElevatorMotorConfig = new TalonFXConfig()
             .withName("Right Elevator Motor")
-            .withCanID(0)
+            .withCanID(50)
             .withBus(Robot.elevatorbus);
     static {
         TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
@@ -28,20 +30,19 @@ public class ElevatorWristConstants {
 
         leaderConfig.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.RemoteCANcoder; // TODO: might be ReverseLimit
         leaderConfig.HardwareLimitSwitch.ForwardLimitRemoteSensorID = homeCANcoderID; // TODO: might be ReverseLimit
-
     }
 
-    public static MotorConfig leftElevatorMotorConfig = new MotorConfig()
+    public static TalonFXConfig leftElevatorMotorConfig = new TalonFXConfig()
             .withName("Left Elevator Motor")
-            .withCanID(0)
+            .withCanID(51)
             .withBus(Robot.elevatorbus);
     static {
         TalonFXConfiguration followerConfig = leftElevatorMotorConfig.config;
     }
 
-    public static MotorConfig wristMotorConfig = new MotorConfig()
+    public static TalonFXConfig wristMotorConfig = new TalonFXConfig()
             .withName("Wrist Motor")
-            .withCanID(0)
+            .withCanID(54)
             .withBus(Robot.drivebus);
     static {
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
@@ -54,10 +55,21 @@ public class ElevatorWristConstants {
 
         wristConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
         wristConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
-        wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristCANcoder;
+        wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristEncoderID;
         wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+
+        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0; // TODO: Change
+        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0; // TODO: Change
     }
 
-    public static int wristMotor = 0;
-    public static int wristCANcoder = 0;
+    public static int wristEncoderID = 53;
+    public static CANcoderConfiguration wristEncoderConfig = new CANcoderConfiguration();
+
+    static {
+        wristEncoderConfig.MagnetSensor.MagnetOffset = 0; // TODO: CHANGE, in revolutions
+        wristEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: CHANGE
+        wristEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // TODO: CHANGE
+    }
 }
