@@ -4,6 +4,8 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.Superstructure;
@@ -51,7 +53,7 @@ public class ControlBoard {
 //        L3ScoreCommand = new ScoreCommand(superstructure, 3);
 //        L4ScoreCommand = new ScoreCommand(superstructure, 4);
 //        BargeScoreCommand = new ScoreCommand(superstructure, 5);
-
+        tryInit();
     }
 
     public void tryInit() {
@@ -73,7 +75,12 @@ public class ControlBoard {
     private void configureDriverBindings() {
         // TODO: configure driver bindings
 
-        driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
+        // driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
+        
+        // Servo servoTest = new Servo(8);
+
+        // driver.leftBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(90)));
+        // driver.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
     }
 
     private void configureOperatorBindings() {
@@ -81,6 +88,7 @@ public class ControlBoard {
     }
 
     public SwerveRequest getDriverRequest() {
+        if (driver == null) return null;
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * driver.leftVerticalJoystick.getAsDouble())
                 .withVelocityY(SwerveConstants.maxSpeed * driver.leftHorizontalJoystick.getAsDouble())
                 .withRotationalRate(SwerveConstants.maxAngularSpeed * -driver.rightHorizontalJoystick.getAsDouble());

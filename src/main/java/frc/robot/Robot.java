@@ -53,6 +53,7 @@ public class Robot extends TimedRobot /* extends LoggedRobot */ {
     public void robotPeriodic() {
         TunableParameter.updateAll();
         scheduler.run();
+        // ControlBoard.getInstance().tryInit();
     }
 
     @Override

@@ -205,7 +205,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
         if (!DriverStation.isAutonomous()) {
             SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
-            setControl(request);
+            if(request != null) setControl(request);
         }
 
         Pose2d pose = getPose();
