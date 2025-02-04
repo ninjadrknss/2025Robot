@@ -15,12 +15,13 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -31,10 +32,11 @@ import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.drive.generated.TunerConstants;
 import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
 
+import frc.robot.subsystems.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.util.ControlBoard;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
-    private static final double kSimLoopPeriod = 0.005; // 5 ms
+    private static final double kSimLoopPeriod = 0.002; // 2 ms or 50hz
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
@@ -143,7 +145,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      * @param modules               Constants for each specific module
      */
     public SwerveSubsystem(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, modules);
+        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
 
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
 
@@ -204,11 +206,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             });
         }
 
-        if (!DriverStation.isAutonomous()) {
-            SwerveRequest request = ControlBoard.getInstance().getDriverRequest();
-            if(request != null) setControl(request);
-        }
-
         Pose2d pose = getPose();
         SmartDashboard.putNumber("Swerve/Pose x", pose.getX());
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
@@ -250,20 +247,35 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public Command goToPositionCommand(Pose2d targetPose) {
         return new MoveCommand(targetPose, m_pathXController, m_pathYController, m_pathThetaController);
     }
+
+    public static MapleSimSwerveDrivetrain simDrivetrain = null;
+
+    @Override
+    public void resetPose(Pose2d pose) {
+        if (simDrivetrain != null) simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+        Timer.delay(0.05); // Wait for simulation to update
+        super.resetPose(pose);
+    }
     
-
     private void startSimThread() {
-        m_lastSimTime = Utils.getCurrentTimeSeconds();
-
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - m_lastSimTime;
-            m_lastSimTime = currentTime;
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
+        simDrivetrain = new MapleSimSwerveDrivetrain(
+            Seconds.of(kSimLoopPeriod),
+            Pounds.of(115),
+            Inches.of(30),
+            Inches.of(30),
+            DCMotor.getKrakenX60Foc(1),
+            DCMotor.getKrakenX60Foc(1),
+            1.2,
+            getModuleLocations(),
+            getPigeon2(),
+            getModules(),
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
+            TunerConstants.BackRight
+        );
+        
+        m_simNotifier = new Notifier(simDrivetrain::update);
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 }

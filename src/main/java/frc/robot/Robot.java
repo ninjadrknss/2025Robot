@@ -5,9 +5,14 @@
 
 package frc.robot;
 
+import org.ironmaple.simulation.SimulatedArena;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.CANBus;
 
 import frc.robot.subsystems.drive.Odometry;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,7 +23,7 @@ import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
 import frc.lib.TunableParameter;
 
-public class Robot extends TimedRobot /* extends LoggedRobot */ {
+public class Robot extends TimedRobot {
     public static final CANBus riobus = new CANBus("rio");
     @SuppressWarnings("deprecation")
     public static final CANBus drivebus = new CANBus(Constants.drivebus);
@@ -88,7 +93,6 @@ public class Robot extends TimedRobot /* extends LoggedRobot */ {
 
         //TODO: please dont forget about this: 
         odometry.testResetOdo();
-
     }
 
     @Override
@@ -107,4 +111,9 @@ public class Robot extends TimedRobot /* extends LoggedRobot */ {
 
     @Override
     public void testExit() {}
+
+    @Override
+    public void simulationPeriodic() {
+        SwerveSubsystem.simDrivetrain.update();
+    }
 }

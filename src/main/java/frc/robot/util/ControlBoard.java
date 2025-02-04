@@ -1,15 +1,24 @@
 package frc.robot.util;
 
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
+
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
+import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.simulation.Telemetry;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -57,14 +66,23 @@ public class ControlBoard {
     }
 
     public void tryInit() {
-        if (DriverStation.isJoystickConnected(0) && driver == null) {
+        // if (DriverStation.isJoystickConnected(0) && driver == null) {
             driver = new PS5Controller(0);
+            System.out.println("Driver Configured");
             configureDriverBindings();
-        }
-        if (DriverStation.isJoystickConnected(1) && operator == null) {
-            operator = new PS5Controller(1);
-            configureOperatorBindings();
-        }
+
+            Telemetry telemetry = new Telemetry(SwerveConstants.maxSpeed);
+            SwerveSubsystem.getInstance().registerTelemetry(telemetry::telemeterize);
+
+            SwerveSubsystem drivetrain = SwerveSubsystem.getInstance();
+            drivetrain.setDefaultCommand(
+                drivetrain.applyRequest(this::getDriverRequest)
+            );
+        // }
+        // if (DriverStation.isJoystickConnected(1) && operator == null) {
+            // operator = new PS5Controller(1);
+            // configureOperatorBindings();
+        // }
     }
 
     public static ControlBoard getInstance() {
@@ -74,6 +92,18 @@ public class ControlBoard {
 
     private void configureDriverBindings() {
         // TODO: configure driver bindings
+        driver.rightBumper.onTrue(new InstantCommand(() -> 
+            SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d())))
+            .ignoringDisable(true)
+        );
+        driver.rightTrigger.onTrue(new InstantCommand(() -> 
+            SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 0.8, Rotation2d.fromDegrees(135)))))
+            .ignoringDisable(true)
+        );
+        driver.leftBumper.onTrue(new InstantCommand(() -> 
+            SimulatedArena.getInstance().clearGamePieces())
+            .ignoringDisable(true)
+        );
 
         // driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
         
@@ -89,8 +119,8 @@ public class ControlBoard {
 
     public SwerveRequest getDriverRequest() {
         if (driver == null) return null;
-        return driveRequest.withVelocityX(SwerveConstants.maxSpeed * driver.leftVerticalJoystick.getAsDouble())
-                .withVelocityY(SwerveConstants.maxSpeed * driver.leftHorizontalJoystick.getAsDouble())
-                .withRotationalRate(SwerveConstants.maxAngularSpeed * -driver.rightHorizontalJoystick.getAsDouble());
+        return driveRequest.withVelocityX(SwerveConstants.maxSpeed * -driver.leftVerticalJoystick.getAsDouble())
+                .withVelocityY(SwerveConstants.maxSpeed * -driver.leftHorizontalJoystick.getAsDouble())
+                .withRotationalRate(SwerveConstants.maxAngularSpeed * driver.rightHorizontalJoystick.getAsDouble());
     }
 }
