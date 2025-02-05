@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class LEDSubsystem extends SubsystemBase {
     private static LEDSubsystem instance = null;
 
-    private final CANdle candle = new CANdle(0, "rio");
+    private final CANdle candle = new CANdle(5, "rio");
 
     private static BaseState baseState = BaseState.DISABLED;
     private static TempState tempState = null;
@@ -26,6 +26,8 @@ public class LEDSubsystem extends SubsystemBase {
     private static double blinkInterval = 0.25;
     private static final Timer blinkTimer = new Timer();
     private static boolean blinkOff = false;
+
+    private static final int numLEDs = 59 + 8;
 
     public static class Color {
         private final int R, G, B;
@@ -85,13 +87,15 @@ public class LEDSubsystem extends SubsystemBase {
     }
 
     public void setColor(Color color) {
+        candle.clearAnimation(0);
         System.out.printf("Setting color (%d, %d, %d)%n", color.R, color.G, color.B);
         candle.setLEDs(color.R, color.G, color.B);
     }
 
     public void setRainbow() {
         candle.clearAnimation(0);
-        candle.animate(new RainbowAnimation(0.50, 0.5, 68, false, 8));
+        System.out.println("Rainbowify");
+        candle.animate(new RainbowAnimation(0.50, 0.5, numLEDs, false, 0));
     }
 
     private Color tempStateColor(TempState state) {
@@ -109,42 +113,44 @@ public class LEDSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putString("LED/Base state", baseState == null ? "NULL" : baseState.toString());
         SmartDashboard.putString("LED/Temp state", tempState == null ? "NULL" : tempState.toString());
+        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
+        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
 
-        // If the temporary state is active...
-        if (tempState != null) {
-            if (tempState == lastTempState) {
-                // Temporary state unchanged
-                if (tempStateExpiry > 0.0 && tempStateTimer.hasElapsed(tempStateExpiry)) {
-                    // Temporary state has expired, and base state should be shown
-                    tempState = null;
-                } else if (blinkTimer.hasElapsed(blinkInterval)) { // Temporary state is active, but might need to be blinked
-                    blinkOff = !blinkOff;
-                    setColor(blinkOff ? Colors.off : tempStateColor(tempState));
-                    blinkTimer.restart();
-                }
-            } else {
-                // Start new temporary state
-                setColor(tempStateColor(tempState));
-                blinkOff = false;
-                blinkTimer.restart();
-                if (tempState == TempState.ERROR) {
-                    blinkInterval = 0.10;
-                    tempStateExpiry = 0.80;
-                    tempStateTimer.restart();
-                } else {
-                    blinkInterval = 0.20;
-                    tempStateExpiry = 0.0;
-                }
-            }
-        }
+        // // If the temporary state is active...
+        // if (tempState != null) {
+        //     if (tempState == lastTempState) {
+        //         // Temporary state unchanged
+        //         if (tempStateExpiry > 0.0 && tempStateTimer.hasElapsed(tempStateExpiry)) {
+        //             // Temporary state has expired, and base state should be shown
+        //             tempState = null;
+        //         } else if (blinkTimer.hasElapsed(blinkInterval)) { // Temporary state is active, but might need to be blinked
+        //             blinkOff = !blinkOff;
+        //             setColor(blinkOff ? Colors.off : tempStateColor(tempState));
+        //             blinkTimer.restart();
+        //         }
+        //     } else {
+        //         // Start new temporary state
+        //         setColor(tempStateColor(tempState));
+        //         blinkOff = false;
+        //         blinkTimer.restart();
+        //         if (tempState == TempState.ERROR) {
+        //             blinkInterval = 0.10;
+        //             tempStateExpiry = 0.80;
+        //             tempStateTimer.restart();
+        //         } else {
+        //             blinkInterval = 0.20;
+        //             tempStateExpiry = 0.0;
+        //         }
+        //     }
+        // }
 
-        // Check for a changed base state, or a dropped temporary state
-        if (tempState == null && baseState != null &&
-                (baseState != lastBaseState || lastTempState != null))
-            setColor(baseStateColor(baseState));
+        // // Check for a changed base state, or a dropped temporary state
+        // if (tempState == null && baseState != null &&
+        //         (baseState != lastBaseState || lastTempState != null))
+        //     setColor(baseStateColor(baseState));
 
-        // Update the last states processed for reference in the next iteration
-        lastTempState = tempState;
-        lastBaseState = baseState;
+        // // Update the last states processed for reference in the next iteration
+        // lastTempState = tempState;
+        // lastBaseState = baseState;
     }
 }
