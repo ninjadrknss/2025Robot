@@ -8,7 +8,7 @@ import frc.robot.subsystems.drive.generated.TunerConstants;
 
 public class SwerveConstants {
     public static final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    public static final double maxAngularSpeed = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    public static final double maxAngularSpeed = RotationsPerSecond.of(0.9).in(RadiansPerSecond);
 
     public static class AutonConstants {
         public static final double kPPose = 0.0;

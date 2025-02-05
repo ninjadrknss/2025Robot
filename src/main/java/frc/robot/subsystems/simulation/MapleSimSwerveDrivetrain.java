@@ -56,6 +56,7 @@ public class MapleSimSwerveDrivetrain {
     private final Pigeon2SimState pigeonSim;
     private final SimSwerveModule[] simModules;
     public final SwerveDriveSimulation mapleSimDrive;
+    public final IntakeSimulation mapleSimIntake;
 
     /**
      *
@@ -112,14 +113,14 @@ public class MapleSimSwerveDrivetrain {
         for (int i = 0; i < this.simModules.length; i++)
             simModules[i] = new SimSwerveModule(moduleConstants[0], moduleSimulations[i], modules[i]);
 
+        mapleSimIntake = IntakeSimulation.InTheFrameIntake("Coral", mapleSimDrive, Meters.of(Meters.convertFrom(30, Inch)), IntakeSide.FRONT, 1);
+        mapleSimIntake.startIntake();
+
         SimulatedArena.overrideSimulationTimings(simPeriod, 1);
         SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive);
         SimulatedArena.getInstance().clearGamePieces();
 
         SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 1, new Rotation2d())));
-
-        IntakeSimulation intake = IntakeSimulation.InTheFrameIntake("Coral", mapleSimDrive, Meters.of(Meters.convertFrom(30, Inch)), IntakeSide.FRONT, 1);
-        intake.startIntake();
     }
 
     /**

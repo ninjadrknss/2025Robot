@@ -15,6 +15,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -252,15 +253,18 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     @Override
     public void resetPose(Pose2d pose) {
-        if (simDrivetrain != null) simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-        Timer.delay(0.05); // Wait for simulation to update
+        if (simDrivetrain != null) {
+            simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+            Timer.delay(0.05); // Wait for simulation to update
+        }
         super.resetPose(pose);
     }
     
     private void startSimThread() {
+        Translation2d[] modules = getModuleLocations();
         simDrivetrain = new MapleSimSwerveDrivetrain(
             Seconds.of(kSimLoopPeriod),
-            Pounds.of(115),
+            Pounds.of(150),
             Inches.of(30),
             Inches.of(30),
             DCMotor.getKrakenX60Foc(1),
@@ -274,7 +278,11 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             TunerConstants.BackLeft,
             TunerConstants.BackRight
         );
-        
+
+        for (Translation2d location : getModuleLocations()) {
+            System.out.println("Module Location: " + location);
+        }
+
         m_simNotifier = new Notifier(simDrivetrain::update);
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }

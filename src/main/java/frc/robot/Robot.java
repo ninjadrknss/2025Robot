@@ -115,5 +115,6 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationPeriodic() {
         SwerveSubsystem.simDrivetrain.update();
+        SimulatedArena.getInstance().simulationPeriodic();
     }
 }

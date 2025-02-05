@@ -33,6 +33,7 @@ public class AutonSubsystem {
         );
 
         autoChooser.addRoutine("TestAuton", this::getTestAuton);
+        autoChooser.addRoutine("ExampleAuton", this::getExampleAuton);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -49,6 +50,18 @@ public class AutonSubsystem {
     private AutoRoutine getTestAuton() {
         AutoRoutine routine = autoFactory.newRoutine("TestAuton");
         AutoTrajectory trajectory = routine.trajectory("TestAuton");
+
+        routine.active().onTrue(
+            trajectory.resetOdometry().andThen(
+                trajectory.cmd()
+            )
+        );
+        return routine;
+    }
+
+    private AutoRoutine getExampleAuton() {
+        AutoRoutine routine = autoFactory.newRoutine("ExampleAuton");
+        AutoTrajectory trajectory = routine.trajectory("ExampleAuton");
 
         routine.active().onTrue(
             trajectory.resetOdometry().andThen(

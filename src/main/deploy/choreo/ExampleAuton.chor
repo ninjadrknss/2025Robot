@@ -1,5 +1,5 @@
 {
- "name":"ExamplePath",
+ "name":"ExampleAuton",
  "version":1,
  "type":"Swerve",
  "variables":{
@@ -57,16 +57,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"13 in",
-    "val":0.3302
+    "exp":"16.25 in",
+    "val":0.41275
    },
    "side":{
-    "exp":"13 in",
-    "val":0.3302
+    "exp":"16.25 in",
+    "val":0.41275
    },
    "back":{
-    "exp":"13 in",
-    "val":0.3302
+    "exp":"16.25 in",
+    "val":0.41275
    }
   },
   "differentialTrackWidth":{
