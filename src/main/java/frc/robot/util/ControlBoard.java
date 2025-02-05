@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.LEDSubsystem.Color;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.simulation.Telemetry;
@@ -92,18 +94,25 @@ public class ControlBoard {
 
     private void configureDriverBindings() {
         // TODO: configure driver bindings
-        driver.rightBumper.onTrue(new InstantCommand(() -> 
-            SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d())))
-            .ignoringDisable(true)
-        );
-        driver.rightTrigger.onTrue(new InstantCommand(() -> 
-            SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 0.8, Rotation2d.fromDegrees(135)))))
-            .ignoringDisable(true)
-        );
-        driver.leftBumper.onTrue(new InstantCommand(() -> 
-            SimulatedArena.getInstance().clearGamePieces())
-            .ignoringDisable(true)
-        );
+        // driver.rightBumper.onTrue(new InstantCommand(() -> 
+        //     SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d())))
+        //     .ignoringDisable(true)
+        // );
+        // driver.rightTrigger.onTrue(new InstantCommand(() -> 
+        //     SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 0.8, Rotation2d.fromDegrees(135)))))
+        //     .ignoringDisable(true)
+        // );
+        // driver.leftBumper.onTrue(new InstantCommand(() -> 
+        //     SimulatedArena.getInstance().clearGamePieces())
+        //     .ignoringDisable(true)
+        // );
+        LEDSubsystem led = LEDSubsystem.getInstance();
+        driver.circleButton.onTrue(new InstantCommand(() -> led.setColor(LEDSubsystem.Colors.magenta)).ignoringDisable(true));
+        driver.squareButton.onTrue(new InstantCommand(() -> led.setColor(LEDSubsystem.Colors.white)).ignoringDisable(true));
+        driver.triangleButton.onTrue(new InstantCommand(() -> led.setColor(LEDSubsystem.Colors.blue)).ignoringDisable(true));
+        driver.crossButton.onTrue(new InstantCommand(() -> led.setColor(LEDSubsystem.Colors.red)).ignoringDisable(true));
+
+        driver.leftTrigger.onTrue(new InstantCommand(() -> led.setRainbow()).ignoringDisable(true));
 
         // driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
         
