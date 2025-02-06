@@ -10,7 +10,6 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import org.photonvision.PhotonCamera;
-import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -18,37 +17,32 @@ import org.photonvision.simulation.VisionTargetSim;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static edu.wpi.first.units.Units.*;
 
-public class VisionSim {
-    private static VisionSim instance;
+public class PhotonvisionSim {
+    private static PhotonvisionSim instance;
 
     private final VisionSystemSim visionSim = new VisionSystemSim("main");
-    private final TargetModel targetModel = TargetModel.kAprilTag36h11;
-    private final AprilTagFieldLayout tagLayout;
-    private final SimCameraProperties cameraProp = new SimCameraProperties();
-    private final PhotonCamera camera1 = new PhotonCamera("leftCamera");
-    private final PhotonCamera camera2 = new PhotonCamera("rightCamera");
     private final PhotonCameraSim camera1Sim;
     private final PhotonCameraSim camera2Sim;
 
-    NetworkTable vision = NetworkTableInstance.getDefault().getTable("Vision");
-    private final StructPublisher<Pose2d> estimatedPose = vision.getStructTopic("Pose", Pose2d.struct).publish();
-    private final StructPublisher<Pose3d> camera1Pose = vision.getStructTopic("Camera1Pose", Pose3d.struct).publish();
-    private final StructPublisher<Pose3d> camera2Pose = vision.getStructTopic("Camera2Pose", Pose3d.struct).publish();
-    private final StructArrayPublisher<Pose3d> visionTargets1 = vision.getStructArrayTopic("Targets1", Pose3d.struct).publish();
-    private final StructArrayPublisher<Pose3d> visionTargets2 = vision.getStructArrayTopic("Targets2", Pose3d.struct).publish();
+    private final NetworkTable visionTable = NetworkTableInstance.getDefault().getTable("Vision");
+    private final StructPublisher<Pose2d> estimatedPose = visionTable.getStructTopic("Pose", Pose2d.struct).publish();
+    private final StructPublisher<Pose3d> camera1Pose = visionTable.getStructTopic("Camera1Pose", Pose3d.struct).publish();
+    private final StructPublisher<Pose3d> camera2Pose = visionTable.getStructTopic("Camera2Pose", Pose3d.struct).publish();
+    private final StructArrayPublisher<Pose3d> visionTargets1 = visionTable.getStructArrayTopic("Targets1", Pose3d.struct).publish();
+    private final StructArrayPublisher<Pose3d> visionTargets2 = visionTable.getStructArrayTopic("Targets2", Pose3d.struct).publish();
 
-    public static VisionSim getInstance() {
-        if (instance == null) instance = new VisionSim();
+    public static PhotonvisionSim getInstance() {
+        if (instance == null) instance = new PhotonvisionSim();
         return instance;
     }
 
-    private VisionSim() {
-        if (!Utils.isSimulation()) throw new RuntimeException("VisionSim should only be instantiated in simulation");
+    private PhotonvisionSim() {
+        if (!Utils.isSimulation()) throw new RuntimeException("PhotonvisionSim should only be instantiated in simulation");
+        AprilTagFieldLayout tagLayout;
         try {
             tagLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile);
         } catch (IOException e) {
@@ -56,6 +50,7 @@ public class VisionSim {
             throw new RuntimeException(e);
         }
 
+        SimCameraProperties cameraProp = new SimCameraProperties();
         cameraProp.setCalibration(800, 600, Rotation2d.fromDegrees(75));
         // Approximate detection noise with average and standard deviation error in pixels.
         cameraProp.setCalibError(0.25, 0.08);
@@ -67,7 +62,9 @@ public class VisionSim {
 
         visionSim.addAprilTags(tagLayout);
 
+        PhotonCamera camera1 = new PhotonCamera("leftCamera");
         camera1Sim = new PhotonCameraSim(camera1, cameraProp);
+        PhotonCamera camera2 = new PhotonCamera("rightCamera");
         camera2Sim = new PhotonCameraSim(camera2, cameraProp);
 
         visionSim.addCamera(camera1Sim, new Transform3d(
@@ -86,18 +83,25 @@ public class VisionSim {
                 new Rotation3d(0, 0, Radians.convertFrom(45, Degrees))));
     }
 
-    HashMap<Integer, Integer> targetMap1 = new HashMap<>();
-    HashMap<Integer, Integer> targetMap2 = new HashMap<>();
+    private static final int lifetime = 5; // Number of frames to keep a target in the map to prevent weird flickering
 
-    int lifetime = 5;
+    private final HashMap<Integer, Integer> targetMap1 = new HashMap<>();
+    private final HashMap<Integer, Integer> targetMap2 = new HashMap<>();
 
     public void update() {
+        // Publish the estimated robot pose to the network table
         estimatedPose.set(visionSim.getRobotPose().toPose2d());
+        // Publish the camera poses to the network table
+        if (visionSim.getCameraPose(camera1Sim).isPresent()) camera1Pose.set(visionSim.getCameraPose(camera1Sim).get());
+        if (visionSim.getCameraPose(camera2Sim).isPresent()) camera2Pose.set(visionSim.getCameraPose(camera2Sim).get());
+        // Update the vision system simulation to use the current robot pose
         visionSim.update(SwerveSubsystem.simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose());
 
+        // Decrement the lifetime of all targets
         targetMap1.replaceAll((k, v) -> v - 1);
         targetMap2.replaceAll((k, v) -> v - 1);
 
+        // Update the target maps with the new targets
         camera1Sim.getCamera().getAllUnreadResults().forEach(result -> {
             result.targets.forEach(target -> {
                 targetMap1.put(target.fiducialId, lifetime);
@@ -109,6 +113,7 @@ public class VisionSim {
             });
         });
 
+        // Create lists of the targets to publish
         ArrayList<Pose3d> targets1 = new ArrayList<>();
         ArrayList<Pose3d> targets2 = new ArrayList<>();
         for (VisionTargetSim tar : visionSim.getVisionTargets()) {
@@ -119,10 +124,8 @@ public class VisionSim {
                 targets2.add(tar.getPose());
             }
         }
-        visionTargets1.accept(targets1.toArray(new Pose3d[0]));
-        visionTargets2.accept(targets2.toArray(new Pose3d[0]));
-
-        if (visionSim.getCameraPose(camera1Sim).isPresent()) camera1Pose.set(visionSim.getCameraPose(camera1Sim).get());
-        if (visionSim.getCameraPose(camera2Sim).isPresent()) camera2Pose.set(visionSim.getCameraPose(camera2Sim).get());
+        // Publish the vision targets to the network table
+        visionTargets1.set(targets1.toArray(new Pose3d[0]));
+        visionTargets2.set(targets2.toArray(new Pose3d[0]));
     }
 }

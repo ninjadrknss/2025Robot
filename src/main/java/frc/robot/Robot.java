@@ -5,7 +5,7 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.simulation.VisionSim;
+import frc.robot.subsystems.simulation.PhotonvisionSim;
 import org.ironmaple.simulation.SimulatedArena;
 
 import com.ctre.phoenix6.CANBus;
@@ -112,7 +112,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {
-        VisionSim.getInstance().update();
+        PhotonvisionSim.getInstance().update();
         SimulatedArena.getInstance().simulationPeriodic();
     }
 }
