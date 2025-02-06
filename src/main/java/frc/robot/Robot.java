@@ -5,14 +5,12 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.simulation.VisionSim;
 import org.ironmaple.simulation.SimulatedArena;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 
 import frc.robot.subsystems.drive.Odometry;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -114,7 +112,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {
-        SwerveSubsystem.simDrivetrain.update();
+        VisionSim.getInstance().update();
         SimulatedArena.getInstance().simulationPeriodic();
     }
 }

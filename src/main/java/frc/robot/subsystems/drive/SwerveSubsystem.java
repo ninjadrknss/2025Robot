@@ -12,18 +12,21 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.controller.PIDController;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+
 import edu.wpi.first.math.system.plant.DCMotor;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -34,7 +37,6 @@ import frc.robot.subsystems.drive.generated.TunerConstants;
 import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
 
 import frc.robot.subsystems.simulation.MapleSimSwerveDrivetrain;
-import frc.robot.util.ControlBoard;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.002; // 2 ms or 50hz
@@ -261,10 +263,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     }
     
     private void startSimThread() {
-        Translation2d[] modules = getModuleLocations();
         simDrivetrain = new MapleSimSwerveDrivetrain(
             Seconds.of(kSimLoopPeriod),
-            Pounds.of(150),
+            Pounds.of(110),
             Inches.of(30),
             Inches.of(30),
             DCMotor.getKrakenX60Foc(1),
@@ -278,10 +279,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             TunerConstants.BackLeft,
             TunerConstants.BackRight
         );
-
-        for (Translation2d location : getModuleLocations()) {
-            System.out.println("Module Location: " + location);
-        }
 
         m_simNotifier = new Notifier(simDrivetrain::update);
         m_simNotifier.startPeriodic(kSimLoopPeriod);
