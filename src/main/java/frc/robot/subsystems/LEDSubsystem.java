@@ -23,7 +23,7 @@ public class LEDSubsystem extends SubsystemBase {
     private static final int brightness = 50;
 
     private boolean blinking = false;
-    private static final double blinkInterval = 0.25;
+    private static final double blinkInterval = 0.2;
     private static final Timer blinkTimer = new Timer();
     private static boolean blinkOff = false;
 
@@ -87,6 +87,7 @@ public class LEDSubsystem extends SubsystemBase {
 
         new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
         new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
+        blinkTimer.start();
     }
 
     public void requestColor(Color color, boolean blink) {
@@ -116,13 +117,27 @@ public class LEDSubsystem extends SubsystemBase {
     public void requestRainbow() {
         candle.clearAnimation(0);
         System.out.println("Rainbowify");
-        candle.animate(new RainbowAnimation(0.50, 0.5, numLEDs, false, 0));
+        candle.animate(new RainbowAnimation(0.50, 0.75, numLEDs, false, 0));
+    }
+
+    public void setBlink(boolean blink) {
+        blinking = blink;
+        System.out.println("Blink: " + blink);
+        if (blinking) {
+            blinkTimer.reset();
+        }
+    }
+
+    public void toggleBlink() {
+        setBlink(!blinking);
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("LED/Current", candle.getCurrent());
         SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
+        SmartDashboard.putBoolean("LED/Blinking", blinking);
+        SmartDashboard.putBoolean("LED/BlinkOff", blinkOff);
 
         if (fading) updateFade();
         if (blinking) updateBlink();
@@ -148,8 +163,12 @@ public class LEDSubsystem extends SubsystemBase {
 
     private void updateBlink() {
         if (blinkTimer.hasElapsed(blinkInterval)) {
+            candle.clearAnimation(0);
             if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
-            else candle.setLEDs(0, 0, 0);
+            else {
+                candle.setLEDs(currentColor.R/8, currentColor.G/8, currentColor.B/8);
+                // candle.setLEDs(0, 0, 0);
+            }
             blinkOff = !blinkOff;
             blinkTimer.reset();
         }
