@@ -35,37 +35,48 @@ public class Telemetry {
     public Telemetry(double maxSpeed) {
         MaxSpeed = maxSpeed;
         SignalLogger.start();
+
+        driveStateTable = inst.getTable("DriveState");
+        driveModulePositions = driveStateTable
+                .getStructArrayTopic("ModulePositions", SwerveModulePosition.struct)
+                .publish();
+        driveModuleTargets = driveStateTable
+                .getStructArrayTopic("ModuleTargets", SwerveModuleState.struct)
+                .publish();
+        driveModuleStates = driveStateTable
+                .getStructArrayTopic("ModuleStates", SwerveModuleState.struct)
+                .publish();
+        driveSpeeds = driveStateTable.getStructTopic("Speeds", ChassisSpeeds.struct).publish();
+        drivePose = driveStateTable.getStructTopic("Pose", Pose2d.struct).publish();
+        driveTimestamp = driveStateTable.getDoubleTopic("Timestamp").publish();
+        driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency").publish();
+
+        table = inst.getTable("Field");
+        fieldPub = table.getDoubleArrayTopic("robotPose").publish();
+        fieldTypePub = table.getStringTopic(".type").publish();
+
+        coral = table.getStructArrayTopic("FieldSimulation/Coral", Pose3d.struct).publish();
+        algae = table.getStructArrayTopic("FieldSimulation/Algae", Pose3d.struct).publish();
     }
 
     /* What to publish over networktables for telemetry */
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
     /* Robot swerve drive state */
-    private final NetworkTable driveStateTable = inst.getTable("DriveState");
-    private final StructPublisher<Pose2d> drivePose =
-            driveStateTable.getStructTopic("Pose", Pose2d.struct).publish();
-    private final StructPublisher<ChassisSpeeds> driveSpeeds =
-            driveStateTable.getStructTopic("Speeds", ChassisSpeeds.struct).publish();
-    private final StructArrayPublisher<SwerveModuleState> driveModuleStates = driveStateTable
-            .getStructArrayTopic("ModuleStates", SwerveModuleState.struct)
-            .publish();
-    private final StructArrayPublisher<SwerveModuleState> driveModuleTargets = driveStateTable
-            .getStructArrayTopic("ModuleTargets", SwerveModuleState.struct)
-            .publish();
-    private final StructArrayPublisher<SwerveModulePosition> driveModulePositions = driveStateTable
-            .getStructArrayTopic("ModulePositions", SwerveModulePosition.struct)
-            .publish();
+    private final NetworkTable driveStateTable;
+    private final StructPublisher<Pose2d> drivePose;
+    private final StructPublisher<ChassisSpeeds> driveSpeeds;
+    private final StructArrayPublisher<SwerveModuleState> driveModuleStates;
+    private final StructArrayPublisher<SwerveModuleState> driveModuleTargets;
+    private final StructArrayPublisher<SwerveModulePosition> driveModulePositions;
 
-    private final DoublePublisher driveTimestamp =
-            driveStateTable.getDoubleTopic("Timestamp").publish();
-    private final DoublePublisher driveOdometryFrequency =
-            driveStateTable.getDoubleTopic("OdometryFrequency").publish();
+    private final DoublePublisher driveTimestamp;
+    private final DoublePublisher driveOdometryFrequency;
 
     /* Robot pose for field positioning */
-    private final NetworkTable table = inst.getTable("Field");
-    private final DoubleArrayPublisher fieldPub =
-            table.getDoubleArrayTopic("robotPose").publish();
-    private final StringPublisher fieldTypePub = table.getStringTopic(".type").publish();
+    private final NetworkTable table;
+    private final DoubleArrayPublisher fieldPub;
+    private final StringPublisher fieldTypePub;
 
     /* Mechanisms to represent the swerve module states */
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
@@ -99,8 +110,8 @@ public class Telemetry {
     private final double[] m_moduleStatesArray = new double[8];
     private final double[] m_moduleTargetsArray = new double[8];
 
-    private final StructArrayPublisher<Pose3d> coral = table.getStructArrayTopic("FieldSimulation/Coral", Pose3d.struct).publish();
-    private final StructArrayPublisher<Pose3d> algae = table.getStructArrayTopic("FieldSimulation/Algae", Pose3d.struct).publish();
+    private final StructArrayPublisher<Pose3d> coral;
+    private final StructArrayPublisher<Pose3d> algae;
 
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
     public void telemeterize(SwerveDriveState state) {

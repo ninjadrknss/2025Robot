@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.StatusSignal;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.simulation.ElevatorWristSim;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
     private static ElevatorWristSubsystem instance;
@@ -89,7 +91,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean elevatorAtPosition = false;
     private boolean wristAtPosition = false;
 
+    private ElevatorWristSim sim = null;
+
     private ElevatorWristSubsystem() {
+        if (Utils.isSimulation()) sim = ElevatorWristSim.getInstance();
+
         // TODO: add configs for leader in ElevatorWristConstants
 //        leader.setNeutralMode(NeutralModeValue.Brake);
 //        leader.setControl(leaderControl);
@@ -169,6 +175,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Wrist At Position", wristAtPosition);
         SmartDashboard.putBoolean("Home Switch", getHomeCANcoder());
         SmartDashboard.putBoolean("Both At Position", elevatorAtPosition && wristAtPosition);
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        sim.update(state.name(), state.height, state.angle);
     }
 
     private boolean getHomeCANcoder() {

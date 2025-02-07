@@ -58,7 +58,7 @@ public class LEDSubsystem extends SubsystemBase {
         public static final Color GREEN = new Color(0, 255, 0);
         public static final Color CYAN = new Color(0, 255, 255);
         public static final Color BLUE = new Color(0, 0, 255);
-        public static final Color PURPLE = new Color(132, 0, 255); // Lean
+        public static final Color PURPLE = new Color(132, 0, 255);
         public static final Color MAGENTA = new Color(255, 0, 255);
 
         // -----------------------------------------------------
@@ -86,13 +86,14 @@ public class LEDSubsystem extends SubsystemBase {
         requestColor(Colors.RED);
 
         new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
+        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
     }
 
     public void requestColor(Color color, boolean blink) {
         System.out.printf("Setting color (%d, %d, %d)%n", color.R, color.G, color.B);
         blinking = blink;
         blinkTimer.reset();
-        fadeBetweenColors(currentColor, color, fadeDuration);
+        fadeBetweenColors(currentColor, color);
         currentColor = color;
     }
 
@@ -100,12 +101,12 @@ public class LEDSubsystem extends SubsystemBase {
         requestColor(color, false);
     }
 
-    private void fadeBetweenColors(Color start, Color end, double durationSec) {
+    private void fadeBetweenColors(Color start, Color end) {
         candle.clearAnimation(0);
 
         this.fadeStartColor = start;
         this.fadeEndColor = end;
-        this.fadeDurationSec = durationSec;
+        this.fadeDurationSec = LEDSubsystem.fadeDuration;
         this.fadeStartTime = Timer.getFPGATimestamp();
         this.fading = true;
 
