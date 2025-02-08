@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.simulation.ElevatorWristSim;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
@@ -27,14 +28,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
-        HOME(0, 0),
-        CHUTE_INTAKE(0, 0),
-        GROUND_INTAKE(0, 0),
-        L1_SCORE(0, 0),
-        L2_SCORE(0, 0),
-        L3_SCORE(0, 0),
-        L4_SCORE(0, 0),
-        BARGE_SCORE(0, 0);
+        HOME(0, 0, LEDSubsystem.Colors.WHITE),
+        CHUTE_INTAKE(0, 0, LEDSubsystem.Colors.GREEN),
+        GROUND_INTAKE(0, 0, LEDSubsystem.Colors.YELLOW),
+        L1_SCORE(0, 0, LEDSubsystem.Colors.BLUE),
+        L2_SCORE(0, 0, LEDSubsystem.Colors.CYAN),
+        L3_SCORE(0, 0, LEDSubsystem.Colors.AQUAMARINE),
+        L4_SCORE(0, 0, LEDSubsystem.Colors.PERSIAN_BLUE),
+        BARGE_SCORE(0, 0, LEDSubsystem.Colors.PURPLE);
 
         /**
          * The height of the elevator in inches.
@@ -45,9 +46,12 @@ public class ElevatorWristSubsystem extends SubsystemBase {
          */
         private final int angle;
 
-        ElevatorState(int height, int angle) {
+        private final LEDSubsystem.Color color;
+
+        ElevatorState(int height, int angle, LEDSubsystem.Color color) {
             this.height = height;
             this.angle = angle;
+            this.color = color;
         }
     }
 
@@ -90,6 +94,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean homedOnce = false;
     private boolean elevatorAtPosition = false;
     private boolean wristAtPosition = false;
+    private final LEDSubsystem ledSubsystem = LEDSubsystem.getInstance();
 
     private ElevatorWristSim sim = null;
 
@@ -155,6 +160,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             if (state == ElevatorState.HOME) homeElevator();
             else setElevatorHeight(state.height);
             setElevatorAngle(state.angle);
+            ledSubsystem.requestColor(state.color);
         }
 
 //        elevatorStatus.refresh(); // TODO: Run all signals in signal thread?

@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import choreo.trajectory.SwerveSample;
@@ -12,12 +13,10 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.controller.PIDController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 
@@ -247,8 +246,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     }
 
     // TODO: Make as its own class? Also allow targetPose to be a supplier?
-    public Command goToPositionCommand(Pose2d targetPose) {
-        return new MoveCommand(targetPose, m_pathXController, m_pathYController, m_pathThetaController);
+    public Command goToPositionCommand(Pose2d targetPose, List<Pose2d> intermediatePoints) {
+        return new MoveCommand(targetPose, intermediatePoints, true, true);
     }
 
     public static MapleSimSwerveDrivetrain simDrivetrain = null;

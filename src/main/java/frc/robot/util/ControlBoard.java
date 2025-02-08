@@ -1,8 +1,8 @@
 package frc.robot.util;
 
+import frc.robot.commands.AssistCommand;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -10,17 +10,14 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
-import frc.robot.commands.AssistCommand;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.LEDSubsystem.Color;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.simulation.Telemetry;
+
+import java.util.List;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -31,6 +28,14 @@ public class ControlBoard {
 
     /* Subsystems */
     private final Superstructure superstructure;
+
+    public Constants.GameElement desiredGoal;
+    public Constants.GameElement previousConfirmedGoal;
+    public double goalConfidence;
+    public Constants.GameElement.Branch selectedBranch = Constants.GameElement.Branch.LEFT;
+    public Constants.GameElement.ScoreLevel scoreLevel = Constants.GameElement.ScoreLevel.L3;
+
+    public Constants.GameElement prevDesiredGoal;
 
     /* Commands */
 //    private final HomeCommand homeCommand;
@@ -53,6 +58,11 @@ public class ControlBoard {
     private ControlBoard() {
         DriverStation.silenceJoystickConnectionWarning(true); // TODO: remove
         superstructure = Superstructure.getInstance();
+
+        desiredGoal = Constants.GameElement.PROCESSOR_BLUE;
+        prevDesiredGoal = null;
+        previousConfirmedGoal = null;
+
 
 //        homeCommand = new HomeCommand(superstructure);
 //
@@ -95,28 +105,34 @@ public class ControlBoard {
     private void configureDriverBindings() {
         // TODO: configure driver bindings
         /* Driversim testing */
-        // driver.rightBumper.onTrue(new InstantCommand(() ->
-        //     SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d())))
-        //     .ignoringDisable(true)
-        // );
-        // driver.rightTrigger.onTrue(new InstantCommand(() ->
-        //     SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 0.8, Rotation2d.fromDegrees(135)))))
-        //     .ignoringDisable(true)
-        // );
-        // driver.leftBumper.onTrue(new InstantCommand(() ->
-        //     SimulatedArena.getInstance().clearGamePieces())
-        //     .ignoringDisable(true)
-        // );
+//        driver.rightBumper.onTrue(new InstantCommand(() ->
+//            SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d())))
+//            .ignoringDisable(true)
+//        );
+//        driver.rightTrigger.onTrue(new InstantCommand(() ->
+//            SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 0.8, Rotation2d.fromDegrees(135)))))
+//            .ignoringDisable(true)
+//        );
+//        driver.leftBumper.onTrue(new InstantCommand(() ->
+//            SimulatedArena.getInstance().clearGamePieces())
+//            .ignoringDisable(true)
+//        );
+        /* Driveassist testing */
+        driver.leftBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.LEFT));
+        driver.rightBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.RIGHT));
+        driver.leftTrigger.onTrue(new InstantCommand(
+                () -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d()))
+        ).ignoringDisable(true));
 
         /* Led Testing */
-        LEDSubsystem led = LEDSubsystem.getInstance();
-        driver.circleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.MAGENTA)).ignoringDisable(true));
-        driver.squareButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.WHITE)).ignoringDisable(true));
-        driver.triangleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.BLUE)).ignoringDisable(true));
-        driver.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
-
-        driver.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
-        driver.leftBumper.onTrue(new InstantCommand(() -> led.toggleBlink()).ignoringDisable(true));
+//        LEDSubsystem led = LEDSubsystem.getInstance();
+//        driver.circleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.MAGENTA)).ignoringDisable(true));
+//        driver.squareButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.WHITE)).ignoringDisable(true));
+//        driver.triangleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.BLUE)).ignoringDisable(true));
+//        driver.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
+//
+//        driver.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
+//        driver.leftBumper.onTrue(new InstantCommand(() -> led.toggleBlink()).ignoringDisable(true));
 
         // driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
         
@@ -138,5 +154,9 @@ public class ControlBoard {
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x)
                 .withVelocityY(SwerveConstants.maxSpeed * y)
                 .withRotationalRate(SwerveConstants.maxAngularSpeed * Math.copySign(rot * rot, rot));
+    }
+
+    public String goalConfidence() {
+        return String.format("%.0f%%", goalConfidence * 100);
     }
 }

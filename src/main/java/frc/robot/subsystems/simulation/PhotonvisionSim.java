@@ -87,7 +87,7 @@ public class PhotonvisionSim {
                     Meter.convertFrom(9.41, Inch),
                     Meter.convertFrom(37.418, Inch)
                 ),
-                new Rotation3d(0, 0, Radians.convertFrom(135, Degrees))));
+                new Rotation3d(0, -Radians.convertFrom(-15, Degrees), Radians.convertFrom(155, Degrees))));
         visionSim.addCamera(camera2Sim, new Transform3d(
                 new Translation3d(
                         Meter.convertFrom(2.979, Inch),
@@ -95,7 +95,7 @@ public class PhotonvisionSim {
                         Meter.convertFrom(37.418, Inch)
 
                         ), /*Y, X, Z*/
-                new Rotation3d(0, 0, Radians.convertFrom(-135, Degrees))));
+                new Rotation3d(0, -Radians.convertFrom(-15, Degrees), Radians.convertFrom(-155, Degrees))));
         visionSim.addCamera(camera3Sim, new Transform3d(
                 new Translation3d(
                         Meter.convertFrom(10, Inch),
@@ -118,15 +118,15 @@ public class PhotonvisionSim {
         // Publish the camera poses to the network table
         if (visionSim.getCameraPose(camera1Sim).isPresent()) {
             Pose3d pose = visionSim.getCameraPose(camera1Sim).get();
-            camera1Pose.set(new Pose3d(pose.getTranslation(), pose.getRotation().plus(new Rotation3d(0, 0, Math.PI))));
+            camera1Pose.set(pose);
         }
         if (visionSim.getCameraPose(camera2Sim).isPresent()) {
             Pose3d pose = visionSim.getCameraPose(camera2Sim).get();
-            camera2Pose.set(new Pose3d(pose.getTranslation(), pose.getRotation().plus(new Rotation3d(0, 0, Math.PI))));
+            camera2Pose.set(pose);
         }
         if (visionSim.getCameraPose(camera3Sim).isPresent()) {
             Pose3d pose = visionSim.getCameraPose(camera3Sim).get();
-            camera3Pose.set(new Pose3d(pose.getTranslation(), pose.getRotation().plus(new Rotation3d(0, 0, Math.PI))));
+            camera3Pose.set(pose);
         }
         // Update the vision system simulation to use the current robot pose
         visionSim.update(SwerveSubsystem.simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose());

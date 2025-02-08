@@ -94,7 +94,7 @@ public class LEDSubsystem extends SubsystemBase {
         System.out.printf("Setting color (%d, %d, %d)%n", color.R, color.G, color.B);
         blinking = blink;
         blinkTimer.reset();
-        fadeBetweenColors(currentColor, color);
+        fadeBetweenColors(new Color(currentColor.R, currentColor.G, currentColor.B), color);
         currentColor = color;
     }
 
@@ -158,7 +158,6 @@ public class LEDSubsystem extends SubsystemBase {
         int b = (int) (MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction));
 
         candle.setLEDs(r, g, b);
-        currentColor = new Color(r, g, b);
     }
 
     private void updateBlink() {

@@ -1,130 +1,253 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.swerve.SwerveModule;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import frc.robot.subsystems.drive.Odometry;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.drive.Odometry;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.List;
-
+import java.util.ArrayList;
 
 public class MoveCommand extends Command {
+    //TODO: obstacle avoidance
     private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
-    private Pose2d targetPose;
+    private final Odometry odometry = Odometry.getInstance();
 
-    private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds;
-    private final Odometry m_odometry = Odometry.getInstance();
+    private final Pose2d targetPose;
+    private final List<Pose2d> intermediatePoints;
+    private int currentIntermediateIndex;
+    private boolean movingToIntermediate;
 
-    private final PIDController m_pathXController;
-    private final PIDController m_pathYController;
-    private final PIDController m_pathThetaController;
+    private final Timer timer = new Timer();
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
-    //TODO: final goal is to generate a smooth trajectory that avoids the reef automatically, thus the execute method should look a little like this: https://github.com/wpilibsuite/allwpilib/blob/main/wpilibNewCommands/src/main/java/edu/wpi/first/wpilibj2/command/SwerveControllerCommand.java
+    private final PIDController xController = new PIDController(
+        1.4, 0.0, 0.5
+    );
+    private final PIDController yController = new PIDController(
+        1.4, 0.0, 0.5
+    );
+    private final ProfiledPIDController thetaController = new ProfiledPIDController(
+        2.5, 0.01, 0, SwerveConstants.AutoConstants.kThetaControllerConstraints
+    );
 
-    public MoveCommand(Pose2d targetPose, PIDController pathXController, PIDController pathYController, PIDController pathThetaController) {
+    private final boolean smartMode;
+    private final boolean skipPenultimateNode;
+
+    // Max velocity and acceleration
+	private static final double MAX_VELOCITY = SwerveConstants.maxSpeed;//SwerveConstants.AutoConstants.kMaxSpeedMetersPerSecond;
+    private static final double MAX_ACCELERATION = 5; // meters per second^2
+
+    private static final double CLOSE_THRESHOLD = 0.4;
+    private static final double SMOOTHING_FACTOR = 3.0;
+
+    // These track the commanded velocity from the previous loop, so we can ramp up/down.
+    private double prevVx = 0;
+    private double prevVy = 0;
+    private double prevOmega = 0;
+
+    public MoveCommand(Pose2d targetPose, List<Pose2d> intermediatePoints, boolean smartMode, boolean skipPenultimateNode) {
         this.targetPose = targetPose;
+        this.intermediatePoints = new ArrayList<>(intermediatePoints);
+        this.currentIntermediateIndex = 0;
+        this.movingToIntermediate = !intermediatePoints.isEmpty();
+        this.smartMode = smartMode;
+        this.skipPenultimateNode = skipPenultimateNode;
+        this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
-        this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
-                .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-                .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        thetaController.setTolerance(Math.toRadians(2), Math.toRadians(1));
 
-        this.m_pathXController = new PIDController(0.5, pathXController.getI(), pathXController.getD());
-        this.m_pathYController = new PIDController(0.5, pathYController.getI(), pathYController.getD());
-        this.m_pathThetaController = new PIDController(pathThetaController.getP(), pathThetaController.getI(), pathThetaController.getD());
         addRequirements(swerveSubsystem);
-    }
-
-    public void setTargetPose(Pose2d targetPose) {
-        this.targetPose = targetPose;
-
-        m_pathXController.setSetpoint(targetPose.getX());
-        m_pathYController.setSetpoint(targetPose.getY());
-        m_pathThetaController.setSetpoint(targetPose.getRotation().getRadians());
     }
 
     @Override
     public void initialize() {
+        Pose2d currentPose = SwerveSubsystem.simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
 
-        //test
-        TrajectoryConfig config = new TrajectoryConfig(
-            2,
-            1);
-            config.setKinematics(swerveSubsystem.getKinematics());
+        // If we're effectively at the target, don't bother moving.
+        if (isClose(currentPose, targetPose, 0.02)
+            && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
+            System.out.println("Already at target position.");
+            end(true);
+            return;
+        }
 
-            config.setStartVelocity(null);
+        System.out.println("Starting MoveCommand to: " + targetPose);
+        // xController.reset(currentPose.getX());
+        // yController.reset(currentPose.getY());
+        thetaController.reset(currentPose.getRotation().getRadians());
 
-    Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-            new Pose2d(0, 0, new Rotation2d(0)),
-            List.of(
-            ),
-            new Pose2d(1, 1, new Rotation2d(0)),
-            config);
-            exampleTrajectory.sample(0);
-        
+        // Initialize previous velocities to the robot's current chassis speeds
+//        prevVx = odometry.getVelocityX();
+//        prevVy = odometry.getVelocityY();
+//        prevOmega = odometry.getFieldYawRate();
 
+        ChassisSpeeds speeds = SwerveSubsystem.simDrivetrain.mapleSimDrive.getDriveTrainSimulatedChassisSpeedsFieldRelative();
+        prevVx = speeds.vxMetersPerSecond;
+        prevVy = speeds.vyMetersPerSecond;
+        prevOmega = speeds.omegaRadiansPerSecond;
 
-        m_pathXController.reset();
-        m_pathYController.reset();
-        m_pathThetaController.reset();
-
-        m_pathXController.setSetpoint(targetPose.getX());
-        m_pathYController.setSetpoint(targetPose.getY());
-        m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
-        m_pathThetaController.setSetpoint(targetPose.getRotation().getRadians());
-        System.out.println("I kove people");
+        timer.reset();
+        timer.start();
     }
 
     @Override
     public void execute() {
-        Pose2d currentPose = swerveSubsystem.getPose();
-        System.out.println("I egio people");
+        Pose2d currentPose = SwerveSubsystem.simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
+        Pose2d goal = getSmoothedGoal(currentPose);
 
-        // Feedforward and Feedback
-        //TODO: get velocity
-        double vx = 0
-                + m_pathXController.calculate(currentPose.getX(), targetPose.getX());
-        double vy = 0
-                + m_pathYController.calculate(currentPose.getY(), targetPose.getY());
-        double omega = 0
-                + m_pathThetaController.calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+        // Feedforward attempts to drive towards the goal
+        double feedforwardVx = (goal.getX() - currentPose.getX() ) * 1.1;
+        double feedforwardVy = (goal.getY() - currentPose.getY() ) * 1.1;
 
-        // Constrain velocities
-        double maxVelocity = SwerveConstants.AutonConstants.maxSpeed;
-        double maxAngularVelocity = SwerveConstants.AutonConstants.maxAngularSpeed;
-        vx = Math.max(-maxVelocity, Math.min(maxVelocity, vx));
-        vy = Math.max(-maxVelocity, Math.min(maxVelocity, vy));
-        omega = Math.max(-maxAngularVelocity, Math.min(maxAngularVelocity, omega));
+        // PID feedback for position + heading
+        double feedbackVx = xController.calculate(currentPose.getX(), goal.getX());
+        double feedbackVy = yController.calculate(currentPose.getY(), goal.getY());
+        double feedbackOmega = thetaController.calculate(
+            currentPose.getRotation().getRadians(),
+            goal.getRotation().getRadians()
+        );
 
-        // Apply speeds
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omega, currentPose.getRotation());
+        // ------------------------ ADDED ROTATIONAL FEEDFORWARD ------------------------
+        // This small feedforward ensures we start turning in the "intended" direction
+        // rather than reversing if the PID decides the other way is shorter.
+        double headingDiff = goal.getRotation().minus(currentPose.getRotation()).getRadians();
+        // Normalize headingDiff to [-pi, pi]:
+        headingDiff = Math.atan2(Math.sin(headingDiff), Math.cos(headingDiff));
+
+        // Only apply feedforward if the difference in angle is more than a small threshold.
+        double feedforwardOmega = 0.0;
+        if (Math.abs(headingDiff) > Math.toRadians(5)) { // example threshold ~5 degrees
+            // Scale this constant as needed for your robot (0.2 is just an example).
+            feedforwardOmega = 0.1 * Math.signum(headingDiff);
+        }
+
+        // Combine feedforward and feedback
+        double vx = feedforwardVx + feedbackVx;
+        double vy = feedforwardVy + feedbackVy;
+        double rawOmega = feedbackOmega + feedforwardOmega;
+        // ------------------------------------------------------------------------------
+
+        // Apply acceleration limit
+        double dt = timer.get(); // Time since last update
+        double vxLimited = applyAccelerationLimit(prevVx, vx, dt);
+        double vyLimited = applyAccelerationLimit(prevVy, vy, dt);
+        double omegaLimited = applyAccelerationLimit(prevOmega, rawOmega, dt);
+
+        // Apply velocity limit
+        vxLimited = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, vxLimited));
+        vyLimited = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, vyLimited));
+        omegaLimited = Math.max(-SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+                Math.min(SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond, omegaLimited));
+
+        // Store for next iteration
+        prevVx = vxLimited;
+        prevVy = vyLimited;
+        prevOmega = omegaLimited;
+        timer.reset(); // Reset for next cycle measurement
+
+        // Convert to field-relative speeds
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            vxLimited, 
+            vyLimited, 
+            omegaLimited, 
+            currentPose.getRotation()
+        );
+
         swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
+    }
+
+    /**
+     * Picks either the current intermediate point or the final target.
+     * Then performs a simple smoothing so we don't lurch.
+     */
+    private Pose2d getSmoothedGoal(Pose2d currentPose) {
+        Pose2d goal;
+        if (movingToIntermediate) {
+            goal = intermediatePoints.get(currentIntermediateIndex);
+
+            boolean penultimateCondition = Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 40 
+                && (skipPenultimateNode ? intermediatePoints.size() - 2 : intermediatePoints.size() - 1) == currentIntermediateIndex; // Second to last intermediate point
+
+            boolean ultimateCondition = skipPenultimateNode
+                && (intermediatePoints.size() - 1 == currentIntermediateIndex)
+                && isInLine(currentPose, intermediatePoints.get(currentIntermediateIndex-1), targetPose); // Last intermediate point
+
+            boolean shouldSkipNow = smartMode && (penultimateCondition || ultimateCondition);
+
+            if (isClose(currentPose, goal, CLOSE_THRESHOLD) || shouldSkipNow) {
+                if (currentIntermediateIndex < intermediatePoints.size() - 1) {
+                    currentIntermediateIndex++;
+                    System.out.println("Moving to next intermediate point: " + intermediatePoints.get(currentIntermediateIndex));
+                } else {
+                    movingToIntermediate = false;
+                    System.out.println("Switching to final targetPose: " + targetPose);
+                }
+            }
+        } else {
+            goal = targetPose;
+        }
+
+        return smoothTransition(currentPose, goal);
+    }
+
+    private boolean isInLine(Pose2d current, Pose2d initialPose, Pose2d finalPose) {
+        // Vector from penultimate to final
+        double dxGoal = finalPose.getX() - initialPose.getX();
+        double dyGoal = finalPose.getY() - initialPose.getY();
+        double angleGoal = Math.atan2(dyGoal, dxGoal);
+
+        // Vector from final to current
+        double dxCurr = finalPose.getX() - current.getX();
+        double dyCurr = finalPose.getY() - current.getY();
+        double angleCurr = Math.atan2(dyCurr, dxCurr);
+
+        // If the difference in angles is small, we consider it "inline."
+        double angleDiff = Math.toDegrees(Math.min(Math.abs(angleGoal - angleCurr), Math.abs(angleGoal - angleCurr - Math.PI)));
+        return angleDiff < 10.0;  // example tolerance in degrees
+    }
+
+    /**
+     * Gently pull our "goal" a little closer to the current position.
+     * This can help reduce large jumps if a waypoint is far away.
+     */
+    private Pose2d smoothTransition(Pose2d current, Pose2d goal) {
+        double smoothedX = current.getX() * (1 - SMOOTHING_FACTOR) + goal.getX() * SMOOTHING_FACTOR;
+        double smoothedY = current.getY() * (1 - SMOOTHING_FACTOR) + goal.getY() * SMOOTHING_FACTOR;
+        // Keep the goal rotation.
+        return new Pose2d(smoothedX, smoothedY, goal.getRotation());
+    }
+
+    private boolean isClose(Pose2d current, Pose2d target, double tolerance) {
+        double positionError = Math.hypot(current.getX() - target.getX(), current.getY() - target.getY());
+        return positionError < tolerance;
+    }
+
+    private double applyAccelerationLimit(double previous, double desired, double dt) {
+        double maxChange = MAX_ACCELERATION * dt;
+        double lowerLimit = previous - maxChange;
+        double upperLimit = previous + maxChange;
+        return Math.max(lowerLimit, Math.min(upperLimit, desired));
     }
 
     @Override
     public boolean isFinished() {
-        return false;
-        // var pose = swerveSubsystem.getPose();
-        // double positionError = Math.hypot(pose.getX() - targetPose.getX(), pose.getY() - targetPose.getY());
-        // double rotationError = Math.abs(pose.getRotation().getRadians() - targetPose.getRotation().getRadians());
-        // return (positionError < 0.05 && rotationError < Math.toRadians(10)); // 5 cm and 10 degrees tolerance
+        Pose2d currentPose = odometry.getPose();
+        // Finish if near target position + orientation
+        return isClose(targetPose, currentPose, 0.02)
+            && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 2;
     }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("ending mpve");
-
+        timer.stop();
         swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(new ChassisSpeeds(0.0, 0.0, 0.0)));
     }
 }
