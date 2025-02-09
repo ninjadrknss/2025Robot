@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 import org.ironmaple.simulation.SimulatedArena;
 

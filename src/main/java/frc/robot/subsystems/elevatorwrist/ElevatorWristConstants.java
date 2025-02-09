@@ -2,14 +2,13 @@ package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import frc.lib.TalonFXConfig;
 import frc.robot.Robot;
 
 public class ElevatorWristConstants {
+    public static double revolutionsPerInch = 1;
+
     public static int homeCANcoderID = 52;
 
     public static TalonFXConfig rightElevatorMotorConfig = new TalonFXConfig()
@@ -28,8 +27,11 @@ public class ElevatorWristConstants {
         leaderConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
         leaderConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
 
-        leaderConfig.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.RemoteCANcoder; // TODO: might be ReverseLimit
-        leaderConfig.HardwareLimitSwitch.ForwardLimitRemoteSensorID = homeCANcoderID; // TODO: might be ReverseLimit
+        leaderConfig.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.RemoteCANcoder;
+        leaderConfig.HardwareLimitSwitch.ReverseLimitRemoteSensorID = homeCANcoderID;
+
+        leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9999; // TODO: Change
     }
 
     public static TalonFXConfig leftElevatorMotorConfig = new TalonFXConfig()

@@ -1,15 +1,8 @@
 package frc.robot.subsystems.intake;
 
 
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.hardware.CANrange;
-import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.LEDSubsystem;
 
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem instance;
@@ -71,6 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 case INTAKING -> setIntakeMotor(IntakeConstants.intakeSpeed);
                 case SPITTING -> setIntakeMotor(-IntakeConstants.spitSpeed);
             }
+            LEDSubsystem.getInstance().requestBlinking(nextState != IntakeState.IDLE);
             state = nextState;
         }
 

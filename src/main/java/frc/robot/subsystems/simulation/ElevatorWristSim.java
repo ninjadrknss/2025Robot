@@ -1,6 +1,9 @@
 package frc.robot.subsystems.simulation;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -54,7 +57,7 @@ public class ElevatorWristSim {
         elevatorS3.append(wrist);
     }
 
-    public void update(String name, double height, double angle) {
+    public void update(String name, Distance height, Angle angle) {
         if (!name.equals(currentState)) {
             currentState = name;
             elevatorTable.getEntry("State").setString(name);

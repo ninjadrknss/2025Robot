@@ -55,11 +55,13 @@ public class LEDSubsystem extends SubsystemBase {
         public static final Color WHITE = new Color(255, 255, 255);
         public static final Color RED = new Color(255, 0, 0);
         public static final Color YELLOW = new Color(255, 255, 0);
+        public static final Color ORANGE = new Color(255, 165, 0);
         public static final Color GREEN = new Color(0, 255, 0);
         public static final Color CYAN = new Color(0, 255, 255);
         public static final Color BLUE = new Color(0, 0, 255);
         public static final Color PURPLE = new Color(132, 0, 255);
         public static final Color MAGENTA = new Color(255, 0, 255);
+        public static final Color PINK = new Color(255, 192, 203);
 
         // -----------------------------------------------------
         // Palette Colors
@@ -120,16 +122,14 @@ public class LEDSubsystem extends SubsystemBase {
         candle.animate(new RainbowAnimation(0.50, 0.75, numLEDs, false, 0));
     }
 
-    public void setBlink(boolean blink) {
+    public void requestBlinking(boolean blink) {
         blinking = blink;
         System.out.println("Blink: " + blink);
-        if (blinking) {
-            blinkTimer.reset();
-        }
+        if (blinking) blinkTimer.reset();
     }
 
-    public void toggleBlink() {
-        setBlink(!blinking);
+    public void requestToggleBlinking() {
+        requestBlinking(!blinking);
     }
 
     @Override
