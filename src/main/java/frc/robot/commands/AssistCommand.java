@@ -4,6 +4,8 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.Superstructure;
@@ -16,29 +18,30 @@ import frc.robot.util.Constants.GameElement.*;
 public class AssistCommand extends Command {
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final SwerveSubsystem swerve = SwerveSubsystem.getInstance();
-    private final Superstructure superstructure;
     private Command goToPositionCommand;
 
-    Constants.GameElement gameElement;
+    private Constants.GameElement gameElement;
 
     private final Branch selectedBranch;
 
+    private final StructPublisher<Pose2d> desiredPosePublisher = NetworkTableInstance.getDefault().getTable("Auton")
+        .getStructTopic("Desired Pose", Pose2d.struct)
+        .publish();
 
     public AssistCommand(Superstructure superstructure, Branch selectedBranch) {
-        this.superstructure = superstructure;
         this.selectedBranch = selectedBranch;
         addRequirements(this.swerve);
     }
 
     @Override
     public void initialize() {
-
         gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
 
-        if (gameElement.hasBranches() && selectedBranch != Branch.CENTER){
-            elementPose = (selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch());
+        if (gameElement.hasBranches() && selectedBranch != Branch.CENTER) {
+            elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
         }
+
         Rotation2d targetRotation = gameElement.getLocation()
             .getRotation()
             .minus(Rotation2d.fromDegrees(180));
@@ -55,6 +58,7 @@ public class AssistCommand extends Command {
         Pose2d targetPose = new Pose2d(offsetPose1.getX(), offsetPose1.getY(), targetRotation);
 
         this.goToPositionCommand = swerve.goToPositionCommand(targetPose, List.of(intermediatePose1, intermediatePose2));
+        desiredPosePublisher.set(targetPose);
         goToPositionCommand.initialize();
         //superstructure.requestChuteIntake();
     }

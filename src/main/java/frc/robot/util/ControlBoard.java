@@ -1,25 +1,18 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.SignalLogger;
-import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.simulation.Telemetry;
-
-import java.util.List;
+import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -85,8 +78,7 @@ public class ControlBoard {
             System.out.println("Driver Configured");
             configureDriverBindings();
 
-            Telemetry telemetry = new Telemetry(SwerveConstants.maxSpeed);
-            SwerveSubsystem.getInstance().registerTelemetry(telemetry::telemeterize);
+            SwerveSubsystem.getInstance().registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
 
             SwerveSubsystem drivetrain = SwerveSubsystem.getInstance();
             drivetrain.setDefaultCommand(

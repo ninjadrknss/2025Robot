@@ -21,10 +21,12 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import frc.lib.CTREUtil;
+import frc.lib.TunableParameter;
+import frc.robot.Robot;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.simulation.ElevatorWristSim;
 
@@ -76,21 +78,20 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createMotor();
     private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(0);
 
-    /* Sensors and Triggers */
-    private final Trigger homeTrigger = new Trigger(this::getHomeCANcoder);
-
+    /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
     private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
     private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
+    private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
-    private final CANcoder homeCANcoder = new CANcoder(ElevatorWristConstants.homeCANcoderID);
-    // private final DigitalInput homeSwitch = new DigitalInput(ElevatorWristConstants.homeCANcoderID);
+    private final CANcoder homeCANcoder = new CANcoder(ElevatorWristConstants.homeCANcoderID, Robot.elevatorbus);
 
     private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
-    private final CANcoder wristEncoder = new CANcoder(ElevatorWristConstants.wristEncoderID);
+    private final CANcoder wristEncoder = new CANcoder(ElevatorWristConstants.wristEncoderID, Robot.elevatorbus);
     private final StatusSignal<Angle> wristAngleStatus = wristEncoder.getPosition();
 
     /* State Machine Logic */
+    private ElevatorState prevState = null;
     private ElevatorState state = ElevatorState.HOME;
 
     private boolean requestHome = true;
@@ -107,8 +108,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean homing = false;
     private boolean elevatorAtPosition = false;
     private boolean wristAtPosition = false;
-
-    private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
     private final LEDSubsystem ledSubsystem = LEDSubsystem.getInstance();
 
@@ -165,12 +164,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         leader.setNeutralMode(NeutralModeValue.Brake);
         leader.setControl(leaderControl);
 
-        homeTrigger.onTrue(new InstantCommand(() -> {
-            leader.setPosition(0);
-            //leader.setControl(leaderControl.withPosition(0)); // This will definitely cause issues, instead try to prevent forward motion
-            homedOnce = true;
-        }));
-
         // TODO: add configs for follower in ElevatorWristConstants
         follower.setNeutralMode(NeutralModeValue.Brake);
         follower.setControl(followerControl);
@@ -179,7 +172,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         wrist.setNeutralMode(NeutralModeValue.Brake);
         wrist.setControl(wristControl);
 
-        wristEncoder.getConfigurator().apply(ElevatorWristConstants.wristEncoderConfig);
+        CTREUtil.applyConfiguration(wristEncoder, ElevatorWristConstants.wristEncoderConfig);
     }
 
     public static ElevatorWristSubsystem getInstance() {
@@ -226,9 +219,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorPositionStatus.getValueAsDouble() - state.height.magnitude()) < 10);
         wristAtPosition = wristDebouncer.calculate(Math.abs(wristAngleStatus.getValueAsDouble() - state.angle.magnitude()) < 5);
 
-        if (homing) homingExecute();
+        homingExecute();
 
         SmartDashboard.putString("Elevator State", state.toString());
+        SmartDashboard.putString("Prev Elevator State", prevState.toString());
         SmartDashboard.putNumber("Elevator Setpoint", state.height.magnitude());
         SmartDashboard.putNumber("Wrist Setpoint", state.angle.magnitude());
 
@@ -249,6 +243,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             homing = false;
             homedOnce = true;
             leader.setPosition(0);
+            System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
         }
     }
 
@@ -263,6 +258,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         else if (requestL3Score) nextState = ElevatorState.L3_SCORE;
         else if (requestL4Score) nextState = ElevatorState.L4_SCORE;
         else if (requestBargeScore) nextState = ElevatorState.BARGE_SCORE;
+        if (nextState != state) prevState = state;
         return nextState;
     }
 

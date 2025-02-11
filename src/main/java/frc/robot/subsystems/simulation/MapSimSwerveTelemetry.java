@@ -1,7 +1,6 @@
 package frc.robot.subsystems.simulation;
 
 import org.ironmaple.simulation.SimulatedArena;
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -24,7 +23,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 
-public class Telemetry {
+public class MapSimSwerveTelemetry {
     private final double MaxSpeed;
 
     /**
@@ -32,7 +31,7 @@ public class Telemetry {
      *
      * @param maxSpeed Maximum speed in meters per second
      */
-    public Telemetry(double maxSpeed) {
+    public MapSimSwerveTelemetry(double maxSpeed) {
         MaxSpeed = maxSpeed;
         SignalLogger.start();
 

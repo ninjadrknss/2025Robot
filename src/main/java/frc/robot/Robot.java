@@ -51,6 +51,16 @@ public class Robot extends TimedRobot {
         for (int port = 5800; port <= 5809; port++) {
             PortForwarder.add(port, "limelight.local", port);
         }
+
+//        SignalLogger.start(); // TODO: enable this for competition
+
+        // TODO: disable this for competitions
+        scheduler.onCommandInitialize(command -> {
+            System.out.println("Initializing command: " + command.getName());
+        });
+        scheduler.onCommandFinish(command -> {
+            System.out.println("Finishing command: " + command.getName());
+        });
     }
 
     @Override

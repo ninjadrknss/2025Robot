@@ -27,10 +27,12 @@ public class LEDSubsystem extends SubsystemBase {
     private static final Timer blinkTimer = new Timer();
     private static boolean blinkOff = false;
 
-    private boolean fading = false;
     private static final double fadeDuration = 0.2;
+    private boolean doFadePercent = true;
+    private boolean fading = false;
     private double fadeStartTime = 0.0;
     private double fadeDurationSec = 0.0;
+    private double fadePercent = 0.0;
     private Color fadeStartColor = Colors.OFF;
     private Color fadeEndColor = Colors.OFF;
 
@@ -143,11 +145,15 @@ public class LEDSubsystem extends SubsystemBase {
         if (blinking) updateBlink();
     }
 
+    public void setFadePercent(double percent) {
+        fadePercent = percent;
+    }
+
     private void updateFade() {
         double currentTime = Timer.getFPGATimestamp();
         double elapsed = currentTime - fadeStartTime;
 
-        double fraction = elapsed / fadeDurationSec;
+        double fraction = doFadePercent ? MathUtil.clamp(fadePercent, 0, 1) : elapsed / fadeDurationSec;
         if (fraction >= 1.0) {
             fraction = 1.0;
             fading = false; // Fade is done
