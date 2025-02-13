@@ -121,7 +121,7 @@ public class ControlBoard {
         driver.leftBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.LEFT));
         driver.rightBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.RIGHT));
         driver.leftTrigger.onTrue(new InstantCommand(
-                () -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d()))
+                () -> SwerveSubsystem.getInstance().resetPose(new Pose2d(2, 2, new Rotation2d()))
         ).ignoringDisable(true));
 
         /* Led Testing */

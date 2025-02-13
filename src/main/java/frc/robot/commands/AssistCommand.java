@@ -33,7 +33,7 @@ public class AssistCommand extends Command {
     @Override
     public void initialize() {
 
-        gameElement = ControlBoard.getInstance().desiredGoal;
+        gameElement = GameElement.REEF_BLUE_1;//ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
 
         if (gameElement.hasBranches() && selectedBranch != Branch.CENTER){
@@ -45,9 +45,9 @@ public class AssistCommand extends Command {
 
 
         // Get the poses with offset for the two positions
-        Pose2d offsetPose1 = GameElement.getPoseWithOffset(elementPose, 0.38);
-        Pose2d offsetPose2 = GameElement.getPoseWithOffset(elementPose, 1.5);
-        Pose2d offsetPose3 = GameElement.getPoseWithOffset(elementPose, 0.751);
+        Pose2d offsetPose1 = GameElement.getPoseWithOffset(elementPose, 0.475);
+        Pose2d offsetPose2 = GameElement.getPoseWithOffset(elementPose, 1.0);
+        Pose2d offsetPose3 = GameElement.getPoseWithOffset(elementPose, 0.6);//0.751);
 
         // Create new Pose2d objects using the x/y from the offset poses and the adjusted rotation
         Pose2d intermediatePose1 = new Pose2d(offsetPose2.getX(), offsetPose2.getY(), targetRotation);

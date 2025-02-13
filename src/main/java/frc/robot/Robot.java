@@ -9,12 +9,17 @@ import frc.robot.subsystems.simulation.PhotonvisionSim;
 import org.ironmaple.simulation.SimulatedArena;
 
 import com.ctre.phoenix6.CANBus;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import frc.robot.subsystems.drive.Odometry;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.auton.AutonSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.Constants;
@@ -50,6 +55,10 @@ public class Robot extends TimedRobot {
         for (int port = 5800; port <= 5809; port++) {
             PortForwarder.add(port, "limelight.local", port);
         }
+
+
+        PathfindingCommand.warmupCommand().schedule();
+        FollowPathCommand.warmupCommand().schedule();
     }
 
     @Override
@@ -90,7 +99,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 
-        odometry.testResetOdo();
+        new AssistCommand(null, Constants.GameElement.Branch.LEFT).schedule();
     }
 
     @Override
@@ -102,6 +111,8 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
+        //odometry.testResetOdo();
+        SwerveSubsystem.getInstance().resetPose(new Pose2d(2, 3, new Rotation2d()));
     }
 
     @Override

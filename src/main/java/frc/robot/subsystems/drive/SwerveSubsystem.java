@@ -17,7 +17,7 @@ import edu.wpi.first.math.controller.PIDController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -213,8 +213,15 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
     }
 
-    public Pose2d getPose() {
+    public Pose2d getPose() { // TODO: Paigus remember
+        if (simDrivetrain != null){
+            return simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
+        }
         return getState().Pose;
+    }
+
+    public ChassisSpeeds getChassisSpeeds(){
+        return getState().Speeds;
     }
 
     /**
@@ -247,7 +254,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     // TODO: Make as its own class? Also allow targetPose to be a supplier?
     public Command goToPositionCommand(Pose2d targetPose, List<Pose2d> intermediatePoints) {
-        return new MoveCommand(targetPose, intermediatePoints, true, true);
+        return new MoveCommand(targetPose, intermediatePoints, this);
     }
 
     public static MapleSimSwerveDrivetrain simDrivetrain = null;
