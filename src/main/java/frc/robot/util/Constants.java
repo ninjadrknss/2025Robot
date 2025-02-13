@@ -12,10 +12,10 @@ public class Constants {
     /** Use {@see Robot.canivorebus #} instead */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
-    public static final String drivebus = "Drivebase";
+    public static final String drivebus = "Drivebus";
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
-    public static final String elevatorbus = "Elevator";
+    public static final String elevatorbus = "Elevatorbus";
 
     public static final double EPSILON = 1e-6;
     public static final double CORAL_OFFSET = 0.206; // meters

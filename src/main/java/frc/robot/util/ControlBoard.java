@@ -177,8 +177,8 @@ public class ControlBoard {
 
     public SwerveRequest getDriverRequest() {
         if (driver == null) return null;
-        double x = -driver.leftVerticalJoystick.getAsDouble();
-        double y = -driver.leftHorizontalJoystick.getAsDouble();
+        double x = driver.leftVerticalJoystick.getAsDouble();
+        double y = driver.leftHorizontalJoystick.getAsDouble();
         double rot = driver.rightHorizontalJoystick.getAsDouble();
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x)
                 .withVelocityY(SwerveConstants.maxSpeed * y)
