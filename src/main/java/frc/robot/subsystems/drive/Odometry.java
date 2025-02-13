@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -44,6 +45,9 @@ public class Odometry extends SubsystemBase {
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose3d.struct).publish();
 
+    StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("PredictedElementPose", Pose3d.struct).publish();
+
     private RobotState.Velocity2D linearVelocity = new RobotState.Velocity2D(0, 0);
 
     public static class RobotState {
@@ -76,15 +80,15 @@ public class Odometry extends SubsystemBase {
         }
     }
 
-    public class TargetPredictor {
+    public static class TargetPredictor {
 
         private static final boolean ALLIANCE_IS_BLUE = true;
 
         private static GameElement lastPredictedTarget = null;
         private static double targetConfidence = 0.0;
 
-        private static final double CONFIDENCE_INCREMENT = 0.1; // Increase per consistent cycle
-        private static final double CONFIDENCE_DECREMENT = 0.25; // Decrease per cycle when candidate changes
+        private static final double CONFIDENCE_INCREMENT = 0.15; // Increase per consistent cycle
+        private static final double CONFIDENCE_DECREMENT = 0.09; // Decrease per cycle when candidate changes
         private static final double CONFIDENCE_THRESHOLD = 0.3; // Below this threshold, target can be switched
 
         // Cone (forced-selection) parameters
@@ -455,12 +459,15 @@ public class Odometry extends SubsystemBase {
         SmartDashboard.putString("P Target Confidence", controlBoard.goalConfidence());
         SmartDashboard.putString("Last Confirmed Target", (controlBoard.previousConfirmedGoal != null ? controlBoard.previousConfirmedGoal.name() : ""));
         SmartDashboard.putString("Selected Branch", controlBoard.selectedBranch.name());
+        SmartDashboard.putString("Score Level", controlBoard.scoreLevel.name());
     }
 
     @Override
     public void periodic() {
 
         publisher.set(getPose3d());
+        Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
+        predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
 
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());

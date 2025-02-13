@@ -25,9 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.lib.CTREUtil;
-import frc.lib.TunableParameter;
 import frc.robot.Robot;
-import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.lights.LightSubsystem;
 import frc.robot.subsystems.simulation.ElevatorWristSim;
 
 import static edu.wpi.first.units.Units.*;
@@ -38,16 +37,16 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
-        HOME(0, 0, LEDSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 0, LEDSubsystem.Colors.GREEN),
-        GROUND_INTAKE(0, 0, LEDSubsystem.Colors.YELLOW),
-        L1_SCORE(0, 0, LEDSubsystem.Colors.BLUE),
-        L2_SCORE(0, 0, LEDSubsystem.Colors.CYAN),
-        L3_SCORE(0, 0, LEDSubsystem.Colors.AQUAMARINE),
-        L4_SCORE(0, 0, LEDSubsystem.Colors.PERSIAN_BLUE),
-        L2_INTAKE(0, 0, LEDSubsystem.Colors.ORANGE),
-        L3_INTAKE(0, 0, LEDSubsystem.Colors.PINK),
-        BARGE_SCORE(0, 0, LEDSubsystem.Colors.PURPLE);
+        HOME(0, 0, LightSubsystem.Colors.WHITE),
+        CHUTE_INTAKE(0, 0, LightSubsystem.Colors.GREEN),
+        GROUND_INTAKE(0, 0, LightSubsystem.Colors.YELLOW),
+        L1_SCORE(0, 0, LightSubsystem.Colors.BLUE),
+        L2_SCORE(0, 0, LightSubsystem.Colors.CYAN),
+        L3_SCORE(0, 0, LightSubsystem.Colors.AQUAMARINE),
+        L4_SCORE(0, 0, LightSubsystem.Colors.PERSIAN_BLUE),
+        L2_INTAKE(0, 0, LightSubsystem.Colors.ORANGE),
+        L3_INTAKE(0, 0, LightSubsystem.Colors.PINK),
+        BARGE_SCORE(0, 0, LightSubsystem.Colors.PURPLE);
 
         /**
          * The height of the elevator in inches.
@@ -58,9 +57,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
          */
         private final Angle angle;
 
-        private final LEDSubsystem.Color color;
+        private final LightSubsystem.Color color;
 
-        ElevatorState(int height, int angle, LEDSubsystem.Color color) {
+        ElevatorState(int height, int angle, LightSubsystem.Color color) {
             this.height = Inches.of(height);
             this.angle = Degrees.of(angle);
             this.color = color;
@@ -109,7 +108,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean elevatorAtPosition = false;
     private boolean wristAtPosition = false;
 
-    private final LEDSubsystem ledSubsystem = LEDSubsystem.getInstance();
+    private final LightSubsystem lightSubsystem = LightSubsystem.getInstance();
 
     private ElevatorWristSim sim = null;
 
@@ -209,7 +208,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             else setElevatorHeight(state.height);
             setElevatorAngle(state.angle);
 
-            ledSubsystem.requestColor(state.color);
+            lightSubsystem.requestColor(state.color);
         }
 
         elevatorPositionStatus.refresh(); // TODO: Run all signals in signal thread?
@@ -222,7 +221,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         homingExecute();
 
         SmartDashboard.putString("Elevator State", state.toString());
-        SmartDashboard.putString("Prev Elevator State", prevState.toString());
+        //SmartDashboard.putString("Prev Elevator State", prevState.toString());
         SmartDashboard.putNumber("Elevator Setpoint", state.height.magnitude());
         SmartDashboard.putNumber("Wrist Setpoint", state.angle.magnitude());
 

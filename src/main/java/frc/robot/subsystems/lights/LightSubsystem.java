@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.lights;
 
 import com.ctre.phoenix.led.*;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * Portions of this code were taken from Team 9496 Lynk
  */
 
-public class LEDSubsystem extends SubsystemBase {
-    private static LEDSubsystem instance = null;
+public class LightSubsystem extends SubsystemBase {
+    private static LightSubsystem instance = null;
 
     private final CANdle candle = new CANdle(5, "rio");
     private static final int numLEDs = 59 + 8;
@@ -76,12 +76,12 @@ public class LEDSubsystem extends SubsystemBase {
         /* P5 */ public static final Color ULTRAVIOLET = new Color(86, 69, 146);
     }
 
-    public static LEDSubsystem getInstance() {
-        if (instance == null) instance = new LEDSubsystem();
+    public static LightSubsystem getInstance() {
+        if (instance == null) instance = new LightSubsystem();
         return instance;
     }
 
-    private LEDSubsystem() {
+    private LightSubsystem() {
         candle.configBrightnessScalar(0.50);
         candle.configLEDType(LEDStripType.GRB);
         candle.configV5Enabled(true);
@@ -111,7 +111,7 @@ public class LEDSubsystem extends SubsystemBase {
 
         this.fadeStartColor = start;
         this.fadeEndColor = end;
-        this.fadeDurationSec = LEDSubsystem.fadeDuration;
+        this.fadeDurationSec = LightSubsystem.fadeDuration;
         this.fadeStartTime = Timer.getFPGATimestamp();
         this.fading = true;
 
