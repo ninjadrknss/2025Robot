@@ -2,14 +2,13 @@ package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.*;
 import frc.lib.TalonFXConfig;
 import frc.robot.Robot;
 
 public class ElevatorWristConstants {
+    public static double revolutionsPerInch = 1;
+
     public static int homeCANcoderID = 52;
 
     public static TalonFXConfig rightElevatorMotorConfig = new TalonFXConfig()
@@ -28,8 +27,19 @@ public class ElevatorWristConstants {
         leaderConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
         leaderConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
 
-        leaderConfig.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.RemoteCANcoder; // TODO: might be ReverseLimit
-        leaderConfig.HardwareLimitSwitch.ForwardLimitRemoteSensorID = homeCANcoderID; // TODO: might be ReverseLimit
+        leaderConfig.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.RemoteCANcoder;
+        leaderConfig.HardwareLimitSwitch.ReverseLimitRemoteSensorID = homeCANcoderID;
+
+        leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9999; // TODO: Change
+
+        leaderConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
+        leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+
+        leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
     }
 
     public static TalonFXConfig leftElevatorMotorConfig = new TalonFXConfig()
@@ -43,7 +53,7 @@ public class ElevatorWristConstants {
     public static TalonFXConfig wristMotorConfig = new TalonFXConfig()
             .withName("Wrist Motor")
             .withCanID(54)
-            .withBus(Robot.drivebus);
+            .withBus(Robot.elevatorbus);
     static {
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
         wristConfig.Slot0.kP = 0;
@@ -62,6 +72,14 @@ public class ElevatorWristConstants {
         wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0; // TODO: Change
         wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0; // TODO: Change
+
+        wristConfig.CurrentLimits.StatorCurrentLimit = 40; // TODO: Change
+        wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+        wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+
+        wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
     }
 
     public static int wristEncoderID = 53;

@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 
-        new AssistCommand(null, Constants.GameElement.Branch.LEFT).schedule();
+        //new AssistCommand(null, Constants.GameElement.Branch.LEFT).schedule();
     }
 
     @Override
@@ -112,7 +112,7 @@ public class Robot extends TimedRobot {
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
         //odometry.testResetOdo();
-        SwerveSubsystem.getInstance().resetPose(new Pose2d(2, 3, new Rotation2d()));
+        //SwerveSubsystem.getInstance().resetPose(new Pose2d(2, 2, new Rotation2d()));
     }
 
     @Override

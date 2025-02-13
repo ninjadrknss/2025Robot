@@ -1,23 +1,18 @@
 package frc.robot.util;
 
-import frc.robot.commands.AssistCommand;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
+import com.ctre.phoenix6.SignalLogger;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.simulation.Telemetry;
-
-import java.util.List;
+import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -83,8 +78,7 @@ public class ControlBoard {
             System.out.println("Driver Configured");
             configureDriverBindings();
 
-            Telemetry telemetry = new Telemetry(SwerveConstants.maxSpeed);
-            SwerveSubsystem.getInstance().registerTelemetry(telemetry::telemeterize);
+            SwerveSubsystem.getInstance().registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
 
             SwerveSubsystem drivetrain = SwerveSubsystem.getInstance();
             drivetrain.setDefaultCommand(
@@ -117,12 +111,13 @@ public class ControlBoard {
 //            SimulatedArena.getInstance().clearGamePieces())
 //            .ignoringDisable(true)
 //        );
+
         /* Driveassist testing */
-        driver.leftBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.LEFT));
-        driver.rightBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.RIGHT));
-        driver.leftTrigger.onTrue(new InstantCommand(
-                () -> SwerveSubsystem.getInstance().resetPose(new Pose2d(2, 2, new Rotation2d()))
-        ).ignoringDisable(true));
+//        driver.leftBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.LEFT));
+//        driver.rightBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.RIGHT));
+//        driver.leftTrigger.onTrue(new InstantCommand(
+//                () -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d()))
+//        ).ignoringDisable(true));
 
         /* Led Testing */
 //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -132,14 +127,29 @@ public class ControlBoard {
 //        driver.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
 //
 //        driver.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
-//        driver.leftBumper.onTrue(new InstantCommand(() -> led.toggleBlink()).ignoringDisable(true));
+//        driver.leftBumper.onTrue(new InstantCommand(() -> led.requestToggleBlinking()).ignoringDisable(true));
 
-        // driver.rightTrigger.whileTrue(new AssistCommand(superstructure));
-        
+        /* Servo Testing */
         // Servo servoTest = new Servo(8);
 
         // driver.leftBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(90)));
         // driver.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
+
+        /* Elevator SysId */
+        ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
+        driver.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
+        driver.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
+        driver.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
+        driver.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
+
+        /* Wrist SysId */
+//        driver.leftBumper.whileTrue(EWS.wristDynamicId(true));
+//        driver.leftTrigger.whileTrue(EWS.wristDynamicId(false));
+//        driver.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
+//        driver.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+
+        driver.triangleButton.onTrue(new InstantCommand(SignalLogger::start));
+        driver.crossButton.onTrue(new InstantCommand(SignalLogger::stop));
     }
 
     private void configureOperatorBindings() {

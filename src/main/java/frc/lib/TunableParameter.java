@@ -3,19 +3,17 @@ package frc.lib;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 
 public class TunableParameter {
     private static final ArrayList<TunableParameter> parameters = new ArrayList<>();
 
-    public interface Callback {
-        void callback(double value);
-    }
-
     private final String name;
     private double lastValue;
-    private final Callback callback;
+    private final DoubleConsumer callback;
 
-    public TunableParameter(String name, double initialValue, Callback callback) {
+    public TunableParameter(String name, double initialValue, DoubleConsumer callback) {
         this.name = name;
         this.lastValue = initialValue;
         this.callback = callback;
@@ -30,7 +28,7 @@ public class TunableParameter {
         double value = SmartDashboard.getNumber(name, lastValue);
         if (value != lastValue) {
             lastValue = value;
-            callback.callback(value);
+            callback.accept(value);
         }
     }
 
