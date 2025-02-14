@@ -56,9 +56,13 @@ public class Robot extends TimedRobot {
             PortForwarder.add(port, "limelight.local", port);
         }
 
+//        SignalLogger.start(); // TODO: enable this for competition
 
         PathfindingCommand.warmupCommand().schedule();
         FollowPathCommand.warmupCommand().schedule();
+        // TODO: disable this for competitions
+        scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName()));
+        scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName()));
     }
 
     @Override

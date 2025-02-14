@@ -43,6 +43,10 @@ public class AutonSubsystem {
         return instance;
     }
 
+    public Command getSelectedAuton() {
+        return autoChooser.selectedCommand();
+    }
+
     public boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
     }
@@ -69,9 +73,5 @@ public class AutonSubsystem {
             )
         );
         return routine;
-    }
-
-    public Command getSelectedAuton() {
-        return autoChooser.selectedCommand();
     }
 }

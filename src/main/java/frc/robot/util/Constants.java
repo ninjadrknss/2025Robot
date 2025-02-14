@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Constants {
-    /** Use {@see Robot.canivorebus #} instead */
+    /** Use {@link frc.robot.Robot#drivebus} instead */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public static final String drivebus = "Drivebus";
+    /** Use {@link frc.robot.Robot#elevatorbus} instead */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public static final String elevatorbus = "Elevatorbus";
@@ -209,18 +210,9 @@ public class Constants {
             return String.format("%s [Pose=%s, isBlue=%b]", name(), center, isBlue);
         }
 
-        public static class Branches {
-            public final Pose2d left;
-            public final Pose2d mid;
-            public final Pose2d right;
-
-            public Branches(Pose2d left, Pose2d mid, Pose2d right) {
-                if (left == null || mid == null || right == null) {
-                    throw new IllegalArgumentException("Branch poses cannot be null.");
-                }
-                this.left = left;
-                this.mid = mid;
-                this.right = right;
+        public record Branches(Pose2d left, Pose2d mid, Pose2d right) {
+            public Branches {
+                if (left == null || mid == null || right == null) throw new IllegalArgumentException("Branch poses cannot be null.");
             }
         }
 
@@ -235,12 +227,8 @@ public class Constants {
     }
 
     public static double normalizeAngle(double angle) {
-        while (angle > Math.PI) {
-            angle -= 2 * Math.PI; // please dont crucify me
-        }
-        while (angle < -Math.PI) {
-            angle += 2 * Math.PI;
-        }
+        while (angle > Math.PI) angle -= 2 * Math.PI;
+        while (angle < -Math.PI) angle += 2 * Math.PI;
         return angle;
     }
 
