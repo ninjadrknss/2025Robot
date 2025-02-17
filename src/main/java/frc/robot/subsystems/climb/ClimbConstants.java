@@ -12,7 +12,7 @@ public class ClimbConstants {
 
     public static TalonFXConfig pivotMotorConfig = new TalonFXConfig()
             .withName("Pivot Motor")
-            .withCanID(0)
+            .withCanID(60)
             .withBus(Robot.riobus);
     static {
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;

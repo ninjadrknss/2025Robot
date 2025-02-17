@@ -8,12 +8,11 @@ import frc.robot.Robot;
 
 public class ElevatorWristConstants {
     public static double revolutionsPerInch = 1;
-
-    public static int homeCANcoderID = 52;
+    public static int homeCANcoderID = 33;
 
     public static TalonFXConfig rightElevatorMotorConfig = new TalonFXConfig()
             .withName("Right Elevator Motor")
-            .withCanID(50)
+            .withCanID(31)
             .withBus(Robot.elevatorbus);
     static {
         TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
@@ -44,7 +43,7 @@ public class ElevatorWristConstants {
 
     public static TalonFXConfig leftElevatorMotorConfig = new TalonFXConfig()
             .withName("Left Elevator Motor")
-            .withCanID(51)
+            .withCanID(32)
             .withBus(Robot.elevatorbus);
     static {
         TalonFXConfiguration followerConfig = leftElevatorMotorConfig.config;
@@ -52,7 +51,7 @@ public class ElevatorWristConstants {
 
     public static TalonFXConfig wristMotorConfig = new TalonFXConfig()
             .withName("Wrist Motor")
-            .withCanID(54)
+            .withCanID(41)
             .withBus(Robot.elevatorbus);
     static {
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
@@ -82,7 +81,7 @@ public class ElevatorWristConstants {
         wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
     }
 
-    public static int wristEncoderID = 53;
+    public static int wristEncoderID = 42;
     public static CANcoderConfiguration wristEncoderConfig = new CANcoderConfiguration();
 
     static {

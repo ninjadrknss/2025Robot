@@ -9,7 +9,7 @@ import frc.robot.Robot;
 public class IntakeConstants {
     public static final TalonFXConfig intakeMotorConfig = new TalonFXConfig()
             .withName("Intake Motor")
-            .withCanID(57)
+            .withCanID(51)
             .withBus(Robot.elevatorbus);
 
     static {
@@ -28,7 +28,7 @@ public class IntakeConstants {
 
     public static final int beamBreakPort = 2;
 
-    public static final int distanceSensorID = 58;
+    public static final int distanceSensorID = 52;
     public static final int algaeDistanceThreshold = 0;
 
     public static final CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();

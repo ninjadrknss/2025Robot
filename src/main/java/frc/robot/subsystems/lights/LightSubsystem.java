@@ -1,8 +1,7 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.*;
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.RainbowAnimation;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -10,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Robot;
 
 /*
  * Portions of this code were taken from Team 9496 Lynk
@@ -18,16 +18,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class LightSubsystem extends SubsystemBase {
     private static LightSubsystem instance = null;
 
-    private final CANdle candle = new CANdle(5, "rio");
-    private static final int numLEDs = 59 + 8;
-    private static final int brightness = 50;
+    private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
 
+    private final Timer blinkTimer = new Timer();
     private boolean blinking = false;
-    private static final double blinkInterval = 0.2;
-    private static final Timer blinkTimer = new Timer();
-    private static boolean blinkOff = false;
+    private boolean blinkOff = false;
 
-    private static final double fadeDuration = 0.2;
     private boolean doFadePercent = true;
     private boolean fading = false;
     private double fadeStartTime = 0.0;
@@ -82,10 +78,7 @@ public class LightSubsystem extends SubsystemBase {
     }
 
     private LightSubsystem() {
-        candle.configBrightnessScalar(0.50);
-        candle.configLEDType(LEDStripType.GRB);
-        candle.configV5Enabled(true);
-        candle.configLOSBehavior(false); // TODO: true -- why is this triggering?
+        candle.configAllSettings(LightsConstants.caNdleConfiguration);
 
         requestColor(Colors.RED);
 
@@ -111,7 +104,7 @@ public class LightSubsystem extends SubsystemBase {
 
         this.fadeStartColor = start;
         this.fadeEndColor = end;
-        this.fadeDurationSec = LightSubsystem.fadeDuration;
+        this.fadeDurationSec = LightsConstants.fadeDuration;
         this.fadeStartTime = Timer.getFPGATimestamp();
         this.fading = true;
 
@@ -121,7 +114,7 @@ public class LightSubsystem extends SubsystemBase {
     public void requestRainbow() {
         candle.clearAnimation(0);
         System.out.println("Rainbowify");
-        candle.animate(new RainbowAnimation(0.50, 0.75, numLEDs, false, 0));
+        candle.animate(new RainbowAnimation(0.50, 0.75, LightsConstants.numLEDs, false, 0));
     }
 
     public void requestBlinking(boolean blink) {
@@ -167,7 +160,7 @@ public class LightSubsystem extends SubsystemBase {
     }
 
     private void updateBlink() {
-        if (blinkTimer.hasElapsed(blinkInterval)) {
+        if (blinkTimer.hasElapsed(LightsConstants.blinkInterval)) {
             candle.clearAnimation(0);
             if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
             else {
