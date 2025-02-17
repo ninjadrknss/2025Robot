@@ -15,8 +15,8 @@ import frc.robot.Robot;
  * Portions of this code were taken from Team 9496 Lynk
  */
 
-public class LightSubsystem extends SubsystemBase {
-    private static LightSubsystem instance = null;
+public class LightsSubsystem extends SubsystemBase {
+    private static LightsSubsystem instance = null;
 
     private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
 
@@ -72,12 +72,12 @@ public class LightSubsystem extends SubsystemBase {
         /* P5 */ public static final Color ULTRAVIOLET = new Color(86, 69, 146);
     }
 
-    public static LightSubsystem getInstance() {
-        if (instance == null) instance = new LightSubsystem();
+    public static LightsSubsystem getInstance() {
+        if (instance == null) instance = new LightsSubsystem();
         return instance;
     }
 
-    private LightSubsystem() {
+    private LightsSubsystem() {
         candle.configAllSettings(LightsConstants.caNdleConfiguration);
 
         requestColor(Colors.RED);
