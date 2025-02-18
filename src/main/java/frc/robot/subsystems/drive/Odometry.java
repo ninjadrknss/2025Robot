@@ -19,14 +19,17 @@ import edu.wpi.first.networktables.StructPublisher;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.lib.LimelightHelpers.PoseEstimate;
+import frc.robot.subsystems.vision.PhotonvisionSubsystem;
 import frc.robot.util.ControlBoard;
 import frc.robot.util.Constants.GameElement;
 import frc.robot.util.Constants;
+import org.photonvision.EstimatedRobotPose;
 
 public class Odometry extends SubsystemBase {
     private static Odometry instance;
     private final SwerveSubsystem swerve;
     private final LimelightSubsystem limelight;
+    private final PhotonvisionSubsystem photonvision;
     private final ControlBoard controlBoard;
     private final Pigeon2 gyro;
     /* Status Signals */
@@ -35,6 +38,7 @@ public class Odometry extends SubsystemBase {
     private final StatusSignal<AngularVelocity> yawStatusSignal;
 
     private boolean odometryResetRequested = false;
+    private static final boolean limelightReset = true;
 
     // --- ADD THESE FIELDS FOR VELOCITY CALC ---
     private Pose2d previousPose = new Pose2d();
@@ -330,6 +334,7 @@ public class Odometry extends SubsystemBase {
     private Odometry() {
         this.swerve = SwerveSubsystem.getInstance();
         this.limelight = LimelightSubsystem.getInstance();
+        this.photonvision = PhotonvisionSubsystem.getInstance();
         this.gyro = swerve.getPigeon2();
 
         rollStatusSignal = gyro.getAngularVelocityXWorld();
@@ -385,10 +390,16 @@ public class Odometry extends SubsystemBase {
     public void addVisionMeasurement() {
         RobotState previousRobotState = getRobotState();
         PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
-        if (limelightPose == null) return;
-        if (limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
+
+        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
             swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
+        }
+
+        if (photonVisionPose != null && photonVisionPose.estimatedPose.getTranslation().toTranslation2d().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+            swerve.addVisionMeasurement(photonVisionPose.estimatedPose.toPose2d(), photonVisionPose.timestampSeconds);
         }
     }
 
@@ -471,8 +482,12 @@ public class Odometry extends SubsystemBase {
 
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
-            if (limelightPose != null) {
+            EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
+            if (limelightReset && limelightPose != null) {
                 swerve.resetPose(limelightPose.pose);
+            }
+            if (!limelightReset && photonVisionPose != null) {
+                swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
             }
             odometryResetRequested = false;
         } else {
