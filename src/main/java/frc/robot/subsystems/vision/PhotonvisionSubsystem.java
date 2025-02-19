@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.vision.VisionConstants.PhotonVision;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -11,17 +12,14 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import java.util.List;
 import java.util.Optional;
 
-import static edu.wpi.first.units.Units.*;
-
 public class PhotonvisionSubsystem extends SubsystemBase {
     private static PhotonvisionSubsystem instance;
 
     private final PhotonCamera leftCamera;
-    private final Transform3d leftCameraToRobot;
     private final PhotonPoseEstimator leftPhotonPoseEstimator;
 
     private final PhotonCamera rightCamera;
-    private final Transform3d rightCameraToRobot;
+
     private final PhotonPoseEstimator rightPhotonPoseEstimator;
 
     public static PhotonvisionSubsystem getInstance() {
@@ -30,42 +28,18 @@ public class PhotonvisionSubsystem extends SubsystemBase {
     }
 
     private PhotonvisionSubsystem() {
-        leftCamera = new PhotonCamera("left");
-        leftCameraToRobot = new Transform3d(
-                new Translation3d(
-                        Meter.convertFrom(2.979, Inch),
-                        Meter.convertFrom(9.41, Inch),
-                        Meter.convertFrom(37.418, Inch)
-                ),
-                new Rotation3d(
-                        0,
-                        -Radians.convertFrom(-15, Degrees),
-                        Radians.convertFrom(155, Degrees)
-                )
-        );
+        leftCamera = new PhotonCamera(PhotonVision.leftCameraName);
         leftPhotonPoseEstimator = new PhotonPoseEstimator(
-                VisionConstants.PhotonVision.field,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                leftCameraToRobot
+                PhotonVision.field,
+                PhotonVision.poseStrategy,
+                PhotonVision.leftCameraToRobot
         );
 
-        rightCamera = new PhotonCamera("right");
-        rightCameraToRobot = new Transform3d(
-            new Translation3d(
-                Meter.convertFrom(2.979, Inch),
-                -Meter.convertFrom(9.41, Inch),
-                Meter.convertFrom(37.418, Inch)
-            ), /*Y, X, Z*/
-            new Rotation3d(
-                0,
-                -Radians.convertFrom(-15, Degrees),
-                Radians.convertFrom(-155, Degrees)
-            )
-        );
+        rightCamera = new PhotonCamera(PhotonVision.rightCameraName);
         rightPhotonPoseEstimator = new PhotonPoseEstimator(
-            VisionConstants.PhotonVision.field,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            rightCameraToRobot
+            PhotonVision.field,
+                PhotonVision.poseStrategy,
+            PhotonVision.rightCameraToRobot
         );
     }
 

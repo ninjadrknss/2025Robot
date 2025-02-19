@@ -13,7 +13,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /* Motors */
 //    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
-//    private final VelocityTorqueCurrentFOC intakeControl = new VelocityTorqueCurrentFOC(0);
+//    private final VelocityTorqueCurrentFOC intakeControl = new VelocityTorqueCurrentFOC(0); // TODO: Tempted to use dutyCycle, but that will not adapt to forces as much
 
     /* Sensors */
 //    private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
@@ -23,8 +23,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private boolean coralBeamBroken = false;
     private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.1);
 
-//    private final StatusSignal<Distance> algaeDistance = algaeDistanceSensor.getDistance();
     private boolean algaeDetected = false;
+//    private final StatusSignal<Distance> algaeDistance = algaeDistanceSensor.getDistance();
 
     /* State Machine Logic */
     private enum IntakeState {

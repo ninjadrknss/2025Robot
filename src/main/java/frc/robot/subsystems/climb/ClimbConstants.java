@@ -4,10 +4,8 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.*;
 
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.CTREConfig;
 import frc.robot.Robot;
@@ -48,6 +46,11 @@ public class ClimbConstants {
 
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
+        pivotConfig.Feedback.SensorToMechanismRatio = 1;
+        pivotConfig.Feedback.RotorToSensorRatio = 125;
+
+        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
+        pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Check
     }
 
     /** All in Degrees */

@@ -79,6 +79,7 @@ public class ElevatorWristConstants {
                 .withCanID(41)
                 .withBus(Robot.elevatorbus)
                 .withConfig(new TalonFXConfiguration());
+
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
         wristConfig.Slot0.kP = 0;
         wristConfig.Slot0.kI = 0;
@@ -87,7 +88,7 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.kG = 0;
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        wristConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
+        wristConfig.Feedback.RotorToSensorRatio = 20; // TODO: CHANGE
         wristConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
         wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristEncoderConfig.canID;
         wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;

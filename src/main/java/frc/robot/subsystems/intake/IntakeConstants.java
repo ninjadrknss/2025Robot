@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.UpdateModeValue;
 import frc.lib.CTREConfig;
 import frc.robot.Robot;
@@ -29,8 +30,16 @@ public class IntakeConstants {
         intakeConfig.Slot0.kV = 0; //
         intakeConfig.Slot0.kG = 0; // Don't touch
 
-        intakeConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
-        intakeConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
+        intakeConfig.Feedback.RotorToSensorRatio = 1;
+        intakeConfig.Feedback.SensorToMechanismRatio = 1;
+
+        intakeConfig.CurrentLimits.StatorCurrentLimit = 40; // TODO: Change
+        intakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        intakeConfig.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+        intakeConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
+
+        intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
     }
 
     public static final CTREConfig<CANrange, CANrangeConfiguration> distanceSensorConfig = new CTREConfig<>();
@@ -46,7 +55,7 @@ public class IntakeConstants {
         distanceSensorConfig.FovParams.FOVRangeX = 27; // TODO: tune (in degrees)
         distanceSensorConfig.FovParams.FOVRangeY = 27; // TODO: tune (in degrees)
 
-        distanceSensorConfig.ProximityParams.ProximityThreshold = 0.4; // TODO: tune (in m)
+        distanceSensorConfig.ProximityParams.ProximityThreshold = 0.15; // TODO: tune (in m)
         distanceSensorConfig.ProximityParams.ProximityHysteresis = 0.05; // TODO: tune (in m)
         distanceSensorConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 2500; // TODO: tune
 
