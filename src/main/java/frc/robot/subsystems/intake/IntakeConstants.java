@@ -2,17 +2,24 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.UpdateModeValue;
-import frc.lib.TalonFXConfig;
+import frc.lib.CTREConfig;
 import frc.robot.Robot;
 
 public class IntakeConstants {
-    public static final TalonFXConfig intakeMotorConfig = new TalonFXConfig()
-            .withName("Intake Motor")
-            .withCanID(51)
-            .withBus(Robot.elevatorbus);
+    public static final double intakeSpeed = 0.5;
+    public static final double spitSpeed = 0.5; // Negated in request
+    public static final int beamBreakPort = 2;
+    public static final int algaeDistanceThreshold = 0;
 
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> intakeMotorConfig = new CTREConfig<>();
     static {
+        intakeMotorConfig.withName("Intake Motor")
+                .withCanID(51)
+                .withBus(Robot.elevatorbus);
+
         TalonFXConfiguration intakeConfig = intakeMotorConfig.config;
         intakeConfig.Slot0.kP = 0; // Increase until speed oscillates
         intakeConfig.Slot0.kI = 0; // Don't touch
@@ -26,13 +33,14 @@ public class IntakeConstants {
         intakeConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
     }
 
-    public static final int beamBreakPort = 2;
-
-    public static final int distanceSensorID = 52;
-    public static final int algaeDistanceThreshold = 0;
-
-    public static final CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();
+    public static final CTREConfig<CANrange, CANrangeConfiguration> distanceSensorConfig = new CTREConfig<>();
     static {
+        distanceSensorConfig.withName("Algae Distance Sensor")
+                .withCanID(52)
+                .withBus(Robot.riobus)
+                .withConfig(new CANrangeConfiguration());
+        CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();
+
         distanceSensorConfig.FovParams.FOVCenterX = 0;
         distanceSensorConfig.FovParams.FOVCenterY = 0;
         distanceSensorConfig.FovParams.FOVRangeX = 27; // TODO: tune (in degrees)
@@ -45,7 +53,4 @@ public class IntakeConstants {
         distanceSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq; // TODO: change to 100hz mode?
         distanceSensorConfig.ToFParams.UpdateFrequency = 50; // TODO: tune (in Hz)
     }
-
-    public static final double intakeSpeed = 0.5;
-    public static final double spitSpeed = 0.5; // Negated in request
 }

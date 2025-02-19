@@ -17,10 +17,7 @@ public class VisionConstants {
     public static class PhotonVision {
         public final static String name = "photonvision";
         public final static String streamIp = "http://";
-
-        public final static double height = 15.61 + 3.75; // inches
-        public final static double angle = 35;
-
+        
         public final static AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
     }
 }

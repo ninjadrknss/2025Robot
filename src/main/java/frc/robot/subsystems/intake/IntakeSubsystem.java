@@ -1,7 +1,10 @@
 package frc.robot.subsystems.intake;
 
 
+import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -9,12 +12,12 @@ public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem instance;
 
     /* Motors */
-//    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createMotor();
+//    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
 //    private final VelocityTorqueCurrentFOC intakeControl = new VelocityTorqueCurrentFOC(0);
 
     /* Sensors */
 //    private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
-//    private final CANrange algaeDistanceSensor = new CANrange(IntakeConstants.distanceSensorID);
+//    private final CANrange algaeDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
 
     /* Statuses */
     private boolean coralBeamBroken = false;

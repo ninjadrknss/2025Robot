@@ -15,12 +15,12 @@ public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem instance;
 
     /* Motor, Controls and Sensor */
-    private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createMotor();
-    private final PositionTorqueCurrentFOC pivotControl = new PositionTorqueCurrentFOC(0);
-
-    private final CANcoder pivotEncoder = new CANcoder(ClimbConstants.pivotEncoderID);
-
-    private final Servo servo = new Servo(ClimbConstants.servoPort);
+//    private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
+//    private final PositionTorqueCurrentFOC pivotControl = new PositionTorqueCurrentFOC(0);
+//
+//    private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
+//
+//    private final Servo servo = new Servo(ClimbConstants.servoPort);
 
     /* Other variables */
     private Angle requestedPivotAngle = Degrees.of(0);
@@ -35,15 +35,14 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     private ClimbSubsystem() {
-        CTREUtil.applyConfiguration(pivotEncoder,ClimbConstants.pivotEncoderConfig);
     }
 
     private void setPivotAngle(Angle angle) {
         // TODO: set control request angle to angle
         // TODO: set control of motor to control request
-        pivotControl.withPosition(angle);
+//        pivotControl.withPosition(angle);
         requestedPivotAngle = angle;
-        pivotMotor.setControl(pivotControl);
+//        pivotMotor.setControl(pivotControl);
     }
 
     /**
@@ -52,7 +51,7 @@ public class ClimbSubsystem extends SubsystemBase {
      */
     private void setFlapAngle(Angle angle) {
         // TODO: set servo angle to angle
-        servo.set(angle.in(Degrees));
+//        servo.set(angle.in(Degrees));
     }
 
     @Override

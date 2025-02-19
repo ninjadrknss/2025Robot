@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.List;
@@ -70,12 +71,16 @@ public class PhotonvisionSubsystem extends SubsystemBase {
 
     private Optional<EstimatedRobotPose> getLeftRobotPose(Pose2d prevPose) {
         leftPhotonPoseEstimator.setReferencePose(prevPose);
-        return leftPhotonPoseEstimator.update(leftCamera.getAllUnreadResults().get(0));
+        List<PhotonPipelineResult> unreadResults = leftCamera.getAllUnreadResults();
+        if (unreadResults.isEmpty()) return Optional.empty();
+        return leftPhotonPoseEstimator.update(unreadResults.get(0));
     }
 
     private Optional<EstimatedRobotPose> getRightRobotPose(Pose2d prevPose) {
         rightPhotonPoseEstimator.setReferencePose(prevPose);
-        return rightPhotonPoseEstimator.update(rightCamera.getAllUnreadResults().get(0));
+        List<PhotonPipelineResult> unreadResults = rightCamera.getAllUnreadResults();
+        if (unreadResults.isEmpty()) return Optional.empty();
+        return rightPhotonPoseEstimator.update(unreadResults.get(0));
     }
 
     public EstimatedRobotPose update(Pose2d prevPose) {

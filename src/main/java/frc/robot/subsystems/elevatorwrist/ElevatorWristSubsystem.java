@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.Utils;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 
@@ -53,14 +54,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     /* Motors and Controls */
-//    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createMotor();
+//    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
 //    private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
 //    private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
 //
-//    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createMotor();
+//    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
 //    private final Follower followerControl = new Follower(leader.getDeviceID(), true);
 //
-//    private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createMotor();
+//    private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
 //    private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(0);
 
     /* Sensors and Signals */
@@ -69,10 +70,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //    private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
 //    private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 //
-//    private final CANcoder homeCANcoder = new CANcoder(ElevatorWristConstants.homeCANcoderID, Robot.elevatorbus);
+//    private final CANcoder homeCANcoder = ElevatorWristConstants.homeHallEffect.createDevice(CANcoder::new);
 //
 //    private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
-//    private final CANcoder wristEncoder = new CANcoder(ElevatorWristConstants.wristEncoderID, Robot.elevatorbus);
+//    private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
 //    private final StatusSignal<Angle> wristAngleStatus = wristEncoder.getPosition();
 
     /* State Machine Logic */

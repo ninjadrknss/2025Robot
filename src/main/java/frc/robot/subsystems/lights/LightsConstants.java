@@ -13,12 +13,12 @@ public class LightsConstants {
 
     public static final double fadeDuration = 0.2;
 
-    public static CANdleConfiguration caNdleConfiguration = new CANdleConfiguration();
+    public static final CANdleConfiguration caNdleConfiguration = new CANdleConfiguration();
 
     static {
         caNdleConfiguration.brightnessScalar = LightsConstants.brightness;
         caNdleConfiguration.stripType = CANdle.LEDStripType.GRB;
         caNdleConfiguration.v5Enabled = true;
-        caNdleConfiguration.disableWhenLOS = false;// TODO: true -- why is this triggering?
+        caNdleConfiguration.disableWhenLOS = false;// TODO: why is this triggering?
     }
 }

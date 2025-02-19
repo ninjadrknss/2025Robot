@@ -2,25 +2,39 @@ package frc.robot.subsystems.climb;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.units.measure.Angle;
-import frc.lib.TalonFXConfig;
+import frc.lib.CTREConfig;
 import frc.robot.Robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 
 public class ClimbConstants {
     public static final int servoPort = 8;
-    public static final int pivotEncoderID = 0;
 
-    public static final TalonFXConfig pivotMotorConfig = new TalonFXConfig()
-            .withName("Pivot Motor")
-            .withCanID(61)
-            .withBus(Robot.riobus);
+    public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>();
     static {
+        pivotEncoderConfig.withName("Climber Pivot Encoder")
+                .withCanID(0)
+                .withBus(Robot.riobus)
+                .withConfig(new CANcoderConfiguration());
+
+        CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
+        encoderConfig.MagnetSensor.MagnetOffset = 0;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: check
+    }
+
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> pivotMotorConfig = new CTREConfig<>();
+    static {
+        pivotMotorConfig.withName("Pivot Motor")
+                        .withCanID(61)
+                        .withBus(Robot.riobus);
+
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;
         pivotConfig.Slot0.kP = 0; // Increase until speed oscillates
         pivotConfig.Slot0.kI = 0; // Don't touch
@@ -33,15 +47,7 @@ public class ClimbConstants {
         pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderID;
-    }
-
-    public static final CANcoderConfiguration pivotEncoderConfig = new CANcoderConfiguration();
-
-    static {
-        CANcoderConfiguration encoderConfig = pivotEncoderConfig;
-        encoderConfig.MagnetSensor.MagnetOffset = 0;
-        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: check
+        pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
     }
 
     /** All in Degrees */
