@@ -6,14 +6,17 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.units.measure.Angle;
 import frc.lib.TalonFXConfig;
 import frc.robot.Robot;
 
-public class ClimbConstants {
-    public static int servoPort = 8;
-    public static int pivotEncoderID = 0;
+import static edu.wpi.first.units.Units.Degrees;
 
-    public static TalonFXConfig pivotMotorConfig = new TalonFXConfig()
+public class ClimbConstants {
+    public static final int servoPort = 8;
+    public static final int pivotEncoderID = 0;
+
+    public static final TalonFXConfig pivotMotorConfig = new TalonFXConfig()
             .withName("Pivot Motor")
             .withCanID(61)
             .withBus(Robot.riobus);
@@ -33,11 +36,19 @@ public class ClimbConstants {
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderID;
     }
 
-    public static CANcoderConfiguration pivotEncoderConfig = new CANcoderConfiguration();
+    public static final CANcoderConfiguration pivotEncoderConfig = new CANcoderConfiguration();
 
     static {
         CANcoderConfiguration encoderConfig = pivotEncoderConfig;
         encoderConfig.MagnetSensor.MagnetOffset = 0;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: check
     }
+
+    /** All in Degrees */
+    public static final Angle changeRate = Degrees.of(3);
+    public static final Angle flapStoreAngle = Degrees.of(0);
+    public static final Angle flapDeployAngle = Degrees.of(0);
+
+    public static final Angle pivotStoreAngle = Degrees.of(0);
+    public static final Angle pivotDeployAngle = Degrees.of(0);
 }

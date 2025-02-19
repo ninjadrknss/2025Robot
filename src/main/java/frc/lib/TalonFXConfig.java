@@ -34,7 +34,6 @@ public class TalonFXConfig {
 
     public TalonFX createMotor() {
         TalonFX motor = new TalonFX(canID, canbus);
-        motor.getConfigurator().apply(config);
         CTREUtil.applyConfiguration(motor, config);
         return motor;
     }
