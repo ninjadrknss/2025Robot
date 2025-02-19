@@ -24,7 +24,7 @@ import static edu.wpi.first.units.Units.*;
 public class PhotonvisionSim {
     private static PhotonvisionSim instance;
 
-    private final VisionSystemSim visionSim = new VisionSystemSim("main");
+    private final VisionSystemSim visionSim;
     private final PhotonCameraSim camera1Sim;
     private final PhotonCameraSim camera2Sim;
     private final PhotonCameraSim camera3Sim;
@@ -72,6 +72,7 @@ public class PhotonvisionSim {
         cameraProp.setAvgLatencyMs(35);
         cameraProp.setLatencyStdDevMs(5);
 
+        visionSim = new VisionSystemSim("main");
         visionSim.addAprilTags(tagLayout);
 
         PhotonCamera camera1 = new PhotonCamera("leftCamera");

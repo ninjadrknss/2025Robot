@@ -1,12 +1,7 @@
 package frc.robot.subsystems.vision;
 
-
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drive.Odometry;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -20,55 +15,57 @@ import static edu.wpi.first.units.Units.*;
 public class PhotonvisionSubsystem extends SubsystemBase {
     private static PhotonvisionSubsystem instance;
 
+    private final PhotonCamera leftCamera;
+    private final Transform3d leftCameraToRobot;
+    private final PhotonPoseEstimator leftPhotonPoseEstimator;
+
+    private final PhotonCamera rightCamera;
+    private final Transform3d rightCameraToRobot;
+    private final PhotonPoseEstimator rightPhotonPoseEstimator;
+
     public static PhotonvisionSubsystem getInstance() {
         if (instance == null) instance = new PhotonvisionSubsystem();
         return instance;
     }
 
-    private final static AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-
-    private final PhotonCamera leftCamera = new PhotonCamera("left");
-    private final Transform3d leftCameraToRobot = new Transform3d(
-        new Translation3d(
-            Meter.convertFrom(2.979, Inch),
-            Meter.convertFrom(9.41, Inch),
-            Meter.convertFrom(37.418, Inch)
-        ),
-        new Rotation3d(
-            0,
-            -Radians.convertFrom(-15, Degrees),
-            Radians.convertFrom(155, Degrees)
-        )
-    );
-
-    private final PhotonCamera rightCamera = new PhotonCamera("right");
-    private final Transform3d rightCameraToRobot = new Transform3d(
-        new Translation3d(
-            Meter.convertFrom(2.979, Inch),
-            -Meter.convertFrom(9.41, Inch),
-            Meter.convertFrom(37.418, Inch)
-        ), /*Y, X, Z*/
-        new Rotation3d(
-            0,
-            -Radians.convertFrom(-15, Degrees),
-            Radians.convertFrom(-155, Degrees)
-        )
-    );
-
-    private final PhotonPoseEstimator leftPhotonPoseEstimator = new PhotonPoseEstimator(
-        field,
-        PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        leftCameraToRobot
-    );
-
-    private final PhotonPoseEstimator rightPhotonPoseEstimator = new PhotonPoseEstimator(
-        field,
-        PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        rightCameraToRobot
-    );
-
     private PhotonvisionSubsystem() {
+        leftCamera = new PhotonCamera("left");
+        leftCameraToRobot = new Transform3d(
+                new Translation3d(
+                        Meter.convertFrom(2.979, Inch),
+                        Meter.convertFrom(9.41, Inch),
+                        Meter.convertFrom(37.418, Inch)
+                ),
+                new Rotation3d(
+                        0,
+                        -Radians.convertFrom(-15, Degrees),
+                        Radians.convertFrom(155, Degrees)
+                )
+        );
+        leftPhotonPoseEstimator = new PhotonPoseEstimator(
+                VisionConstants.PhotonVision.field,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                leftCameraToRobot
+        );
 
+        rightCamera = new PhotonCamera("right");
+        rightCameraToRobot = new Transform3d(
+            new Translation3d(
+                Meter.convertFrom(2.979, Inch),
+                -Meter.convertFrom(9.41, Inch),
+                Meter.convertFrom(37.418, Inch)
+            ), /*Y, X, Z*/
+            new Rotation3d(
+                0,
+                -Radians.convertFrom(-15, Degrees),
+                Radians.convertFrom(-155, Degrees)
+            )
+        );
+        rightPhotonPoseEstimator = new PhotonPoseEstimator(
+            VisionConstants.PhotonVision.field,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            rightCameraToRobot
+        );
     }
 
     private Optional<EstimatedRobotPose> getLeftRobotPose(Pose2d prevPose) {
