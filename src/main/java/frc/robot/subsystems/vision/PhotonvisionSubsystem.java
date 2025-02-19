@@ -73,12 +73,12 @@ public class PhotonvisionSubsystem extends SubsystemBase {
 
     private Optional<EstimatedRobotPose> getLeftRobotPose(Pose2d prevPose) {
         leftPhotonPoseEstimator.setReferencePose(prevPose);
-        return leftPhotonPoseEstimator.update(leftCamera.getAllUnreadResults().getFirst());
+        return leftPhotonPoseEstimator.update(leftCamera.getAllUnreadResults().get(0));
     }
 
     private Optional<EstimatedRobotPose> getRightRobotPose(Pose2d prevPose) {
         rightPhotonPoseEstimator.setReferencePose(prevPose);
-        return rightPhotonPoseEstimator.update(rightCamera.getAllUnreadResults().getFirst());
+        return rightPhotonPoseEstimator.update(rightCamera.getAllUnreadResults().get(0));
     }
 
     public EstimatedRobotPose update(Pose2d prevPose) {

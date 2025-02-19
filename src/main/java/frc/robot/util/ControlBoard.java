@@ -19,9 +19,9 @@ import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
-import frc.robot.util.Constants.GameElement;
-import frc.robot.util.Constants.GameElement.Branch;
-import frc.robot.util.Constants.GameElement.ScoreLevel;
+import frc.robot.util.FieldConstants.GameElement;
+import frc.robot.util.FieldConstants.GameElement.Branch;
+import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -71,8 +71,6 @@ public class ControlBoard {
             .withRotationalDeadband(SwerveConstants.maxAngularSpeed * 0.1) // Add a 10% deadband
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
             .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
-
-    private int level = 0;
 
     private ControlBoard() {
         DriverStation.silenceJoystickConnectionWarning(true); // TODO: remove
@@ -140,7 +138,7 @@ public class ControlBoard {
         //        );
 
         /* Driveassist testing */
-        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();

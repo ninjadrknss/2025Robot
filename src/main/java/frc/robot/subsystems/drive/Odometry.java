@@ -21,7 +21,8 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.lib.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.vision.PhotonvisionSubsystem;
 import frc.robot.util.ControlBoard;
-import frc.robot.util.Constants.GameElement;
+import frc.robot.util.FieldConstants;
+import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.Constants;
 import org.photonvision.EstimatedRobotPose;
 
@@ -128,7 +129,7 @@ public class Odometry extends SubsystemBase {
             double vX = state.getVelocity().x();
             double vY = state.getVelocity().y();
             double vSquared = vX * vX + vY * vY;
-            double currentSpeed = (vSquared > Constants.EPSILON) ? Math.sqrt(vSquared) : 0;
+            double currentSpeed = (vSquared > FieldConstants.EPSILON) ? Math.sqrt(vSquared) : 0;
 
             GameElement candidateTarget = null;
             double bestCost = Double.MAX_VALUE;
@@ -146,7 +147,7 @@ public class Odometry extends SubsystemBase {
                 // tOptimal: time in the future that (assuming constant velocity)
                 // best aligns the robot with the target
                 double tOptimal = 0;
-                if (vSquared > Constants.EPSILON) {
+                if (vSquared > FieldConstants.EPSILON) {
                     double dotProduct = (currentX - elementX) * vX + (currentY - elementY) * vY;
                     tOptimal = -dotProduct / vSquared;
                     if (tOptimal < 0) {
@@ -164,7 +165,7 @@ public class Odometry extends SubsystemBase {
                     cost += TIME_COST_WEIGHT * (tOptimal * currentSpeed);
                 }
 
-                if (vSquared > Constants.EPSILON) {
+                if (vSquared > FieldConstants.EPSILON) {
                     // Angle from current robot position to this element
                     double angleToTarget = Math.atan2(elementY - currentY, elementX - currentX);
                     // Angle of robot velocity
@@ -292,20 +293,12 @@ public class Odometry extends SubsystemBase {
             double o3 = orientation(a, b, p);
             double o4 = orientation(a, b, q);
 
-            if (o1 * o2 < 0 && o3 * o4 < 0) {
-                return true;
-            }
+            return o1 * o2 < 0 && o3 * o4 < 0 ||
+                    Math.abs(o1) < FieldConstants.EPSILON && onSegment(p, q, a) ||
+                    Math.abs(o2) < FieldConstants.EPSILON && onSegment(p, q, b) ||
+                    Math.abs(o3) < FieldConstants.EPSILON && onSegment(a, b, p) ||
+                    Math.abs(o4) < FieldConstants.EPSILON && onSegment(a, b, q);
 
-            if (Math.abs(o1) < Constants.EPSILON && onSegment(p, q, a))
-                return true;
-            if (Math.abs(o2) < Constants.EPSILON && onSegment(p, q, b))
-                return true;
-            if (Math.abs(o3) < Constants.EPSILON && onSegment(a, b, p))
-                return true;
-            if (Math.abs(o4) < Constants.EPSILON && onSegment(a, b, q))
-                return true;
-
-            return false;
         }
 
         private static double orientation(Translation2d p, Translation2d q, Translation2d r) {
@@ -314,19 +307,15 @@ public class Odometry extends SubsystemBase {
         }
 
         private static boolean onSegment(Translation2d p, Translation2d q, Translation2d r) {
-            return r.getX() <= Math.max(p.getX(), q.getX()) + Constants.EPSILON &&
-                    r.getX() >= Math.min(p.getX(), q.getX()) - Constants.EPSILON &&
-                    r.getY() <= Math.max(p.getY(), q.getY()) + Constants.EPSILON &&
-                    r.getY() >= Math.min(p.getY(), q.getY()) - Constants.EPSILON;
+            return r.getX() <= Math.max(p.getX(), q.getX()) + FieldConstants.EPSILON &&
+                    r.getX() >= Math.min(p.getX(), q.getX()) - FieldConstants.EPSILON &&
+                    r.getY() <= Math.max(p.getY(), q.getY()) + FieldConstants.EPSILON &&
+                    r.getY() >= Math.min(p.getY(), q.getY()) - FieldConstants.EPSILON;
         }
 
         private static double normalizeAngle(double angle) {
-            while (angle > Math.PI) {
-                angle -= 2 * Math.PI;
-            }
-            while (angle < -Math.PI) {
-                angle += 2 * Math.PI;
-            }
+            while (angle > Math.PI) angle -= 2 * Math.PI;
+            while (angle < -Math.PI) angle += 2 * Math.PI;
             return angle;
         }
     }
@@ -375,9 +364,9 @@ public class Odometry extends SubsystemBase {
             if (distance < minDistance) {
                 closest = element;
                 minDistance = distance;
-                minAngleDifference = Constants.calculateAngleDifference(robotPose, element.getLocation());
+                minAngleDifference = FieldConstants.calculateAngleDifference(robotPose, element.getLocation());
             } else if (distance == minDistance) {
-                double angleDifference = Constants.calculateAngleDifference(robotPose, element.getLocation());
+                double angleDifference = FieldConstants.calculateAngleDifference(robotPose, element.getLocation());
                 if (angleDifference < minAngleDifference) {
                     closest = element;
                     minAngleDifference = angleDifference;

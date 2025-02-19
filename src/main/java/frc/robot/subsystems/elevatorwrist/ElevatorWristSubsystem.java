@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.Utils;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 
 import edu.wpi.first.units.measure.Distance;
