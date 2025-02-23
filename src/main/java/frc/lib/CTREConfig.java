@@ -5,11 +5,17 @@ import com.ctre.phoenix6.configs.ParentConfiguration;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import frc.robot.Robot;
 
+import java.util.function.Supplier;
+
 public class CTREConfig<Device extends ParentDevice, Config extends ParentConfiguration> {
     public String name = "UNNAMED";
     public int canID = 0;
     public CANBus canbus = Robot.riobus;
-    public Config config = null;
+    public Config config;
+
+    public CTREConfig(Supplier<Config> configSupplier) {
+        this.config = configSupplier.get();
+    }
 
     public CTREConfig<Device, Config> withName(String name) {
         this.name = name;
@@ -23,11 +29,6 @@ public class CTREConfig<Device extends ParentDevice, Config extends ParentConfig
 
     public CTREConfig<Device, Config> withBus(CANBus bus) {
         this.canbus = bus;
-        return this;
-    }
-
-    public CTREConfig<Device, Config> withConfig(Config config) {
-        this.config = config;
         return this;
     }
 

@@ -11,21 +11,18 @@ import frc.robot.Robot;
 public class ElevatorWristConstants {
     public static final double revolutionsPerInch = 1;
 
-    public static final CTREConfig<CANcoder, CANcoderConfiguration> homeHallEffect = new CTREConfig<>();
+    public static final CTREConfig<CANcoder, CANcoderConfiguration> homeHallEffect = new CTREConfig<>(CANcoderConfiguration::new);
     static {
         homeHallEffect.withName("Home Hall Effect CANcoder")
                 .withCanID(33)
-                .withBus(Robot.elevatorbus)
-                .withConfig(new CANcoderConfiguration());
+                .withBus(Robot.elevatorbus);
     }
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> rightElevatorMotorConfig = new CTREConfig<>();
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> rightElevatorMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
         rightElevatorMotorConfig.withName("Right Elevator Motor")
                 .withCanID(31)
-                .withBus(Robot.elevatorbus)
-                .withConfig(new TalonFXConfiguration());
-
+                .withBus(Robot.elevatorbus);
         TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
         leaderConfig.Slot0.kP = 0; // Increase until elevator oscillates
         leaderConfig.Slot0.kI = 0; // Don't touch
@@ -52,33 +49,32 @@ public class ElevatorWristConstants {
         leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
     }
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> leftElevatorMotorConfig = new CTREConfig<>();
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> leftElevatorMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
         leftElevatorMotorConfig.withName("Left Elevator Motor")
                 .withCanID(32)
-                .withBus(Robot.elevatorbus)
-                .withConfig(new TalonFXConfiguration());
+                .withBus(Robot.elevatorbus);
+
         TalonFXConfiguration followerConfig = leftElevatorMotorConfig.config;
     }
 
-    public static final CTREConfig<CANcoder, CANcoderConfiguration> wristEncoderConfig = new CTREConfig<>();
+    public static final CTREConfig<CANcoder, CANcoderConfiguration> wristEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
     static {
         wristEncoderConfig.withName("Wrist Encoder")
                 .withCanID(42)
-                .withBus(Robot.elevatorbus)
-                .withConfig(new CANcoderConfiguration());
+                .withBus(Robot.elevatorbus);
+
         CANcoderConfiguration wristConfig = wristEncoderConfig.config;
         wristConfig.MagnetSensor.MagnetOffset = 0; // TODO: CHANGE, in revolutions
         wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: CHANGE
         wristConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5; // TODO: CHANGE
     }
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> wristMotorConfig = new CTREConfig<>();
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> wristMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
         wristMotorConfig.withName("Wrist Motor")
                 .withCanID(41)
-                .withBus(Robot.elevatorbus)
-                .withConfig(new TalonFXConfiguration());
+                .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
         wristConfig.Slot0.kP = 0;

@@ -70,7 +70,8 @@ public class ControlBoard {
             .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 10% deadband
             .withRotationalDeadband(SwerveConstants.maxAngularSpeed * 0.1) // Add a 10% deadband
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-            .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo);
+            .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+            .withDesaturateWheelSpeeds(true);
 
     private ControlBoard() {
         DriverStation.silenceJoystickConnectionWarning(true); // TODO: remove

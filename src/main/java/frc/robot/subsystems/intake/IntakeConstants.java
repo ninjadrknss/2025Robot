@@ -15,7 +15,7 @@ public class IntakeConstants {
     public static final int beamBreakPort = 2;
     public static final int algaeDistanceThreshold = 0;
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> intakeMotorConfig = new CTREConfig<>();
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> intakeMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
         intakeMotorConfig.withName("Intake Motor")
                 .withCanID(51)
@@ -42,12 +42,12 @@ public class IntakeConstants {
         intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
     }
 
-    public static final CTREConfig<CANrange, CANrangeConfiguration> distanceSensorConfig = new CTREConfig<>();
+    public static final CTREConfig<CANrange, CANrangeConfiguration> distanceSensorConfig = new CTREConfig<>(CANrangeConfiguration::new);
     static {
         distanceSensorConfig.withName("Algae Distance Sensor")
                 .withCanID(52)
-                .withBus(Robot.riobus)
-                .withConfig(new CANrangeConfiguration());
+                .withBus(Robot.riobus);
+
         CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();
 
         distanceSensorConfig.FovParams.FOVCenterX = 0;

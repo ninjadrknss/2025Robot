@@ -147,6 +147,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        return wristIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
     }
 
+    public static ElevatorWristSubsystem getInstance() {
+        if (instance == null) instance = new ElevatorWristSubsystem();
+        return instance;
+    }
+
     private ElevatorWristSubsystem() {
         if (Utils.isSimulation()) sim = ElevatorWristSim.getInstance();
 
@@ -163,11 +168,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        wrist.setControl(wristControl);
 //
 //        CTREUtil.applyConfiguration(wristEncoder, ElevatorWristConstants.wristEncoderConfig);
-    }
-
-    public static ElevatorWristSubsystem getInstance() {
-        if (instance == null) instance = new ElevatorWristSubsystem();
-        return instance;
     }
 
     private void homeElevator() {
@@ -225,6 +225,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Wrist At Position", wristAtPosition);
         SmartDashboard.putBoolean("Home Switch", getHomeCANcoder());
         SmartDashboard.putBoolean("Both At Position", elevatorAtPosition && wristAtPosition);
+
+        if (elevatorAtPosition && wristAtPosition) prevState = state;
     }
 
     private void homingExecute() {
@@ -278,6 +280,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        follower.setNeutralMode(NeutralModeValue.Coast);
 //
 //        wrist.setNeutralMode(NeutralModeValue.Coast);
+    }
+
+    public double movePercent() {
+        return Math.hypot(state.height.minus(prevState.height).magnitude(), state.angle.minus(prevState.angle).magnitude());
     }
 
     private void unsetAllRequests() {

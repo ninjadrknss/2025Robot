@@ -379,17 +379,17 @@ public class Odometry extends SubsystemBase {
     public void addVisionMeasurement() {
         RobotState previousRobotState = getRobotState();
         PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
-        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
+//        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
 
         if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
             swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
         }
 
-        if (photonVisionPose != null && photonVisionPose.estimatedPose.getTranslation().toTranslation2d().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-            swerve.addVisionMeasurement(photonVisionPose.estimatedPose.toPose2d(), photonVisionPose.timestampSeconds);
-        }
+//        if (photonVisionPose != null && photonVisionPose.estimatedPose.getTranslation().toTranslation2d().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+//            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+//            swerve.addVisionMeasurement(photonVisionPose.estimatedPose.toPose2d(), photonVisionPose.timestampSeconds);
+//        }
     }
 
     public RobotState getRobotState() {

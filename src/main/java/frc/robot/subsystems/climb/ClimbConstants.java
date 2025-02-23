@@ -15,19 +15,17 @@ import static edu.wpi.first.units.Units.Degrees;
 public class ClimbConstants {
     public static final int servoPort = 8;
 
-    public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>();
+    public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
     static {
         pivotEncoderConfig.withName("Climber Pivot Encoder")
                 .withCanID(0)
-                .withBus(Robot.riobus)
-                .withConfig(new CANcoderConfiguration());
-
+                .withBus(Robot.riobus);
         CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
         encoderConfig.MagnetSensor.MagnetOffset = 0;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: check
     }
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> pivotMotorConfig = new CTREConfig<>();
+    public static final CTREConfig<TalonFX, TalonFXConfiguration> pivotMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
         pivotMotorConfig.withName("Pivot Motor")
                         .withCanID(61)
