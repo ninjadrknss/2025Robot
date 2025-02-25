@@ -7,6 +7,8 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 
@@ -28,12 +30,13 @@ public class AutonSubsystem {
             swerveSubsystem::getPose,
             swerveSubsystem::resetPose,
             swerveSubsystem::followPath,
-            true,
+            false,
             swerveSubsystem
         );
 
         autoChooser.addRoutine("TestAuton", this::getTestAuton);
         autoChooser.addRoutine("ExampleAuton", this::getExampleAuton);
+        autoChooser.addRoutine("Untitled", () -> getAuton("Untitled"));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -70,6 +73,24 @@ public class AutonSubsystem {
         );
         return routine;
     }
+
+    private AutoRoutine getAuton(String name) {
+        AutoRoutine routine = autoFactory.newRoutine(name);
+        AutoTrajectory trajectory = routine.trajectory(name);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                trajectory.resetOdometry(),
+                trajectory.cmd()
+            )
+            // trajectory.resetOdometry().andThen(
+            //     trajectory.cmd()
+            // )
+        );
+        //trajectory.atTime("Intake").onTrue(new InstantCommand(() -> System.out.println("Intaking lol")));
+
+        return routine;
+    } 
 
     public Command getSelectedAuton() {
         return autoChooser.selectedCommand();

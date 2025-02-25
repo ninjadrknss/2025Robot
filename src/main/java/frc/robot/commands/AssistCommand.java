@@ -16,7 +16,7 @@ import frc.robot.util.Constants.GameElement;
 import frc.robot.util.Constants.GameElement.*;
 
 public class AssistCommand extends Command {
-    private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
+    //private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final SwerveSubsystem swerve = SwerveSubsystem.getInstance();
     private Command goToPositionCommand;
 
@@ -38,7 +38,7 @@ public class AssistCommand extends Command {
 
         gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
-
+        //elementPose = gameElement.getRightBranch();
         if (gameElement.hasBranches() && selectedBranch != Branch.CENTER) {
             elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
         }

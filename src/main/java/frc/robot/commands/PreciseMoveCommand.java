@@ -26,10 +26,10 @@ public class PreciseMoveCommand extends Command {
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
     private final PIDController xController = new PIDController(
-        1, 0.0, 0
+        5, 0.0, 0
     );
     private final PIDController yController = new PIDController(
-        1, 0.0, 0
+        5, 0.0, 0
     );
     private final ProfiledPIDController thetaController;
 
@@ -86,8 +86,8 @@ public class PreciseMoveCommand extends Command {
         Pose2d goal = targetPose;
 
         // Feedforward attempts to drive towards the goal
-        double feedforwardVx = (goal.getX() - currentPose.getX() );
-        double feedforwardVy = (goal.getY() - currentPose.getY() );
+        double feedforwardVx = (goal.getX() - currentPose.getX() )*0.5;
+        double feedforwardVy = (goal.getY() - currentPose.getY() )*0.5;
 
         // PID feedback for position + heading
         double feedbackVx = xController.calculate(currentPose.getX(), goal.getX());

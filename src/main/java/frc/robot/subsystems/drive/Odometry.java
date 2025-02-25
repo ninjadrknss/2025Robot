@@ -457,6 +457,23 @@ public class Odometry extends SubsystemBase {
         SmartDashboard.putString("Selected Branch", controlBoard.selectedBranch.name());
     }
 
+    public Pose2d predictFuturePose(double secondsAhead) {
+        Pose2d currentPose = getPose();
+        double currentX = currentPose.getX();
+        double currentY = currentPose.getY();
+        double currentTheta = currentPose.getRotation().getRadians();
+        
+        double vx = getVelocityX();
+        double vy = getVelocityY();
+        double angularVelocity = getFieldYawRate();
+        
+        double predictedX = currentX + vx * secondsAhead;
+        double predictedY = currentY + vy * secondsAhead;
+        double predictedTheta = currentTheta + angularVelocity * secondsAhead;
+        
+        return new Pose2d(predictedX, predictedY, new Rotation2d(predictedTheta));
+    }
+
     @Override
     public void periodic() {
 

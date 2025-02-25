@@ -13,6 +13,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
+import frc.robot.commands.AssistCommand; 
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -113,8 +114,8 @@ public class ControlBoard {
 //        );
 
         /* Driveassist testing */
-//        driver.leftBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.LEFT));
-//        driver.rightBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.RIGHT));
+       driver.leftBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.LEFT));
+       driver.rightBumper.whileTrue(new AssistCommand(superstructure, Constants.GameElement.Branch.RIGHT));
 //        driver.leftTrigger.onTrue(new InstantCommand(
 //                () -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d()))
 //        ).ignoringDisable(true));
@@ -136,11 +137,11 @@ public class ControlBoard {
         // driver.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
 
         /* Elevator SysId */
-        ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
-        driver.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
-        driver.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
-        driver.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
-        driver.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
+        // ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
+        // driver.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
+        // driver.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
+        // driver.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
+        // driver.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
 //        driver.leftBumper.whileTrue(EWS.wristDynamicId(true));

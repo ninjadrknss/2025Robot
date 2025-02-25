@@ -80,19 +80,19 @@ public class MoveCommand extends Command {
             waypoints,
             constraints,
             new IdealStartingState(6, targetPose.getRotation()), // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-            new GoalEndState(2.0, targetPose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+            new GoalEndState(1.0, targetPose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
         );
 
         // Prevent the path from being flipped if the coordinates are already correct
         path.preventFlipping = true;
 
         PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(0.75, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(1.5, 0.0, 0.0), // Translation PID constants
             new PIDConstants(4, 0.05, 0.0)  // Rotation PID constants
         );
         AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
         pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-        
+        //Pathfinding.getCurrentPath(null, null).generateTrajectory(null, null, null).getTotalTimeSeconds();
         //pathCommand = AutoBuilder.pathfindToPose(intermediatePoints.get(0), constraints, 0);
 
         
@@ -101,9 +101,9 @@ public class MoveCommand extends Command {
         
         //(new Pose2d(8, 6, new Rotation2d(30)), constraints);
 
-        //pathCommand = new FollowPathCommand(path, swerveSubsystem::getPose, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
-        
+        //pathCommand = new FollowPathCommand(path, swerveSubsystem::getPose, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);   
         pathCommand.initialize();
+        
     }
 
     private void drive(ChassisSpeeds robotSpeeds, DriveFeedforwards feedforward) {
