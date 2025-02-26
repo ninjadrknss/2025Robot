@@ -94,7 +94,7 @@ public class ControlBoard {
     }
 
     public void tryInit() {
-        if (true || (DriverStation.isJoystickConnected(ControllerPreset.DRIVER.port()) && driver == null)) {
+        if (true || (driver == null && DriverStation.isJoystickConnected(ControllerPreset.DRIVER.port()))) {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
             configureBindings(ControllerPreset.DRIVER, driver);
             // Init operator bindings to driver:
@@ -171,21 +171,21 @@ public class ControlBoard {
         //        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
         //        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
 
-        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start));
-        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop));
-        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))));
+        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
-        controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT));
-        controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER));
-        controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT));
+        controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).withName("Select Left Branch"));
+        controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).withName("Select Center Branch"));
+        controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
         controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
             if(scoreLevel != ScoreLevel.L4) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
-        }));
+        }).withName("Score Level Up"));
         controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
             if(scoreLevel != ScoreLevel.L1) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
-        }));
+        }).withName("Score Level Down"));
     }
 
     public SwerveRequest getDriverRequest() {

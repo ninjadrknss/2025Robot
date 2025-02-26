@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -129,9 +130,10 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     public static SwerveSubsystem getInstance() {
         if (instance == null) {
-            instance = new SwerveSubsystem(TunerConstants.DrivetrainConstants, 
-            TunerConstants.FrontLeft, TunerConstants.FrontRight, 
-            TunerConstants.BackLeft, TunerConstants.BackRight);
+            instance = new SwerveSubsystem(TunerConstants.DrivetrainConstants,
+                TunerConstants.FrontLeft, TunerConstants.FrontRight,
+                TunerConstants.BackLeft, TunerConstants.BackRight
+            );
         }
         return instance;
     }
@@ -163,7 +165,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+        return run(() -> this.setControl(requestSupplier.get())).withName("Drive Request");
     }
 
     /**
@@ -213,11 +215,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
     }
 
-    public Pose2d getPose() { // TODO: Paigus remember
-        if (simDrivetrain != null){
-            return simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
-        }
-        return getState().Pose;
+    public Pose2d getPose() {
+        return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
     public ChassisSpeeds getChassisSpeeds(){
@@ -232,9 +231,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public void followPath(SwerveSample sample) {
         m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        var pose = getPose();
+        Pose2d pose = getPose();
 
-        var targetSpeeds = sample.getChassisSpeeds();
+        ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
         targetSpeeds.vxMetersPerSecond += m_pathXController.calculate(
                 pose.getX(), sample.x
         );
