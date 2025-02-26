@@ -107,8 +107,8 @@ public class FieldConstants {
         CAGE_BLUE_3(new Pose2d(8.7630, 0.0000, Rotation2d.fromDegrees(0)), true, true),
 
         // Processors
-        PROCESSOR_RED(new Pose2d(5.9944, 0.0000, Rotation2d.fromDegrees(90)), true, true),
-        PROCESSOR_BLUE(new Pose2d(11.5670, 8.0518, Rotation2d.fromDegrees(270)), false, true);
+        PROCESSOR_RED(new Pose2d(5.9944, 0.0000, Rotation2d.fromDegrees(90)), true, false),
+        PROCESSOR_BLUE(new Pose2d(11.5670, 8.0518, Rotation2d.fromDegrees(270)), false, false);
 
         private final Pose2d center;
         private final Branches branches;

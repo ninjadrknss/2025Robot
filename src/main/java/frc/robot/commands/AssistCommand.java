@@ -66,7 +66,8 @@ public class AssistCommand extends Command {
     @Override
     public void execute() {
 		goToPositionCommand.execute();
-		ControlBoard.getInstance().previousConfirmedGoal = gameElement;
+        ControlBoard.getInstance().isAssisting = true;
+        ControlBoard.getInstance().previousConfirmedGoal = gameElement;
     }
 
     @Override
@@ -76,6 +77,7 @@ public class AssistCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        ControlBoard.getInstance().isAssisting = false;
         System.out.println("Assist Command Ended");
     }
 }

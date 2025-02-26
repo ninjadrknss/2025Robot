@@ -97,7 +97,7 @@ public class Odometry extends SubsystemBase {
         private static final double CONFIDENCE_THRESHOLD = 0.3; // Below this threshold, target can be switched
 
         // Cone (forced-selection) parameters
-        private static final double FORCE_SELECTION_RADIUS = 0.85;
+        private static final double FORCE_SELECTION_RADIUS = 0.50;
         private static final double FORCE_SELECTION_CONE_HALF_ANGLE = Math.toRadians(34);
 
         // "Time to approach" weight in the cost function
@@ -111,6 +111,10 @@ public class Odometry extends SubsystemBase {
         private static final double WALL_EXTENSION = 0.825; // actual reef wall half-length
 
         public static Object[] predictTargetElement(RobotState state, ControlBoard cb) {
+
+            if (cb.isAssisting) {
+                return new Object[] { cb.previousConfirmedGoal, 1.0 };
+            }
 
             // ----- Step 1: Forced Selection (element-faces-robot cone) -----
             GameElement forcedTarget = getForcedConeTarget(state);
@@ -460,6 +464,7 @@ public class Odometry extends SubsystemBase {
         SmartDashboard.putString("Last Confirmed Target", (controlBoard.previousConfirmedGoal != null ? controlBoard.previousConfirmedGoal.name() : ""));
         SmartDashboard.putString("Selected Branch", controlBoard.selectedBranch.name());
         SmartDashboard.putString("Score Level", controlBoard.scoreLevel.name());
+        SmartDashboard.putString("isAssisting", controlBoard.isAssisting ? "YES" : "NO");
     }
 
     @Override

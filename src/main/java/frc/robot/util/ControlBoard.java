@@ -53,6 +53,7 @@ public class ControlBoard {
     public double goalConfidence;
     public Branch selectedBranch = Branch.LEFT;
     public ScoreLevel scoreLevel = ScoreLevel.L3;
+    public boolean isAssisting = false;
 
     public GameElement prevDesiredGoal;
 
@@ -139,7 +140,7 @@ public class ControlBoard {
         //        );
 
         /* Driveassist testing */
-//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -158,11 +159,11 @@ public class ControlBoard {
         // controller.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
 
         /* Elevator SysId */
-        ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
+        /*ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
         controller.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
         controller.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
         controller.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
-        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
+        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));*/
 
         /* Wrist SysId */
         //        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
