@@ -4,12 +4,11 @@ package frc.robot.subsystems.climb;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.CTREUtil;
-
-import static edu.wpi.first.units.Units.Degrees;
 
 public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem instance;
@@ -23,7 +22,7 @@ public class ClimbSubsystem extends SubsystemBase {
 //    private final Servo servo = new Servo(ClimbConstants.servoPort);
 
     /* Other variables */
-    private Angle requestedPivotAngle = Degrees.of(0);
+    private Angle requestedPivotAngle = Units.Degrees.of(0);
     private boolean pendingPivotChange = false;
 
     private boolean requestStoreFlap = false;

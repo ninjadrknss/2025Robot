@@ -1,12 +1,9 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Units;
 import frc.robot.subsystems.drive.generated.TunerConstants;
 
 import com.pathplanner.lib.config.ModuleConfig;
@@ -14,8 +11,8 @@ import com.pathplanner.lib.config.RobotConfig;
 
 
 public class SwerveConstants {
-    public static final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    public static final double maxAngularSpeed = RotationsPerSecond.of(0.9).in(RadiansPerSecond);
+    public static final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond);
+    public static final double maxAngularSpeed = Units.RotationsPerSecond.of(0.9).in(Units.RadiansPerSecond);
 
     public static class AutoConstants {
         public static double kMaxSpeedMetersPerSecond = 7; // 3

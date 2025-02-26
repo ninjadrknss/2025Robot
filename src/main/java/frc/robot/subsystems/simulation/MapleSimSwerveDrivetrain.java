@@ -6,8 +6,6 @@ package frc.robot.subsystems.simulation;
 //
 // This code is licensed under MIT license (see https://mit-license.org/)
 
-import static edu.wpi.first.units.Units.*;
-
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -24,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -101,10 +100,10 @@ public class MapleSimSwerveDrivetrain {
                         steerMotorModel,
                         moduleConstants[0].DriveMotorGearRatio,
                         moduleConstants[0].SteerMotorGearRatio,
-                        Volts.of(moduleConstants[0].DriveFrictionVoltage),
-                        Volts.of(moduleConstants[0].SteerFrictionVoltage),
-                        Meters.of(moduleConstants[0].WheelRadius),
-                        KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
+                        Units.Volts.of(moduleConstants[0].DriveFrictionVoltage),
+                        Units.Volts.of(moduleConstants[0].SteerFrictionVoltage),
+                        Units.Meters.of(moduleConstants[0].WheelRadius),
+                        Units.KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
                         wheelCOF));
         mapleSimDrive = new SwerveDriveSimulation(simulationConfig, new Pose2d(3, 3, new Rotation2d()));
 
@@ -112,7 +111,7 @@ public class MapleSimSwerveDrivetrain {
         for (int i = 0; i < this.simModules.length; i++)
             simModules[i] = new SimSwerveModule(moduleConstants[0], moduleSimulations[i], modules[i]);
 
-        mapleSimIntake = IntakeSimulation.InTheFrameIntake("Coral", mapleSimDrive, Meters.of(Meters.convertFrom(30, Inch)), IntakeSide.FRONT, 1);
+        mapleSimIntake = IntakeSimulation.InTheFrameIntake("Coral", mapleSimDrive, Units.Meters.of(Units.Meters.convertFrom(30, Units.Inch)), IntakeSide.FRONT, 1);
         mapleSimIntake.startIntake();
 
         SimulatedArena.overrideSimulationTimings(simPeriod, 1);
@@ -134,7 +133,7 @@ public class MapleSimSwerveDrivetrain {
         SimulatedArena.getInstance().simulationPeriodic();
         pigeonSim.setRawYaw(
                 mapleSimDrive.getSimulatedDriveTrainPose().getRotation().getMeasure());
-        pigeonSim.setAngularVelocityZ(RadiansPerSecond.of(
+        pigeonSim.setAngularVelocityZ(Units.RadiansPerSecond.of(
                 mapleSimDrive.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));
     }
 
@@ -265,9 +264,9 @@ public class MapleSimSwerveDrivetrain {
                         .withKP(70) // Proportional gain
                         .withKD(4.5)) // Derivative gain
                 // Adjust friction voltages
-                .withDriveFrictionVoltage(Volts.of(0.1))
-                .withSteerFrictionVoltage(Volts.of(0.15))
+                .withDriveFrictionVoltage(Units.Volts.of(0.1))
+                .withSteerFrictionVoltage(Units.Volts.of(0.15))
                 // Adjust steer inertia
-                .withSteerInertia(KilogramSquareMeters.of(0.05));
+                .withSteerInertia(Units.KilogramSquareMeters.of(0.05));
     }
 }

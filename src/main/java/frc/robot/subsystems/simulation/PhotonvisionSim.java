@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.Units;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -18,8 +19,6 @@ import org.photonvision.simulation.VisionTargetSim;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static edu.wpi.first.units.Units.*;
 
 public class PhotonvisionSim {
     private static PhotonvisionSim instance;
@@ -84,24 +83,24 @@ public class PhotonvisionSim {
 
         visionSim.addCamera(camera1Sim, new Transform3d(
                 new Translation3d(
-                    Meter.convertFrom(2.979, Inch),
-                    Meter.convertFrom(9.41, Inch),
-                    Meter.convertFrom(37.418, Inch)
+                    Units.Meter.convertFrom(2.979, Units.Inch),
+                    Units.Meter.convertFrom(9.41, Units.Inch),
+                    Units.Meter.convertFrom(37.418, Units.Inch)
                 ),
-                new Rotation3d(0, -Radians.convertFrom(-15, Degrees), Radians.convertFrom(155, Degrees))));
+                new Rotation3d(0, -Units.Radians.convertFrom(-15, Units.Degrees), Units.Radians.convertFrom(155, Units.Degrees))));
         visionSim.addCamera(camera2Sim, new Transform3d(
                 new Translation3d(
-                        Meter.convertFrom(2.979, Inch),
-                        -Meter.convertFrom(9.41, Inch),
-                        Meter.convertFrom(37.418, Inch)
+                        Units.Meter.convertFrom(2.979, Units.Inch),
+                        -Units.Meter.convertFrom(9.41, Units.Inch),
+                        Units.Meter.convertFrom(37.418, Units.Inch)
 
                         ), /*Y, X, Z*/
-                new Rotation3d(0, -Radians.convertFrom(-15, Degrees), Radians.convertFrom(-155, Degrees))));
+                new Rotation3d(0, -Units.Radians.convertFrom(-15, Units.Degrees), Units.Radians.convertFrom(-155, Units.Degrees))));
         visionSim.addCamera(camera3Sim, new Transform3d(
                 new Translation3d(
-                        Meter.convertFrom(10, Inch),
-                        Meter.convertFrom(0, Inch),
-                        Meter.convertFrom(10, Inch)
+                        Units.Meter.convertFrom(10, Units.Inch),
+                        Units.Meter.convertFrom(0, Units.Inch),
+                        Units.Meter.convertFrom(10, Units.Inch)
                 ),
                 new Rotation3d()
         ));

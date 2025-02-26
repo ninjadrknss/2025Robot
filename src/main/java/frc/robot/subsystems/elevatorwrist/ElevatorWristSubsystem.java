@@ -5,6 +5,7 @@ import com.ctre.phoenix6.Utils;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 
 import edu.wpi.first.units.measure.Distance;
@@ -15,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.simulation.ElevatorWristSim;
-
-import static edu.wpi.first.units.Units.*;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
     private static ElevatorWristSubsystem instance;
@@ -47,8 +46,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         private final LightsSubsystem.Color color;
 
         ElevatorState(int height, int angle, LightsSubsystem.Color color) {
-            this.height = Inches.of(height);
-            this.angle = Degrees.of(angle);
+            this.height = Units.Inches.of(height);
+            this.angle = Units.Degrees.of(angle);
             this.color = color;
         }
     }

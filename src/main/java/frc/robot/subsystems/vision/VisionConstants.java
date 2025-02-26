@@ -5,10 +5,8 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.Units;
 import org.photonvision.PhotonPoseEstimator;
-
-import static edu.wpi.first.units.Units.*;
-import static edu.wpi.first.units.Units.Degrees;
 
 public class VisionConstants {
     public static class Limelight {
@@ -34,26 +32,26 @@ public class VisionConstants {
 
         public static final Transform3d leftCameraToRobot = new Transform3d(
                 new Translation3d(
-                        Meter.convertFrom(2.979, Inch),
-                        Meter.convertFrom(9.41, Inch),
-                        Meter.convertFrom(37.418, Inch)
+                        Units.Meter.convertFrom(2.979, Units.Inch),
+                        Units.Meter.convertFrom(9.41, Units.Inch),
+                        Units.Meter.convertFrom(37.418, Units.Inch)
                 ), /*Y, X, Z*/
                 new Rotation3d(
                         0,
-                        -Radians.convertFrom(-15, Degrees),
-                        Radians.convertFrom(155, Degrees)
+                        -Units.Radians.convertFrom(-15, Units.Degrees),
+                        Units.Radians.convertFrom(155, Units.Degrees)
                 )
         );
         public static final Transform3d rightCameraToRobot = new Transform3d(
                 new Translation3d(
-                        Meter.convertFrom(2.979, Inch),
-                        -Meter.convertFrom(9.41, Inch),
-                        Meter.convertFrom(37.418, Inch)
+                        Units.Meter.convertFrom(2.979, Units.Inch),
+                        -Units.Meter.convertFrom(9.41, Units.Inch),
+                        Units.Meter.convertFrom(37.418, Units.Inch)
                 ), /*Y, X, Z*/
                 new Rotation3d(
                         0,
-                        -Radians.convertFrom(-15, Degrees),
-                        Radians.convertFrom(-155, Degrees)
+                        -Units.Radians.convertFrom(-15, Units.Degrees),
+                        Units.Radians.convertFrom(-155, Units.Degrees)
                 )
         );
     }

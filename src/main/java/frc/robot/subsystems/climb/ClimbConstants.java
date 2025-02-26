@@ -6,11 +6,10 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import frc.lib.CTREConfig;
 import frc.robot.Robot;
-
-import static edu.wpi.first.units.Units.Degrees;
 
 public class ClimbConstants {
     public static final int servoPort = 8;
@@ -52,10 +51,10 @@ public class ClimbConstants {
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Degrees.of(3);
-    public static final Angle flapStoreAngle = Degrees.of(0);
-    public static final Angle flapDeployAngle = Degrees.of(0);
+    public static final Angle changeRate = Units.Degrees.of(3);
+    public static final Angle flapStoreAngle = Units.Degrees.of(0);
+    public static final Angle flapDeployAngle = Units.Degrees.of(0);
 
-    public static final Angle pivotStoreAngle = Degrees.of(0);
-    public static final Angle pivotDeployAngle = Degrees.of(0);
+    public static final Angle pivotStoreAngle = Units.Degrees.of(0);
+    public static final Angle pivotDeployAngle = Units.Degrees.of(0);
 }
