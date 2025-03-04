@@ -1,5 +1,9 @@
 package frc.robot.subsystems.auton;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -9,8 +13,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.AssistCommand;
+import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.util.Constants.GameElement.Branch;
 
 public class AutonSubsystem {
     private final AutoChooser autoChooser = new AutoChooser();
@@ -34,10 +41,9 @@ public class AutonSubsystem {
             swerveSubsystem
         );
 
-        autoChooser.addRoutine("TestAuton", this::getTestAuton);
-        autoChooser.addRoutine("ExampleAuton", this::getExampleAuton);
+        autoChooser.addRoutine("TestAuton2", () -> getAuton("test2"));
         autoChooser.addRoutine("Untitled", () -> getAuton("Untitled"));
-
+        autoChooser.addRoutine("pdaddy", () -> getAuton("pdaddy"));
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -50,47 +56,26 @@ public class AutonSubsystem {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
     }
 
-    private AutoRoutine getTestAuton() {
-        AutoRoutine routine = autoFactory.newRoutine("TestAuton");
-        AutoTrajectory trajectory = routine.trajectory("TestAuton");
-
-        routine.active().onTrue(
-            trajectory.resetOdometry().andThen(
-                trajectory.cmd()
-            )
-        );
-        return routine;
-    }
-
-    private AutoRoutine getExampleAuton() {
-        AutoRoutine routine = autoFactory.newRoutine("ExampleAuton");
-        AutoTrajectory trajectory = routine.trajectory("ExampleAuton");
-
-        routine.active().onTrue(
-            trajectory.resetOdometry().andThen(
-                trajectory.cmd()
-            )
-        );
-        return routine;
-    }
-
     private AutoRoutine getAuton(String name) {
         AutoRoutine routine = autoFactory.newRoutine(name);
-        AutoTrajectory trajectory = routine.trajectory(name);
+        List<Command> commandList = new ArrayList<>();
+        
+        int index = 0;
+        while (true) {
+            AutoTrajectory trajectory = routine.trajectory(name, index);
+            if (trajectory.getFinalPose().equals(Optional.empty())) break;
+            if (index == 0) commandList.add(trajectory.resetOdometry());
+            commandList.add(trajectory.cmd());
+            commandList.add(new AssistCommand(superstructure, Branch.LEFT));
+            index++;
+        }
 
-        routine.active().onTrue(
-            Commands.sequence(
-                trajectory.resetOdometry(),
-                trajectory.cmd()
-            )
-            // trajectory.resetOdometry().andThen(
-            //     trajectory.cmd()
-            // )
-        );
-        //trajectory.atTime("Intake").onTrue(new InstantCommand(() -> System.out.println("Intaking lol")));
+        // Register the full sequence of commands to run when routine is active
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
 
         return routine;
-    } 
+    }
+
 
     public Command getSelectedAuton() {
         return autoChooser.selectedCommand();

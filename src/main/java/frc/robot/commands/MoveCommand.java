@@ -64,34 +64,33 @@ public class MoveCommand extends Command {
     @Override
     public void initialize() {
         Pose2d currentPose = swerveSubsystem.getPose();
+        if (distance(currentPose, targetPose) < 0.05 && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
+            end(true);
+            return;
+        }
+        if (intermediatePoints.size() == 0) intermediatePoints.add(currentPose);
+        intermediatePoints.add(targetPose);
 
-        // If we're effectively at the target, don't bother moving.
-        // Create a list of waypoints from poses. Each pose represents one waypoint.
-        // The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
-        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-            intermediatePoints.get(0), intermediatePoints.get(1), targetPose
-        );
-
+        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(intermediatePoints);
+        
         PathConstraints constraints = new PathConstraints(6.0, 3.0, 4 * Math.PI, 2 * Math.PI); // The constraints for this path.
-        //PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
-        // Create the path using the waypoints created above
-
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             constraints,
-            new IdealStartingState(6, targetPose.getRotation()), // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-            new GoalEndState(1.0, targetPose.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+            new IdealStartingState(6, targetPose.getRotation()), 
+            new GoalEndState(1.0, targetPose.getRotation()) 
         );
 
-        // Prevent the path from being flipped if the coordinates are already correct
         path.preventFlipping = true;
 
         PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(1.5, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(4, 0.05, 0.0)  // Rotation PID constants
+            new PIDConstants(1, 0.0, 0.0),
+            new PIDConstants(2, 0.05, 0.0)
         );
         AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
         pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
+
+
         //Pathfinding.getCurrentPath(null, null).generateTrajectory(null, null, null).getTotalTimeSeconds();
         //pathCommand = AutoBuilder.pathfindToPose(intermediatePoints.get(0), constraints, 0);
 
@@ -110,12 +109,17 @@ public class MoveCommand extends Command {
         swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(robotSpeeds));
     }
 
+    private double distance(Pose2d current, Pose2d target) {
+        double positionError = Math.hypot(current.getX() - target.getX(), current.getY() - target.getY());
+        return positionError;
+    }
+
     @Override
     public void execute() {
         if (pathCommand != null && !pathCommand.isFinished()) {
             pathCommand.execute();
         }
-        else if (pathCommand.isFinished() && preciseMoveCommand != null && !preciseMoveCommand.isFinished()) {
+        else if ((pathCommand == null || pathCommand.isFinished()) && preciseMoveCommand != null && !preciseMoveCommand.isFinished()) {
             if (!isPreciseMove){
                 isPreciseMove = true;
                 preciseMoveCommand.initialize();

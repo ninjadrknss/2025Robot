@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,6 +25,9 @@ public class AssistCommand extends Command {
 
     private final Branch selectedBranch;
 
+    private boolean firstWaypoint = true;
+    private boolean secondWaypoint = true;
+
     private final StructPublisher<Pose2d> desiredPosePublisher = NetworkTableInstance.getDefault().getTable("Auton")
         .getStructTopic("Desired Pose", Pose2d.struct)
         .publish();
@@ -32,6 +36,12 @@ public class AssistCommand extends Command {
         this.selectedBranch = selectedBranch;
         addRequirements(this.swerve);
     }
+
+    public AssistCommand(Superstructure superstructure) {
+        this.selectedBranch = Branch.CENTER;
+        addRequirements(this.swerve);
+    }
+
 
     @Override
     public void initialize() {
@@ -47,18 +57,17 @@ public class AssistCommand extends Command {
             .getRotation()
             .minus(Rotation2d.fromDegrees(180));
 
-
-        // Get the poses with offset for the two positions
         Pose2d offsetPose1 = GameElement.getPoseWithOffset(elementPose, 0.475);
-        Pose2d offsetPose2 = GameElement.getPoseWithOffset(elementPose, 1.0);
-        Pose2d offsetPose3 = GameElement.getPoseWithOffset(elementPose, 0.6);//0.751);
+        
+        List<Pose2d> waypoints = new ArrayList<>();
 
-        // Create new Pose2d objects using the x/y from the offset poses and the adjusted rotation
-        Pose2d intermediatePose1 = new Pose2d(offsetPose2.getX(), offsetPose2.getY(), targetRotation);
-        Pose2d intermediatePose2 = new Pose2d(offsetPose3.getX(), offsetPose3.getY(), targetRotation);
+        if (firstWaypoint) waypoints.add(new Pose2d(GameElement.getPoseWithOffset(elementPose, 1.0).getX(), GameElement.getPoseWithOffset(elementPose, 1.0).getY(), targetRotation));
+        if (secondWaypoint) waypoints.add(new Pose2d(GameElement.getPoseWithOffset(elementPose, 0.6).getX(), GameElement.getPoseWithOffset(elementPose, 0.6).getY(), targetRotation));
+
         Pose2d targetPose = new Pose2d(offsetPose1.getX(), offsetPose1.getY(), targetRotation);
+        
+        goToPositionCommand = swerve.goToPositionCommand(targetPose, waypoints);
 
-        this.goToPositionCommand = swerve.goToPositionCommand(targetPose, List.of(intermediatePose1, intermediatePose2));
         desiredPosePublisher.set(targetPose);
         goToPositionCommand.initialize();
         //superstructure.requestChuteIntake();

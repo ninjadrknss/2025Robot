@@ -59,7 +59,7 @@ public class PreciseMoveCommand extends Command {
         Pose2d currentPose = odometry.getPose();
 
         // If we're effectively at the target, don't bother moving.
-        if (isClose(currentPose, targetPose, 0.02)
+        if (isClose(currentPose, targetPose, 0.05)
             && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
             System.out.println("Already at target position.");
             end(true);
@@ -162,7 +162,7 @@ public class PreciseMoveCommand extends Command {
     public boolean isFinished() {
         Pose2d currentPose = odometry.getPose();
         // Finish if near target position + orientation
-        return isClose(targetPose, currentPose, 0.02)
+        return isClose(targetPose, currentPose, 0.05)
             && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 2;
     }
 

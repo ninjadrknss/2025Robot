@@ -1,11 +1,14 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -13,28 +16,24 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
 import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.drive.generated.TunerConstants;
 import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
-
 import frc.robot.subsystems.simulation.MapleSimSwerveDrivetrain;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
@@ -114,9 +113,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     );
 
     /* Autonomous Controllers */
-    private final PIDController m_pathXController = new PIDController(1, 0.0, 0.0);
-    private final PIDController m_pathYController = new PIDController(1, 0.0, 0.0);
-    private final PIDController m_pathThetaController = new PIDController(0.1, 0.0, 0.0);
+    private final PIDController m_pathXController = new PIDController(100, 0.0, 0.0);
+    private final PIDController m_pathYController = new PIDController(100, 0.0, 0.0);
+    private final PIDController m_pathThetaController = new PIDController(30, 0.0, 0.0);
 
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
             .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
@@ -229,27 +228,24 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      *
      * @param sample Sample along the path to follow
      */
+    
     public void followPath(SwerveSample sample) {
         m_pathThetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         var pose = getPose();
-
         var targetSpeeds = sample.getChassisSpeeds();
-        targetSpeeds.vxMetersPerSecond += m_pathXController.calculate(
-                pose.getX(), sample.x
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            sample.vx + m_pathXController.calculate(pose.getX(), sample.x),
+            sample.vy + m_pathYController.calculate(pose.getY(), sample.y),
+            sample.omega + m_pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-        targetSpeeds.vyMetersPerSecond += m_pathYController.calculate(
-                pose.getY(), sample.y
-        );
-        targetSpeeds.omegaRadiansPerSecond += m_pathThetaController.calculate(
-                pose.getRotation().getRadians(), sample.heading
-        );
-
-        setControl(
-                m_pathApplyFieldSpeeds.withSpeeds(targetSpeeds)
-                        .withWheelForceFeedforwardsX(sample.moduleForcesX())
-                        .withWheelForceFeedforwardsY(sample.moduleForcesY())
-        );
+    
+        setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
+        // setControl(
+        //         m_pathApplyFieldSpeeds.withSpeeds(speeds)
+        //                 .withWheelForceFeedforwardsX(sample.moduleForcesX())
+        //                 .withWheelForceFeedforwardsY(sample.moduleForcesY())
+        // );
     }
 
     // TODO: Make as its own class? Also allow targetPose to be a supplier?

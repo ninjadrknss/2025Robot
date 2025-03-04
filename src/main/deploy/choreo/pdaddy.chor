@@ -1,0 +1,78 @@
+{
+ "name":"pdaddy",
+ "version":1,
+ "type":"Swerve",
+ "variables":{
+  "expressions":{},
+  "poses":{}
+ },
+ "config":{
+  "frontLeft":{
+   "x":{
+    "exp":"10.4 in",
+    "val":0.26416
+   },
+   "y":{
+    "exp":"10.4 in",
+    "val":0.26416
+   }
+  },
+  "backLeft":{
+   "x":{
+    "exp":"-10.4 in",
+    "val":-0.26416
+   },
+   "y":{
+    "exp":"10.4 in",
+    "val":0.26416
+   }
+  },
+  "mass":{
+   "exp":"110 lbs",
+   "val":49.895160700000005
+  },
+  "inertia":{
+   "exp":"5 kg m ^ 2",
+   "val":5.0
+  },
+  "gearing":{
+   "exp":"6.75",
+   "val":6.75
+  },
+  "radius":{
+   "exp":"2 in",
+   "val":0.0508
+  },
+  "vmax":{
+   "exp":"6000 RPM",
+   "val":628.3185307179587
+  },
+  "tmax":{
+   "exp":"0.6 N * m",
+   "val":0.6
+  },
+  "cof":{
+   "exp":"1.2",
+   "val":1.2
+  },
+  "bumper":{
+   "front":{
+    "exp":"15 in",
+    "val":0.381
+   },
+   "side":{
+    "exp":"15 in",
+    "val":0.381
+   },
+   "back":{
+    "exp":"15 in",
+    "val":0.381
+   }
+  },
+  "differentialTrackWidth":{
+   "exp":"22 in",
+   "val":0.5588
+  }
+ },
+ "generationFeatures":[]
+}
