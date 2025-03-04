@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -18,14 +19,18 @@ import edu.wpi.first.networktables.StructPublisher;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import frc.lib.LimelightHelpers.PoseEstimate;
+import frc.robot.subsystems.vision.PhotonvisionSubsystem;
 import frc.robot.util.ControlBoard;
-import frc.robot.util.Constants.GameElement;
+import frc.robot.util.FieldConstants;
+import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.Constants;
+import org.photonvision.EstimatedRobotPose;
 
 public class Odometry extends SubsystemBase {
     private static Odometry instance;
     private final SwerveSubsystem swerve;
     private final LimelightSubsystem limelight;
+    private final PhotonvisionSubsystem photonvision;
     private final ControlBoard controlBoard;
     private final Pigeon2 gyro;
     /* Status Signals */
@@ -34,6 +39,7 @@ public class Odometry extends SubsystemBase {
     private final StatusSignal<AngularVelocity> yawStatusSignal;
 
     private boolean odometryResetRequested = false;
+    private static final boolean limelightReset = true;
 
     // --- ADD THESE FIELDS FOR VELOCITY CALC ---
     private Pose2d previousPose = new Pose2d();
@@ -43,6 +49,9 @@ public class Odometry extends SubsystemBase {
 
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose3d.struct).publish();
+
+    StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("PredictedElementPose", Pose3d.struct).publish();
 
     private RobotState.Velocity2D linearVelocity = new RobotState.Velocity2D(0, 0);
 
@@ -76,19 +85,19 @@ public class Odometry extends SubsystemBase {
         }
     }
 
-    public class TargetPredictor {
+    public static class TargetPredictor {
 
         private static final boolean ALLIANCE_IS_BLUE = true;
 
         private static GameElement lastPredictedTarget = null;
         private static double targetConfidence = 0.0;
 
-        private static final double CONFIDENCE_INCREMENT = 0.1; // Increase per consistent cycle
-        private static final double CONFIDENCE_DECREMENT = 0.25; // Decrease per cycle when candidate changes
+        private static final double CONFIDENCE_INCREMENT = 0.15; // Increase per consistent cycle
+        private static final double CONFIDENCE_DECREMENT = 0.09; // Decrease per cycle when candidate changes
         private static final double CONFIDENCE_THRESHOLD = 0.3; // Below this threshold, target can be switched
 
         // Cone (forced-selection) parameters
-        private static final double FORCE_SELECTION_RADIUS = 0.85;
+        private static final double FORCE_SELECTION_RADIUS = 0.50;
         private static final double FORCE_SELECTION_CONE_HALF_ANGLE = Math.toRadians(34);
 
         // "Time to approach" weight in the cost function
@@ -102,6 +111,10 @@ public class Odometry extends SubsystemBase {
         private static final double WALL_EXTENSION = 0.825; // actual reef wall half-length
 
         public static Object[] predictTargetElement(RobotState state, ControlBoard cb) {
+
+            if (cb.isAssisting) {
+                return new Object[] { cb.previousConfirmedGoal, 1.0 };
+            }
 
             // ----- Step 1: Forced Selection (element-faces-robot cone) -----
             GameElement forcedTarget = getForcedConeTarget(state);
@@ -120,7 +133,7 @@ public class Odometry extends SubsystemBase {
             double vX = state.getVelocity().x();
             double vY = state.getVelocity().y();
             double vSquared = vX * vX + vY * vY;
-            double currentSpeed = (vSquared > Constants.EPSILON) ? Math.sqrt(vSquared) : 0;
+            double currentSpeed = (vSquared > FieldConstants.EPSILON) ? Math.sqrt(vSquared) : 0;
 
             GameElement candidateTarget = null;
             double bestCost = Double.MAX_VALUE;
@@ -138,7 +151,7 @@ public class Odometry extends SubsystemBase {
                 // tOptimal: time in the future that (assuming constant velocity)
                 // best aligns the robot with the target
                 double tOptimal = 0;
-                if (vSquared > Constants.EPSILON) {
+                if (vSquared > FieldConstants.EPSILON) {
                     double dotProduct = (currentX - elementX) * vX + (currentY - elementY) * vY;
                     tOptimal = -dotProduct / vSquared;
                     if (tOptimal < 0) {
@@ -156,7 +169,7 @@ public class Odometry extends SubsystemBase {
                     cost += TIME_COST_WEIGHT * (tOptimal * currentSpeed);
                 }
 
-                if (vSquared > Constants.EPSILON) {
+                if (vSquared > FieldConstants.EPSILON) {
                     // Angle from current robot position to this element
                     double angleToTarget = Math.atan2(elementY - currentY, elementX - currentX);
                     // Angle of robot velocity
@@ -284,20 +297,12 @@ public class Odometry extends SubsystemBase {
             double o3 = orientation(a, b, p);
             double o4 = orientation(a, b, q);
 
-            if (o1 * o2 < 0 && o3 * o4 < 0) {
-                return true;
-            }
+            return o1 * o2 < 0 && o3 * o4 < 0 ||
+                    Math.abs(o1) < FieldConstants.EPSILON && onSegment(p, q, a) ||
+                    Math.abs(o2) < FieldConstants.EPSILON && onSegment(p, q, b) ||
+                    Math.abs(o3) < FieldConstants.EPSILON && onSegment(a, b, p) ||
+                    Math.abs(o4) < FieldConstants.EPSILON && onSegment(a, b, q);
 
-            if (Math.abs(o1) < Constants.EPSILON && onSegment(p, q, a))
-                return true;
-            if (Math.abs(o2) < Constants.EPSILON && onSegment(p, q, b))
-                return true;
-            if (Math.abs(o3) < Constants.EPSILON && onSegment(a, b, p))
-                return true;
-            if (Math.abs(o4) < Constants.EPSILON && onSegment(a, b, q))
-                return true;
-
-            return false;
         }
 
         private static double orientation(Translation2d p, Translation2d q, Translation2d r) {
@@ -306,19 +311,15 @@ public class Odometry extends SubsystemBase {
         }
 
         private static boolean onSegment(Translation2d p, Translation2d q, Translation2d r) {
-            return r.getX() <= Math.max(p.getX(), q.getX()) + Constants.EPSILON &&
-                    r.getX() >= Math.min(p.getX(), q.getX()) - Constants.EPSILON &&
-                    r.getY() <= Math.max(p.getY(), q.getY()) + Constants.EPSILON &&
-                    r.getY() >= Math.min(p.getY(), q.getY()) - Constants.EPSILON;
+            return r.getX() <= Math.max(p.getX(), q.getX()) + FieldConstants.EPSILON &&
+                    r.getX() >= Math.min(p.getX(), q.getX()) - FieldConstants.EPSILON &&
+                    r.getY() <= Math.max(p.getY(), q.getY()) + FieldConstants.EPSILON &&
+                    r.getY() >= Math.min(p.getY(), q.getY()) - FieldConstants.EPSILON;
         }
 
         private static double normalizeAngle(double angle) {
-            while (angle > Math.PI) {
-                angle -= 2 * Math.PI;
-            }
-            while (angle < -Math.PI) {
-                angle += 2 * Math.PI;
-            }
+            while (angle > Math.PI) angle -= 2 * Math.PI;
+            while (angle < -Math.PI) angle += 2 * Math.PI;
             return angle;
         }
     }
@@ -326,6 +327,7 @@ public class Odometry extends SubsystemBase {
     private Odometry() {
         this.swerve = SwerveSubsystem.getInstance();
         this.limelight = LimelightSubsystem.getInstance();
+        this.photonvision = PhotonvisionSubsystem.getInstance();
         this.gyro = swerve.getPigeon2();
 
         rollStatusSignal = gyro.getAngularVelocityXWorld();
@@ -366,9 +368,9 @@ public class Odometry extends SubsystemBase {
             if (distance < minDistance) {
                 closest = element;
                 minDistance = distance;
-                minAngleDifference = Constants.calculateAngleDifference(robotPose, element.getLocation());
+                minAngleDifference = FieldConstants.calculateAngleDifference(robotPose, element.getLocation());
             } else if (distance == minDistance) {
-                double angleDifference = Constants.calculateAngleDifference(robotPose, element.getLocation());
+                double angleDifference = FieldConstants.calculateAngleDifference(robotPose, element.getLocation());
                 if (angleDifference < minAngleDifference) {
                     closest = element;
                     minAngleDifference = angleDifference;
@@ -381,11 +383,17 @@ public class Odometry extends SubsystemBase {
     public void addVisionMeasurement() {
         RobotState previousRobotState = getRobotState();
         PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
-        if (limelightPose == null) return;
-        if (limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+//        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
+
+        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
             swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
         }
+
+//        if (photonVisionPose != null && photonVisionPose.estimatedPose.getTranslation().toTranslation2d().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+//            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+//            swerve.addVisionMeasurement(photonVisionPose.estimatedPose.toPose2d(), photonVisionPose.timestampSeconds);
+//        }
     }
 
     public RobotState getRobotState() {
@@ -455,6 +463,8 @@ public class Odometry extends SubsystemBase {
         SmartDashboard.putString("P Target Confidence", controlBoard.goalConfidence());
         SmartDashboard.putString("Last Confirmed Target", (controlBoard.previousConfirmedGoal != null ? controlBoard.previousConfirmedGoal.name() : ""));
         SmartDashboard.putString("Selected Branch", controlBoard.selectedBranch.name());
+        SmartDashboard.putString("Score Level", controlBoard.scoreLevel.name());
+        SmartDashboard.putString("isAssisting", controlBoard.isAssisting ? "YES" : "NO");
     }
 
     public Pose2d predictFuturePose(double secondsAhead) {
@@ -478,11 +488,17 @@ public class Odometry extends SubsystemBase {
     public void periodic() {
 
         publisher.set(getPose3d());
+        Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
+        predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
 
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
-            if (limelightPose != null) {
+            EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
+            if (limelightReset && limelightPose != null) {
                 swerve.resetPose(limelightPose.pose);
+            }
+            if (!limelightReset && photonVisionPose != null) {
+                swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
             }
             odometryResetRequested = false;
         } else {

@@ -1,8 +1,7 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.*;
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-
+import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.RainbowAnimation;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -10,24 +9,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Robot;
 
 /*
  * Portions of this code were taken from Team 9496 Lynk
  */
 
-public class LEDSubsystem extends SubsystemBase {
-    private static LEDSubsystem instance = null;
+public class LightsSubsystem extends SubsystemBase {
+    private static LightsSubsystem instance = null;
 
-    private final CANdle candle = new CANdle(5, "rio");
-    private static final int numLEDs = 59 + 8;
-    private static final int brightness = 50;
+//    private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
 
+    private final Timer blinkTimer = new Timer();
     private boolean blinking = false;
-    private static final double blinkInterval = 0.2;
-    private static final Timer blinkTimer = new Timer();
-    private static boolean blinkOff = false;
+    private boolean blinkOff = false;
 
-    private static final double fadeDuration = 0.2;
     private boolean doFadePercent = true;
     private boolean fading = false;
     private double fadeStartTime = 0.0;
@@ -76,16 +72,13 @@ public class LEDSubsystem extends SubsystemBase {
         /* P5 */ public static final Color ULTRAVIOLET = new Color(86, 69, 146);
     }
 
-    public static LEDSubsystem getInstance() {
-        if (instance == null) instance = new LEDSubsystem();
+    public static LightsSubsystem getInstance() {
+        if (instance == null) instance = new LightsSubsystem();
         return instance;
     }
 
-    private LEDSubsystem() {
-        candle.configBrightnessScalar(0.50);
-        candle.configLEDType(LEDStripType.GRB);
-        candle.configV5Enabled(true);
-        candle.configLOSBehavior(false); // TODO: true -- why is this triggering?
+    private LightsSubsystem() {
+//        candle.configAllSettings(LightsConstants.caNdleConfiguration);
 
         requestColor(Colors.RED);
 
@@ -107,21 +100,21 @@ public class LEDSubsystem extends SubsystemBase {
     }
 
     private void fadeBetweenColors(Color start, Color end) {
-        candle.clearAnimation(0);
+//        candle.clearAnimation(0);
 
         this.fadeStartColor = start;
         this.fadeEndColor = end;
-        this.fadeDurationSec = LEDSubsystem.fadeDuration;
+        this.fadeDurationSec = LightsConstants.fadeDuration;
         this.fadeStartTime = Timer.getFPGATimestamp();
         this.fading = true;
 
-        candle.setLEDs(start.R, start.G, start.B);
+//        candle.setLEDs(start.R, start.G, start.B);
     }
 
     public void requestRainbow() {
-        candle.clearAnimation(0);
         System.out.println("Rainbowify");
-        candle.animate(new RainbowAnimation(0.50, 0.75, numLEDs, false, 0));
+//        candle.clearAnimation(0);
+//        candle.animate(new RainbowAnimation(0.50, 0.75, LightsConstants.numLEDs, false, 0));
     }
 
     public void requestBlinking(boolean blink) {
@@ -136,8 +129,8 @@ public class LEDSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
-        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
+//        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
+//        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
         SmartDashboard.putBoolean("LED/Blinking", blinking);
         SmartDashboard.putBoolean("LED/BlinkOff", blinkOff);
 
@@ -163,17 +156,16 @@ public class LEDSubsystem extends SubsystemBase {
         int g = (int) (MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction));
         int b = (int) (MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction));
 
-        candle.setLEDs(r, g, b);
+//        candle.setLEDs(r, g, b);
     }
 
     private void updateBlink() {
-        if (blinkTimer.hasElapsed(blinkInterval)) {
-            candle.clearAnimation(0);
-            if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
-            else {
-                candle.setLEDs(currentColor.R/8, currentColor.G/8, currentColor.B/8);
-                // candle.setLEDs(0, 0, 0);
-            }
+        if (blinkTimer.hasElapsed(LightsConstants.blinkInterval)) {
+//            candle.clearAnimation(0);
+//            if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
+//            else {
+//                candle.setLEDs(currentColor.R/8, currentColor.G/8, currentColor.B/8);
+//            }
             blinkOff = !blinkOff;
             blinkTimer.reset();
         }

@@ -11,17 +11,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
-import frc.robot.util.Constants.GameElement;
-import frc.robot.util.Constants.GameElement.*;
+import frc.robot.util.FieldConstants.GameElement;
+import frc.robot.util.FieldConstants.GameElement.*;
 
 public class AssistCommand extends Command {
     //private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final SwerveSubsystem swerve = SwerveSubsystem.getInstance();
     private Command goToPositionCommand;
 
-    private Constants.GameElement gameElement;
+    private GameElement gameElement;
 
     private final Branch selectedBranch;
 
@@ -76,7 +75,8 @@ public class AssistCommand extends Command {
     @Override
     public void execute() {
 		goToPositionCommand.execute();
-		ControlBoard.getInstance().previousConfirmedGoal = gameElement;
+        ControlBoard.getInstance().isAssisting = true;
+        ControlBoard.getInstance().previousConfirmedGoal = gameElement;
     }
 
     @Override
@@ -86,6 +86,7 @@ public class AssistCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        ControlBoard.getInstance().isAssisting = false;
         System.out.println("Assist Command Ended");
     }
 }

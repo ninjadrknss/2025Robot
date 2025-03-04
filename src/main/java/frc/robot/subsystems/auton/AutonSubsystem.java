@@ -17,7 +17,7 @@ import frc.robot.commands.AssistCommand;
 import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.util.Constants.GameElement.Branch;
+import frc.robot.util.FieldConstants.GameElement.Branch;
 
 public class AutonSubsystem {
     private final AutoChooser autoChooser = new AutoChooser();
@@ -52,6 +52,10 @@ public class AutonSubsystem {
         return instance;
     }
 
+    public Command getSelectedAuton() {
+        return autoChooser.selectedCommand();
+    }
+
     public boolean isRedAlliance() {
         return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
     }
@@ -76,8 +80,15 @@ public class AutonSubsystem {
         return routine;
     }
 
+    private AutoRoutine getExampleAuton() {
+        AutoRoutine routine = autoFactory.newRoutine("ExampleAuton");
+        AutoTrajectory trajectory = routine.trajectory("ExampleAuton");
 
-    public Command getSelectedAuton() {
-        return autoChooser.selectedCommand();
+        routine.active().onTrue(
+            trajectory.resetOdometry().andThen(
+                trajectory.cmd()
+            )
+        );
+        return routine;
     }
 }

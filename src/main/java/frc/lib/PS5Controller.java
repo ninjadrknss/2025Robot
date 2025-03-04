@@ -42,6 +42,9 @@ public class PS5Controller {
     public final Trigger dDown;
     public final Trigger dLeft;
 
+    /* Touchpad */
+    public JoystickButton touchpadButton;
+
     public PS5Controller(int port) {
         joystick = new Joystick(port);
 
@@ -68,5 +71,7 @@ public class PS5Controller {
         dRight = new Trigger(() -> joystick.getPOV() == 90.0);
         dDown = new Trigger(() -> joystick.getPOV() == 180.0);
         dLeft = new Trigger(() -> joystick.getPOV() == 270.0);
+
+        touchpadButton = new JoystickButton(joystick, 14);
     }
 }

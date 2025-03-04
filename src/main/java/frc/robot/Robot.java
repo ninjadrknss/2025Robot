@@ -23,6 +23,7 @@ import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.auton.AutonSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.Constants;
+import frc.robot.util.FieldConstants;
 import frc.robot.util.ControlBoard;
 import frc.lib.TunableParameter;
 
@@ -56,9 +57,13 @@ public class Robot extends TimedRobot {
             PortForwarder.add(port, "limelight.local", port);
         }
 
+//        SignalLogger.start(); // TODO: enable this for competition
 
         PathfindingCommand.warmupCommand().schedule();
         FollowPathCommand.warmupCommand().schedule();
+        // TODO: disable this for competitions
+        scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName()));
+        scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName()));
     }
 
     @Override
@@ -99,7 +104,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 
-        new AssistCommand(null, Constants.GameElement.Branch.LEFT).schedule();
+        new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
     }
 
     @Override

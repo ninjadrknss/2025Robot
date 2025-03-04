@@ -22,6 +22,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
+
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -57,7 +59,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
-            Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
+            Units.Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
             null,        // Use default timeout (10 s)
             // Log state with SignalLogger class
             state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
@@ -73,7 +75,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
-            Volts.of(7), // Use dynamic voltage of 7 V
+            Units.Volts.of(7), // Use dynamic voltage of 7 V
             null,        // Use default timeout (10 s)
             // Log state with SignalLogger class
             state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
@@ -93,9 +95,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
         new SysIdRoutine.Config(
             /* This is in radians per second², but SysId only supports "volts per second" */
-            Volts.of(Math.PI / 6).per(Second),
+            Units.Volts.of(Math.PI / 6).per(Units.Second),
             /* This is in radians per second, but SysId only supports "volts" */
-            Volts.of(Math.PI),
+            Units.Volts.of(Math.PI),
             null, // Use default timeout (10 s)
             // Log state with SignalLogger class
             state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
@@ -103,9 +105,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         new SysIdRoutine.Mechanism(
             output -> {
                 /* output is actually radians per second, but SysId only supports "volts" */
-                setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                setControl(m_rotationCharacterization.withRotationalRate(output.in(Units.Volts)));
                 /* also log the requested output for SysId */
-                SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+                SignalLogger.writeDouble("Rotational_Rate", output.in(Units.Volts));
             },
             null,
             this
@@ -128,9 +130,10 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     public static SwerveSubsystem getInstance() {
         if (instance == null) {
-            instance = new SwerveSubsystem(TunerConstants.DrivetrainConstants, 
-            TunerConstants.FrontLeft, TunerConstants.FrontRight, 
-            TunerConstants.BackLeft, TunerConstants.BackRight);
+            instance = new SwerveSubsystem(TunerConstants.DrivetrainConstants,
+                TunerConstants.FrontLeft, TunerConstants.FrontRight,
+                TunerConstants.BackLeft, TunerConstants.BackRight
+            );
         }
         return instance;
     }
@@ -162,7 +165,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
-        return run(() -> this.setControl(requestSupplier.get()));
+        return run(() -> this.setControl(requestSupplier.get())).withName("Drive Request");
     }
 
     /**
@@ -212,11 +215,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
     }
 
-    public Pose2d getPose() { // TODO: Paigus remember
-        if (simDrivetrain != null){
-            return simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
-        }
-        return getState().Pose;
+    public Pose2d getPose() {
+        return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
     public ChassisSpeeds getChassisSpeeds(){
@@ -266,10 +266,10 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     
     private void startSimThread() {
         simDrivetrain = new MapleSimSwerveDrivetrain(
-            Seconds.of(kSimLoopPeriod),
-            Pounds.of(110),
-            Inches.of(30),
-            Inches.of(30),
+            Units.Seconds.of(kSimLoopPeriod),
+            Units.Pounds.of(110),
+            Units.Inches.of(30),
+            Units.Inches.of(30),
             DCMotor.getKrakenX60Foc(1),
             DCMotor.getKrakenX60Foc(1),
             1.2,
