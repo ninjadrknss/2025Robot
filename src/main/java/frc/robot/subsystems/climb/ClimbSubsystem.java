@@ -1,106 +1,98 @@
 package frc.robot.subsystems.climb;
 
-
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.CTREUtil;
 
 public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem instance;
 
-    /* Motor, Controls and Sensor */
-//    private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
-//    private final PositionTorqueCurrentFOC pivotControl = new PositionTorqueCurrentFOC(0);
-//
-//    private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
-//
-//    private final Servo servo = new Servo(ClimbConstants.servoPort);
+    // Motor, sensor, and servo devices.
+    private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
+    private final PositionTorqueCurrentFOC pivotControl = new PositionTorqueCurrentFOC(0)
+            .withSlot(0);
+    private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
+    private final Servo flapServo = new Servo(ClimbConstants.servoPort);
 
-    /* Other variables */
-    private Angle requestedPivotAngle = Units.Degrees.of(0);
-    private boolean pendingPivotChange = false;
-
-    private boolean requestStoreFlap = false;
-    private boolean requestDeployFlap = false;
-
-    public static ClimbSubsystem getInstance() {
-        if (instance == null) instance = new ClimbSubsystem();
-        return instance;
+    // Define the states of the climber.
+    public enum ClimbState {
+        IDLE,
+        STORE,
+        DEPLOY,
+        CONTROL
     }
+
+    private ClimbState currentState = ClimbState.IDLE;
+
+    // Target angles for pivot and flap (tunable via ClimbConstants).
+    private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
+    private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
 
     private ClimbSubsystem() {
     }
 
-    private void setPivotAngle(Angle angle) {
-        // TODO: set control request angle to angle
-        // TODO: set control of motor to control request
-//        pivotControl.withPosition(angle);
-        requestedPivotAngle = angle;
-//        pivotMotor.setControl(pivotControl);
+    public static ClimbSubsystem getInstance() {
+        if (instance == null) {
+            instance = new ClimbSubsystem();
+        }
+        return instance;
     }
 
-    /**
-     * Set the angle of the flap in degrees.
-     * @param angle The angle of the flap in degrees.
-     */
-    private void setFlapAngle(Angle angle) {
-        // TODO: set servo angle to angle
-//        servo.set(angle.in(Degrees));
+    public void setTargetPivotAngle(Angle angle) {
+        targetPivotAngle = angle;
+        currentState = ClimbState.CONTROL;
+    }
+
+    public void setTargetFlapAngle(Angle angle) {
+        targetFlapAngle = angle;
+    }
+
+    public void requestStore() {
+        targetPivotAngle = ClimbConstants.pivotStoreAngle;
+        targetFlapAngle = ClimbConstants.flapStoreAngle;
+        currentState = ClimbState.STORE;
+    }
+
+    public void requestDeploy() {
+        targetPivotAngle = ClimbConstants.pivotDeployAngle;
+        targetFlapAngle = ClimbConstants.flapDeployAngle;
+        currentState = ClimbState.DEPLOY;
+    }
+    
+    public void increasePivotAngle() {
+        double aChange = ClimbConstants.changeRate.in(Units.Degrees);
+        modifyPivotAngle(Units.Degrees.of(aChange));
+    }
+
+    public void decreasePivotAngle() {
+        double aChange = -1 * ClimbConstants.changeRate.in(Units.Degrees);
+        modifyPivotAngle(Units.Degrees.of(aChange));
+    }
+
+    public void modifyPivotAngle(Angle delta) {
+        double newAngle = targetPivotAngle.in(Units.Degrees) + delta.in(Units.Degrees);
+
+        double minAngle = ClimbConstants.pivotDeployAngle.in(Units.Degrees);
+        double maxAngle = ClimbConstants.pivotStoreAngle.in(Units.Degrees);
+
+        /*if (newAngle < minAngle) {
+            newAngle = minAngle;
+        } else if (newAngle > maxAngle) {
+            newAngle = maxAngle;
+        }*/
+
+        targetPivotAngle = Units.Degrees.of(newAngle);
+        currentState = ClimbState.CONTROL;
     }
 
     @Override
     public void periodic() {
-        if (pendingPivotChange) {
-            pendingPivotChange = false;
-            setPivotAngle(requestedPivotAngle);
-        }
-        if (requestStoreFlap) {
-            // TODO: store flap
-            setFlapAngle(ClimbConstants.flapStoreAngle);
-            requestStoreFlap = false;
-        }
-        if (requestDeployFlap) {
-            // TODO: deploy flap
-            setFlapAngle(ClimbConstants.flapDeployAngle);
-            requestDeployFlap = false;
-        }
-    }
-
-    public void requestStorePivot() {
-        pendingPivotChange = true;
-        requestedPivotAngle = ClimbConstants.pivotStoreAngle;
-    }
-
-    public void requestDeployPivot() {
-        pendingPivotChange = true;
-        requestedPivotAngle = ClimbConstants.pivotDeployAngle;
-    }
-
-    public void requestStoreFlap() {
-        requestStoreFlap = true;
-        requestDeployFlap = false;
-    }
-
-    public void requestDeployFlap() {
-        requestStoreFlap = false;
-        requestDeployFlap = true;
-    }
-
-    public void increasePivotAngle() {
-        pendingPivotChange = true;
-        requestedPivotAngle.plus(ClimbConstants.changeRate);
-        if (requestedPivotAngle.lt(ClimbConstants.pivotDeployAngle)) requestedPivotAngle = ClimbConstants.pivotDeployAngle;
-    }
-
-    public void decreasePivotAngle() {
-        pendingPivotChange = true;
-        requestedPivotAngle.minus(ClimbConstants.changeRate);
-        if (requestedPivotAngle.gt(ClimbConstants.pivotStoreAngle)) requestedPivotAngle = ClimbConstants.pivotStoreAngle;
+        pivotControl.withPosition(targetPivotAngle);
+        pivotMotor.setControl(pivotControl);
+        flapServo.set(targetFlapAngle.in(Units.Degrees));
     }
 }
-

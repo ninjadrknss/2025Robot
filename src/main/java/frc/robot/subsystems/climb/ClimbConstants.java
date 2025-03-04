@@ -57,4 +57,6 @@ public class ClimbConstants {
 
     public static final Angle pivotStoreAngle = Units.Degrees.of(0);
     public static final Angle pivotDeployAngle = Units.Degrees.of(0);
+
+    public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);
 }
