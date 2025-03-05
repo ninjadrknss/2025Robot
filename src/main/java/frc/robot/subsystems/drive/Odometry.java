@@ -46,6 +46,7 @@ public class Odometry extends SubsystemBase {
     private double previousTime = 0.0;
 
     Pose3d simulationPose = new Pose3d();
+    private static Pose2d globalPose = new Pose2d(0, 0, new Rotation2d(0));
 
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose3d.struct).publish();
@@ -113,7 +114,7 @@ public class Odometry extends SubsystemBase {
         public static Object[] predictTargetElement(RobotState state, ControlBoard cb) {
 
             /* force return a random game element to see if our shit cant do math */
-            return new Object[] { GameElement.values()[(int) (Math.random() * GameElement.values().length)], 1.0 };
+            if (Math.random() < 0.999999999999) return new Object[] { GameElement.values()[(int) (Math.random() * GameElement.values().length)], 1.0 };
 
             if (cb.isAssisting) {
                 return new Object[] { cb.previousConfirmedGoal, 1.0 };
@@ -128,8 +129,7 @@ public class Odometry extends SubsystemBase {
             }
 
             // ----- Step 2: Prediction & Raycasting -----
-            Pose2d robotPose = state.getPose();
-            Translation2d robotTranslation = robotPose.getTranslation();
+            Translation2d robotTranslation = globalPose.getTranslation();
             double currentX = robotTranslation.getX();
             double currentY = robotTranslation.getY();
 
@@ -231,8 +231,7 @@ public class Odometry extends SubsystemBase {
         }
 
         private static GameElement getForcedConeTarget(RobotState state) {
-            Pose2d robotPose = state.getPose();
-            Translation2d robotTranslation = robotPose.getTranslation();
+            Translation2d robotTranslation = globalPose.getTranslation();
             double robotX = robotTranslation.getX();
             double robotY = robotTranslation.getY();
 
@@ -338,7 +337,7 @@ public class Odometry extends SubsystemBase {
         yawStatusSignal = gyro.getAngularVelocityZWorld();
 
         // Initialize previousPose and previousTime:
-        previousPose = swerve.getPose();
+        previousPose = globalPose;
         previousTime = Timer.getFPGATimestamp();
 
         controlBoard = ControlBoard.getInstance();
@@ -402,7 +401,7 @@ public class Odometry extends SubsystemBase {
     public RobotState getRobotState() {
         // Return the current Pose2d from the swerve, the *computed* velocity, and the measured angular velocity
         return new RobotState(
-                swerve.getPose(),
+                globalPose,
                 linearVelocity,
                 new RobotState.AngularVelocity3D(
                         getFieldRollRate(),
@@ -433,7 +432,7 @@ public class Odometry extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return swerve.getPose();
+        return globalPose;
     }
 
     public Pose3d getPose3d(){
@@ -477,6 +476,10 @@ public class Odometry extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (Timer.getFPGATimestamp() - previousTime > 0.02) {
+            // slow pose updater
+            globalPose = swerve.getPose();
+        }
 
         publisher.set(getPose3d());
         //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
@@ -493,7 +496,7 @@ public class Odometry extends SubsystemBase {
             /*if (!limelightReset && photonVisionPose != null) {
                 swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
             }*/
-            
+
             odometryResetRequested = false;
         } else {
             addVisionMeasurement();
@@ -502,7 +505,7 @@ public class Odometry extends SubsystemBase {
         double currentTime = Timer.getFPGATimestamp();
         double dt = currentTime - previousTime;
         if (dt > 0) {
-            Pose2d currentPose = swerve.getPose();
+            Pose2d currentPose = globalPose;
             double dx = currentPose.getX() - previousPose.getX();
             double dy = currentPose.getY() - previousPose.getY();
 
@@ -515,7 +518,7 @@ public class Odometry extends SubsystemBase {
 
         // Update for next iteration
         previousTime = currentTime;
-        previousPose = swerve.getPose();
+        previousPose = globalPose;
 
         Object[] prediction = TargetPredictor.predictTargetElement(getRobotState(), controlBoard);
 
