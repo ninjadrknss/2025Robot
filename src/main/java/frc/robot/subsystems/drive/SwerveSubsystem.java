@@ -37,6 +37,7 @@ import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.drive.generated.TunerConstants;
 import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.simulation.MapleSimSwerveDrivetrain;
+import frc.robot.util.ControlBoard;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.002; // 2 ms or 50hz
@@ -213,10 +214,12 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         Pose2d pose = getPose();
         SmartDashboard.putNumber("Swerve/Pose x", pose.getX());
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
+//        System.out.println(this.getCurrentCommand().getName());
     }
 
     public Pose2d getPose() {
-        return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
+        return new Pose2d();
+//        return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
     public ChassisSpeeds getChassisSpeeds(){
@@ -239,7 +242,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             sample.vy + m_pathYController.calculate(pose.getY(), sample.y),
             sample.omega + m_pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-    
         setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
         // setControl(
         //         m_pathApplyFieldSpeeds.withSpeeds(speeds)

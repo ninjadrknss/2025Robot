@@ -2,11 +2,18 @@ package frc.robot.subsystems.climb;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
+
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem instance;
@@ -32,14 +39,34 @@ public class ClimbSubsystem extends SubsystemBase {
     private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
     private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
 
+    public static ClimbSubsystem getInstance() {
+        if (instance == null) instance = new ClimbSubsystem();
+        return instance;
+    }
+    
     private ClimbSubsystem() {
     }
 
-    public static ClimbSubsystem getInstance() {
-        if (instance == null) {
-            instance = new ClimbSubsystem();
-        }
-        return instance;
+   private final SysIdRoutine climbIdRoutine = new SysIdRoutine(
+       new SysIdRoutine.Config(
+           null,
+           Units.Volts.of(4),
+           null,
+           state -> SignalLogger.writeString("SysIdClimberState", state.toString())
+       ),
+       new SysIdRoutine.Mechanism(
+           (volts) -> pivotMotor.setControl(new VoltageOut(volts.in(Units.Volts))),
+           null,
+           this
+       )
+   );
+
+    public Command climberQuasistaticRoutine(boolean forward) {
+        return climbIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
+
+    public Command climberDynamicRoutine(boolean forward) {
+        return climbIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
     }
 
     public void setTargetPivotAngle(Angle angle) {

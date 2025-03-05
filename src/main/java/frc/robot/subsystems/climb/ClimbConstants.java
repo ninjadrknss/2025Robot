@@ -17,11 +17,11 @@ public class ClimbConstants {
     public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
     static {
         pivotEncoderConfig.withName("Climber Pivot Encoder")
-                .withCanID(0)
+                .withCanID(62)
                 .withBus(Robot.riobus);
         CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
-        encoderConfig.MagnetSensor.MagnetOffset = 0;
-        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: check
+        encoderConfig.MagnetSensor.MagnetOffset = 0.230713;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     }
 
     public static final CTREConfig<TalonFX, TalonFXConfiguration> pivotMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
@@ -43,11 +43,11 @@ public class ClimbConstants {
 
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
-        pivotConfig.Feedback.SensorToMechanismRatio = 1;
+        pivotConfig.Feedback.SensorToMechanismRatio = -1;
         pivotConfig.Feedback.RotorToSensorRatio = 125;
 
-        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
-        pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Check
+        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO: make sure spencer adds a easy way to disconnect power
+        pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     }
 
     /** All in Degrees */

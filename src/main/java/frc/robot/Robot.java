@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -64,6 +65,7 @@ public class Robot extends TimedRobot {
         // TODO: disable this for competitions
         scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName()));
         scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName()));
+
     }
 
     @Override
@@ -104,7 +106,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 
-        new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
+        //new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
     }
 
     @Override

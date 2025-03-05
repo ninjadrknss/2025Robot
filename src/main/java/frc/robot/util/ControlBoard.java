@@ -1,10 +1,12 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 import frc.robot.commands.*;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
@@ -101,11 +103,10 @@ public class ControlBoard {
             // Init operator bindings to driver:
             configureBindings(ControllerPreset.OPERATOR, driver);
 
-            SwerveSubsystem.getInstance().registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
-            SwerveSubsystem drivetrain = SwerveSubsystem.getInstance();
-            drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(this::getDriverRequest)
-            );
+            SwerveSubsystem drive = SwerveSubsystem.getInstance();
+            drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
+
+            if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
             System.out.println("Driver Initialized");
         }
 
@@ -141,7 +142,7 @@ public class ControlBoard {
         //        );
 
         /* Driveassist testing */
-        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -171,6 +172,13 @@ public class ControlBoard {
         //        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
         //        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
         //        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+
+        /* Climb SysId */
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
+        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
+        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
+        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
 
         controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
         controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
