@@ -112,6 +112,9 @@ public class Odometry extends SubsystemBase {
 
         public static Object[] predictTargetElement(RobotState state, ControlBoard cb) {
 
+            /* force return a random game element to see if our shit cant do math */
+            return new Object[] { GameElement.values()[(int) (Math.random() * GameElement.values().length)], 1.0 };
+
             if (cb.isAssisting) {
                 return new Object[] { cb.previousConfirmedGoal, 1.0 };
             }
@@ -476,18 +479,21 @@ public class Odometry extends SubsystemBase {
     public void periodic() {
 
         publisher.set(getPose3d());
-        Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
+        //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
         //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
 
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
-            EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
+            // not using photonvision yet
+            //EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
             if (limelightReset && limelightPose != null) {
                 swerve.resetPose(limelightPose.pose);
             }
-            if (!limelightReset && photonVisionPose != null) {
+            // not using photonvision yet
+            /*if (!limelightReset && photonVisionPose != null) {
                 swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
-            }
+            }*/
+            
             odometryResetRequested = false;
         } else {
             addVisionMeasurement();
@@ -511,8 +517,10 @@ public class Odometry extends SubsystemBase {
         previousTime = currentTime;
         previousPose = swerve.getPose();
 
-        controlBoard.desiredGoal = (GameElement) TargetPredictor.predictTargetElement(getRobotState(), controlBoard)[0];
-        controlBoard.goalConfidence = (double) TargetPredictor.predictTargetElement(getRobotState(), controlBoard)[1];
+        Object[] prediction = TargetPredictor.predictTargetElement(getRobotState(), controlBoard);
+
+        controlBoard.desiredGoal = (GameElement) prediction[0];
+        controlBoard.goalConfidence = (double) prediction[1];
         displayValues();
     }
 }
