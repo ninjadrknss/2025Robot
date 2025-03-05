@@ -50,8 +50,8 @@ public class Odometry extends SubsystemBase {
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose3d.struct).publish();
 
-    StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
-            .getStructTopic("PredictedElementPose", Pose3d.struct).publish();
+    /*StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
+            .getStructTopic("PredictedElementPose", Pose3d.struct).publish();*/
 
     private RobotState.Velocity2D linearVelocity = new RobotState.Velocity2D(0, 0);
 
@@ -477,7 +477,7 @@ public class Odometry extends SubsystemBase {
 
         publisher.set(getPose3d());
         Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
-        predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
+        //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
 
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
