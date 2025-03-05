@@ -41,13 +41,13 @@ public class ClimbConstants {
 
         pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
-        pivotConfig.Feedback.SensorToMechanismRatio = -1;
+        pivotConfig.Feedback.SensorToMechanismRatio = -1; // TODO: double check if this is correct AHHHHHH
         pivotConfig.Feedback.RotorToSensorRatio = 125;
 
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO: make sure spencer adds a easy way to disconnect power
-        pivotConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     }
 
     /** All in Degrees */

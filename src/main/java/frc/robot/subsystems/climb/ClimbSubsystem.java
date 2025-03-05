@@ -7,10 +7,10 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -91,28 +91,15 @@ public class ClimbSubsystem extends SubsystemBase {
     }
     
     public void increasePivotAngle() {
-        double aChange = ClimbConstants.changeRate.in(Units.Degrees);
-        modifyPivotAngle(Units.Degrees.of(aChange));
+        modifyPivotAngle(ClimbConstants.changeRate);
     }
 
     public void decreasePivotAngle() {
-        double aChange = -1 * ClimbConstants.changeRate.in(Units.Degrees);
-        modifyPivotAngle(Units.Degrees.of(aChange));
+        modifyPivotAngle(ClimbConstants.changeRate.unaryMinus());
     }
 
     public void modifyPivotAngle(Angle delta) {
-        double newAngle = targetPivotAngle.in(Units.Degrees) + delta.in(Units.Degrees);
-
-        double minAngle = ClimbConstants.pivotDeployAngle.in(Units.Degrees);
-        double maxAngle = ClimbConstants.pivotStoreAngle.in(Units.Degrees);
-
-        /*if (newAngle < minAngle) {
-            newAngle = minAngle;
-        } else if (newAngle > maxAngle) {
-            newAngle = maxAngle;
-        }*/
-
-        targetPivotAngle = Units.Degrees.of(newAngle);
+        targetPivotAngle = targetPivotAngle.plus(delta);
         currentState = ClimbState.CONTROL;
     }
 
@@ -120,6 +107,8 @@ public class ClimbSubsystem extends SubsystemBase {
     public void periodic() {
         pivotControl.withPosition(targetPivotAngle);
         pivotMotor.setControl(pivotControl);
-        flapServo.set(targetFlapAngle.in(Units.Degrees));
+        flapServo.set(targetFlapAngle.in(Units.Rotations));
+
+        SmartDashboard.putString("Climb/Current State", currentState.name());
     }
 }
