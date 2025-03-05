@@ -452,19 +452,7 @@ public class Odometry extends SubsystemBase {
         swerve.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
     }
 
-    public void displayValues(){
-        SmartDashboard.putNumber("Odometry Position x", swerve.getPose().getX());
-        SmartDashboard.putNumber("Odometry Position y", swerve.getPose().getY());
-        SmartDashboard.putNumber("Odometry Rotation", swerve.getPose().getRotation().getDegrees());
-        SmartDashboard.putNumber("Odometry Velocity x", linearVelocity.x);
-        SmartDashboard.putNumber("Odometry Velocity y", linearVelocity.y);
-        SmartDashboard.putNumber("Odometry Angular Velocity", getFieldYawRate());
-        SmartDashboard.putString("P Target Element", controlBoard.desiredGoal.name());
-        SmartDashboard.putString("P Target Confidence", controlBoard.goalConfidence());
-        SmartDashboard.putString("Last Confirmed Target", (controlBoard.previousConfirmedGoal != null ? controlBoard.previousConfirmedGoal.name() : ""));
-        SmartDashboard.putString("Selected Branch", controlBoard.selectedBranch.name());
-        SmartDashboard.putString("Score Level", controlBoard.scoreLevel.name());
-        SmartDashboard.putString("isAssisting", controlBoard.isAssisting ? "YES" : "NO");
+    public void displayValues() {
     }
 
     public Pose2d predictFuturePose(double secondsAhead) {
