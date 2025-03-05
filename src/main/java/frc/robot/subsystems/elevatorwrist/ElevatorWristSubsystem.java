@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.Utils;
 
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.Units;
@@ -54,7 +55,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     /* Motors and Controls */
 //    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
-//    private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
+//    private final MotionMagicTorqueCurrentFOC leaderControl = new MotionMagicTorqueCurrentFOC(0);
 //    private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
 //
 //    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
