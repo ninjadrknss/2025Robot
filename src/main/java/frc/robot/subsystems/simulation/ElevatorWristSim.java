@@ -44,8 +44,8 @@ public class ElevatorWristSim {
     private final Timer stateStart = new Timer();
     private double stateChangeTime = 0.0;
 
-    private final ElevatorSim elevator;
-    private final SingleJointedArmSim wrist;
+//    private final ElevatorSim elevator;
+//    private final SingleJointedArmSim wrist;
 
     private String currentState = "";
 
@@ -61,26 +61,26 @@ public class ElevatorWristSim {
         elevatorS2.append(elevatorS3);
         elevatorS3.append(wristRoot);
 
-        elevator = new ElevatorSim(
-            DCMotor.getKrakenX60Foc(2),
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            10.0,
-            true,
-            0.0
-        );
-        wrist = new SingleJointedArmSim(
-            DCMotor.getKrakenX60Foc(1),
-            20.0,
-            0.0,
-            0.0,
-            0.0,
-            0.0,
-            true,
-            0.0
-        );
+//        elevator = new ElevatorSim(
+//            DCMotor.getKrakenX60Foc(2),
+//            0.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            10.0,
+//            true,
+//            0.0
+//        );
+//        wrist = new SingleJointedArmSim(
+//            DCMotor.getKrakenX60Foc(1),
+//            20.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            true,
+//            0.0
+//        );
     }
 
     public void update(String name, Distance height, Angle angle) {
