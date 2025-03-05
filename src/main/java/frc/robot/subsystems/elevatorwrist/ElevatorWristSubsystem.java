@@ -177,7 +177,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     private void setElevatorHeight(Distance height) {
-//        leaderControl.withPosition(Revolutions.of(height.magnitude() * ElevatorWristConstants.revolutionsPerInch)).withVelocity(0);
+//        leaderControl.withPosition(Revolutions.of(height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch)).withVelocity(0);
 //        if (!homing) leader.setControl(leaderControl);
     }
 
