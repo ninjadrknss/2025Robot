@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
-import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -20,7 +19,6 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
-import frc.robot.commands.AssistCommand; 
 
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
@@ -88,11 +86,11 @@ public class ControlBoard {
         homeCommand = new HomeCommand(superstructure);
         chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
         groundIntakeCommand = new GroundIntakeCommand(superstructure);
-        L1ScoreCommand = new ScoreCommand(superstructure, 1);
-        L2ScoreCommand = new ScoreCommand(superstructure, 2);
-        L3ScoreCommand = new ScoreCommand(superstructure, 3);
-        L4ScoreCommand = new ScoreCommand(superstructure, 4);
-        BargeScoreCommand = new ScoreCommand(superstructure, 5);
+        L1ScoreCommand = new ScoreCommand(1);
+        L2ScoreCommand = new ScoreCommand(2);
+        L3ScoreCommand = new ScoreCommand(3);
+        L4ScoreCommand = new ScoreCommand(4);
+        BargeScoreCommand = new ScoreCommand(5);
         tryInit();
     }
 
