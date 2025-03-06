@@ -20,7 +20,7 @@ public class ClimbConstants {
                 .withCanID(62)
                 .withBus(Robot.riobus);
         CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
-        encoderConfig.MagnetSensor.MagnetOffset = 0.230713;
+        encoderConfig.MagnetSensor.MagnetOffset = 0.230712890625;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     }
 
@@ -31,32 +31,33 @@ public class ClimbConstants {
                         .withBus(Robot.riobus);
 
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;
-        pivotConfig.Slot0.kP = 0; // Increase until speed oscillates
-        pivotConfig.Slot0.kI = 0; // Don't touch
-        pivotConfig.Slot0.kD = 0; // Increase until jitter
-        pivotConfig.Slot0.kS = 0; // Increase until just before motor starts moving
-        pivotConfig.Slot0.kA = 0; //
-        pivotConfig.Slot0.kV = 0; //
-        pivotConfig.Slot0.kG = 0; // Increase until arm doesnt move
+        pivotConfig.Slot0.kP = 66.42;   // Increase until speed oscillates
+        pivotConfig.Slot0.kI = 0;       // Don't touch
+        pivotConfig.Slot0.kD = 10.0;  // Increase until jitter
+        pivotConfig.Slot0.kS = 2.1641;  // Increase until just before motor starts moving
+        pivotConfig.Slot0.kA = 4.7556;  //
+        pivotConfig.Slot0.kV = 1.5943;  //
+        pivotConfig.Slot0.kG = 0.95644; // Increase until arm moved
+        pivotConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
         pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
-        pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+        pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
-        pivotConfig.Feedback.SensorToMechanismRatio = -1; // TODO: double check if this is correct AHHHHHH
+        pivotConfig.Feedback.SensorToMechanismRatio = 1;
         pivotConfig.Feedback.RotorToSensorRatio = 125;
 
-        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO: make sure spencer adds a easy way to disconnect power
+        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
         pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Units.Degrees.of(3);
+    public static final Angle changeRate = Units.Degrees.of(1);
     public static final Angle flapStoreAngle = Units.Degrees.of(0);
     public static final Angle flapDeployAngle = Units.Degrees.of(0);
 
     public static final Angle pivotStoreAngle = Units.Degrees.of(0);
-    public static final Angle pivotDeployAngle = Units.Degrees.of(0);
+    public static final Angle pivotDeployAngle = Units.Degrees.of(145);
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);
 }

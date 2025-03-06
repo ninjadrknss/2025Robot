@@ -5,6 +5,7 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
@@ -173,10 +174,14 @@ public class ControlBoard {
 
         /* Climb SysId */
         ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
-        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
-        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
-        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
+//        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
+//        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
+//        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
+//        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
+        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
         controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
         controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
