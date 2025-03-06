@@ -141,7 +141,7 @@ public class ControlBoard {
         //        );
 
         /* Driveassist testing */
-//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -178,13 +178,13 @@ public class ControlBoard {
 //        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
 //        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
 //        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
-        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
+        /*controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
         controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
         controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
         controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
         controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));*/
         controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 

@@ -51,8 +51,8 @@ public class Odometry extends SubsystemBase {
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose3d.struct).publish();
 
-    /*StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
-            .getStructTopic("PredictedElementPose", Pose3d.struct).publish();*/
+    ///StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
+            //.getStructTopic("PredictedElementPose", Pose3d.struct).publish();
 
     private RobotState.Velocity2D linearVelocity = new RobotState.Velocity2D(0, 0);
 
@@ -478,10 +478,7 @@ public class Odometry extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (Timer.getFPGATimestamp() - previousTime > 0.02) {
-            // slow pose updater
-            globalPose = swerve.getPose();
-        }
+        globalPose = swerve.getPose();
 
         publisher.set(getPose3d());
         //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
