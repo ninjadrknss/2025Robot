@@ -65,13 +65,13 @@ public class Robot extends TimedRobot {
         // TODO: disable this for competitions
         scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName()));
         scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName()));
-
     }
 
     @Override
     public void robotPeriodic() {
         TunableParameter.updateAll();
         scheduler.run();
+//        printWatchdogEpochs();
         // ControlBoard.getInstance().tryInit();
     }
 
@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = autonSubsystem.getSelectedAuton(); // TODO: fetch from auton command chooser
+        autonomousCommand = autonSubsystem.getSelectedAuton();
 
         if (autonomousCommand != null) autonomousCommand.schedule();
     }

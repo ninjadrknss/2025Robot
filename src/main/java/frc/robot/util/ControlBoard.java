@@ -19,6 +19,7 @@ import frc.lib.PS5Controller;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
 import frc.robot.util.FieldConstants.GameElement;
@@ -160,32 +161,35 @@ public class ControlBoard {
         // controller.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
 
         /* Elevator SysId */
-        /*ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
-        controller.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
-        controller.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
-        controller.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
-        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));*/
+        ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
+//        controller.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
+//        controller.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
+//        controller.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
+//        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
-        //        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
-        //        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
-        //        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
-        //        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
+        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
+        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
+        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+        controller.circleButton.whileTrue(new InstantCommand(EWS::requestHome));
+        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
 
         /* Climb SysId */
-        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+//        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 //        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
 //        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
 //        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
 //        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
-        /*controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
-        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
-        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
-        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+
+//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
+//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
+//        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+//        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
         controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));*/
-        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
+        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+//        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
