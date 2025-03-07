@@ -4,9 +4,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.LimelightHelpers;
-import frc.lib.LimelightHelpers.*;
+import frc.lib.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.drive.Odometry.RobotState;
-import frc.robot.subsystems.vision.VisionConstants.Limelight;
 
 public class LimelightSubsystem extends SubsystemBase {
     public enum LEDMode {
@@ -26,24 +25,25 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
 	private LimelightSubsystem() {
-        name = Limelight.name;
+        name = VisionConstants.Limelight.name;
+        LimelightHelpers.setCameraPose_RobotSpace(name, VisionConstants.Limelight.yOffset, 0, VisionConstants.Limelight.zOffset, 0, 0, 0);
     }
 
     public boolean hasTarget() {
         return LimelightHelpers.getTV(this.name);
     }
 
-	public PoseEstimate getPoseEstimate(RobotState previousRobotState, boolean resetRobotRotation) {
+    public PoseEstimate getPoseEstimate(RobotState previousRobotState) {
         Pose2d previousRobotPose = previousRobotState.getPose();
 
         double rotationRate = previousRobotState.getAngularVelocity().yaw();
-        if (resetRobotRotation) LimelightHelpers.SetRobotOrientation(
-                Limelight.name,
+        LimelightHelpers.SetRobotOrientation(
+                VisionConstants.Limelight.name,
                 previousRobotPose.getRotation().getDegrees(),
                 rotationRate, 0, 0, 0, 0
         );
 
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Limelight.name);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.Limelight.name);
         if (mt2 == null) return null; // Pose not found
         if (!(Math.abs(rotationRate) < 360) || mt2.tagCount <= 0) return null;
 
@@ -54,10 +54,6 @@ public class LimelightSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Limelight tag count", mt2.tagCount);
         SmartDashboard.putBoolean("Limelight has target", hasTarget());
         return mt2;
-    }
-
-    public PoseEstimate getPoseEstimate(RobotState previousRobotState) {
-        return getPoseEstimate(previousRobotState, false);
     }
 
 	public void setLEDMode(LEDMode mode) {
