@@ -17,7 +17,7 @@ public class ClimbConstants {
     public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
     static {
         pivotEncoderConfig.withName("Climber Pivot Encoder")
-                .withCanID(62)
+                .withCanID(60)
                 .withBus(Robot.riobus);
         CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
         encoderConfig.MagnetSensor.MagnetOffset = 0.230712890625;
@@ -49,14 +49,21 @@ public class ClimbConstants {
 
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
         pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        pivotConfig.CurrentLimits.StatorCurrentLimit = 100;
+        pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        pivotConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 2.5;
+        pivotConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Units.Degrees.of(1);
-    public static final Angle flapStoreAngle = Units.Degrees.of(0);
-    public static final Angle flapDeployAngle = Units.Degrees.of(0);
+    public static final Angle changeRate = Units.Degrees.of(5);
+    public static final Angle flapStoreAngle = Units.Degrees.of(90);
+    public static final Angle flapDeployAngle = Units.Degrees.of(270);
 
-    public static final Angle pivotStoreAngle = Units.Degrees.of(0);
+    public static final Angle pivotStoreAngle = Units.Degrees.of(-10);
     public static final Angle pivotDeployAngle = Units.Degrees.of(145);
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);

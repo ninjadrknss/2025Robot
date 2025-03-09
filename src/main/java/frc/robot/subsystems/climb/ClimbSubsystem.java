@@ -24,6 +24,7 @@ public class ClimbSubsystem extends SubsystemBase {
             .withSlot(0);
     private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
     private final Servo flapServo = new Servo(ClimbConstants.servoPort);
+    private double feedforward = 0.0;
 
     // Define the states of the climber.
     public enum ClimbState {
@@ -80,22 +81,36 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public void requestStore() {
         targetPivotAngle = ClimbConstants.pivotStoreAngle;
-        targetFlapAngle = ClimbConstants.flapStoreAngle;
+//        targetFlapAngle = ClimbConstants.flapStoreAngle;
         currentState = ClimbState.STORE;
     }
 
     public void requestDeploy() {
         targetPivotAngle = ClimbConstants.pivotDeployAngle;
+//        targetFlapAngle = ClimbConstants.flapDeployAngle;
+        currentState = ClimbState.DEPLOY;
+    }
+
+    public void requestStoreFlap() {
+//        targetPivotAngle = ClimbConstants.pivotStoreAngle;
+        targetFlapAngle = ClimbConstants.flapStoreAngle;
+        currentState = ClimbState.STORE;
+    }
+
+    public void requestDeployFlap() {
+//        targetPivotAngle = ClimbConstants.pivotDeployAngle;
         targetFlapAngle = ClimbConstants.flapDeployAngle;
         currentState = ClimbState.DEPLOY;
     }
     
     public void increasePivotAngle() {
         modifyPivotAngle(ClimbConstants.changeRate);
+//        feedforward += 0.5;
     }
 
     public void decreasePivotAngle() {
         modifyPivotAngle(ClimbConstants.changeRate.unaryMinus());
+//        feedforward -= 0.5;
     }
 
     public void modifyPivotAngle(Angle delta) {
