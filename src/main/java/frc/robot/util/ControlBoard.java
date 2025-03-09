@@ -53,6 +53,7 @@ public class ControlBoard {
 
     public GameElement desiredGoal;
     public GameElement previousConfirmedGoal;
+    public boolean preciseControl;
     public double goalConfidence;
     public Branch selectedBranch = Branch.LEFT;
     public ScoreLevel scoreLevel = ScoreLevel.L3;
@@ -84,6 +85,7 @@ public class ControlBoard {
         desiredGoal = GameElement.PROCESSOR_BLUE;
         prevDesiredGoal = null;
         previousConfirmedGoal = null;
+        preciseControl = false;
 
         homeCommand = new HomeCommand(superstructure);
         chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
@@ -141,6 +143,10 @@ public class ControlBoard {
         //            .ignoringDisable(true)
         //        );
 
+        // precise control (enabled (true) while leftTrigger is held. false as soon as it is released/while it is not held)
+        controller.leftTrigger.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
+        controller.leftTrigger.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
+
         /* Driveassist testing */
         controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
@@ -168,12 +174,12 @@ public class ControlBoard {
 //        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
-        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
+        /*controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
         controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
         controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
         controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
         controller.circleButton.whileTrue(new InstantCommand(EWS::requestHome));
-        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
+        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));*/
 
         /* Climb SysId */
 //        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
@@ -206,12 +212,15 @@ public class ControlBoard {
 
     public SwerveRequest getDriverRequest() {
         if (driver == null) return null;
-        double x = driver.leftVerticalJoystick.getAsDouble();
-        double y = driver.leftHorizontalJoystick.getAsDouble();
+        double scale = preciseControl ? 0.25 : 1.0;
+        double rotScale = preciseControl ? 0.50 : 1.0;
+
+        double x = driver.leftVerticalJoystick.getAsDouble() * scale;
+        double y = driver.leftHorizontalJoystick.getAsDouble() * scale;
         double rot = driver.rightHorizontalJoystick.getAsDouble();
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x)
                 .withVelocityY(SwerveConstants.maxSpeed * y)
-                .withRotationalRate(SwerveConstants.maxAngularSpeed * Math.copySign(rot * rot, rot));
+                .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));
     }
 
     public String goalConfidence() {

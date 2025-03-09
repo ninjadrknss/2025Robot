@@ -457,6 +457,7 @@ public class Odometry extends SubsystemBase {
     }
 
     public void displayValues() {
+        SmartDashboard.putBoolean("preciseControl", controlBoard.preciseControl);
     }
 
     public Pose2d predictFuturePose(double secondsAhead) {
