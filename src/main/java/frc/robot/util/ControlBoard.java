@@ -101,7 +101,7 @@ public class ControlBoard {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
             configureBindings(ControllerPreset.DRIVER, driver);
             // Init operator bindings to driver:
-            configureBindings(ControllerPreset.OPERATOR, driver);
+//            configureBindings(ControllerPreset.OPERATOR, driver);
 
             SwerveSubsystem drive = SwerveSubsystem.getInstance();
             drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
@@ -142,7 +142,7 @@ public class ControlBoard {
         //        );
 
         /* Driveassist testing */
-        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -168,27 +168,31 @@ public class ControlBoard {
 //        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
-        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
-        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
-        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
-        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
-        controller.circleButton.whileTrue(new InstantCommand(EWS::requestHome));
-        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
+//        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
+//        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
+//        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
+//        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+//        controller.circleButton.whileTrue(new InstantCommand(EWS::requestHome));
+//        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
 
         /* Climb SysId */
-//        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 //        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
 //        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
 //        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
 //        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
 
-//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
-//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
-//        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
-//        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.triangleButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d(Math.PI))));
+
+//        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+//        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
 //        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
