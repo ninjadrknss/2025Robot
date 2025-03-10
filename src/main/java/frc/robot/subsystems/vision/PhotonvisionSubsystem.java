@@ -68,7 +68,7 @@ public class PhotonvisionSubsystem extends SubsystemBase {
         double rightDist = prevPose.getTranslation().getDistance(rightPose.estimatedPose.getTranslation().toTranslation2d());
 
         // Spaghetti merging of the two pose estimates
-        Pose3d newPose = leftPose.estimatedPose.interpolate(rightPose.estimatedPose, leftDist/(leftDist + rightDist));
+        Pose3d newPose = leftPose.estimatedPose.interpolate(rightPose.estimatedPose, leftDist/(leftDist + rightDist + 1e-6));
         List<PhotonTrackedTarget> targetsUsed = leftPose.targetsUsed;
         targetsUsed.addAll(rightPose.targetsUsed);
 

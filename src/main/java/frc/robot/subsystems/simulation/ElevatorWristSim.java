@@ -1,15 +1,17 @@
 package frc.robot.subsystems.simulation;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.*;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 
 public class ElevatorWristSim {
     private static ElevatorWristSim instance;
@@ -36,11 +38,14 @@ public class ElevatorWristSim {
 
     private static final double wristMaxAngle = 0.0;
     private static final double wristMinAngle = 0.0;
-    private final MechanismLigament2d wrist = new MechanismLigament2d("Wrist", wristMinAngle, wristMaxAngle);
+    private final MechanismLigament2d wristRoot = new MechanismLigament2d("Wrist", wristMinAngle, wristMaxAngle);
 
     private final NetworkTable elevatorTable = NetworkTableInstance.getDefault().getTable("ElevatorWrist");
     private final Timer stateStart = new Timer();
     private double stateChangeTime = 0.0;
+
+//    private final ElevatorSim elevator;
+//    private final SingleJointedArmSim wrist;
 
     private String currentState = "";
 
@@ -54,7 +59,28 @@ public class ElevatorWristSim {
         elevatorRoot.append(elevatorS1);
         elevatorS1.append(elevatorS2);
         elevatorS2.append(elevatorS3);
-        elevatorS3.append(wrist);
+        elevatorS3.append(wristRoot);
+
+//        elevator = new ElevatorSim(
+//            DCMotor.getKrakenX60Foc(2),
+//            0.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            10.0,
+//            true,
+//            0.0
+//        );
+//        wrist = new SingleJointedArmSim(
+//            DCMotor.getKrakenX60Foc(1),
+//            20.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            0.0,
+//            true,
+//            0.0
+//        );
     }
 
     public void update(String name, Distance height, Angle angle) {

@@ -80,7 +80,7 @@ public class Superstructure extends SubsystemBase {
         }
 
         if (nextState != systemState) {
-            mStateStartTime = RobotController.getFPGATime() / 1.0E6;
+            mStateStartTime = time;
             systemState = nextState;
         }
     }

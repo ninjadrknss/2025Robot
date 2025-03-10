@@ -1,11 +1,13 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.*;
-import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -17,8 +19,8 @@ import frc.lib.PS5Controller;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
-import frc.robot.commands.AssistCommand; 
 
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
@@ -51,6 +53,7 @@ public class ControlBoard {
 
     public GameElement desiredGoal;
     public GameElement previousConfirmedGoal;
+    public boolean preciseControl;
     public double goalConfidence;
     public Branch selectedBranch = Branch.LEFT;
     public ScoreLevel scoreLevel = ScoreLevel.L3;
@@ -72,7 +75,7 @@ public class ControlBoard {
             .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 10% deadband
             .withRotationalDeadband(SwerveConstants.maxAngularSpeed * 0.1) // Add a 10% deadband
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-            .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+            .withSteerRequestType(SwerveModule.SteerRequestType.Position)
             .withDesaturateWheelSpeeds(true);
 
     private ControlBoard() {
@@ -82,15 +85,16 @@ public class ControlBoard {
         desiredGoal = GameElement.PROCESSOR_BLUE;
         prevDesiredGoal = null;
         previousConfirmedGoal = null;
+        preciseControl = false;
 
         homeCommand = new HomeCommand(superstructure);
         chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
         groundIntakeCommand = new GroundIntakeCommand(superstructure);
-        L1ScoreCommand = new ScoreCommand(superstructure, 1);
-        L2ScoreCommand = new ScoreCommand(superstructure, 2);
-        L3ScoreCommand = new ScoreCommand(superstructure, 3);
-        L4ScoreCommand = new ScoreCommand(superstructure, 4);
-        BargeScoreCommand = new ScoreCommand(superstructure, 5);
+        L1ScoreCommand = new ScoreCommand(1);
+        L2ScoreCommand = new ScoreCommand(2);
+        L3ScoreCommand = new ScoreCommand(3);
+        L4ScoreCommand = new ScoreCommand(4);
+        BargeScoreCommand = new ScoreCommand(5);
         tryInit();
     }
 
@@ -99,13 +103,12 @@ public class ControlBoard {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
             configureBindings(ControllerPreset.DRIVER, driver);
             // Init operator bindings to driver:
-            configureBindings(ControllerPreset.OPERATOR, driver);
+//            configureBindings(ControllerPreset.OPERATOR, driver);
 
-            SwerveSubsystem.getInstance().registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
-            SwerveSubsystem drivetrain = SwerveSubsystem.getInstance();
-            drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(this::getDriverRequest)
-            );
+            SwerveSubsystem drive = SwerveSubsystem.getInstance();
+            drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
+
+            if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
             System.out.println("Driver Initialized");
         }
 
@@ -140,8 +143,12 @@ public class ControlBoard {
         //            .ignoringDisable(true)
         //        );
 
+        // precise control (enabled (true) while leftTrigger is held. false as soon as it is released/while it is not held)
+        controller.leftTrigger.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
+        controller.leftTrigger.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
+
         /* Driveassist testing */
-        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -160,21 +167,39 @@ public class ControlBoard {
         // controller.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
 
         /* Elevator SysId */
-        /*ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
-        controller.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
-        controller.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
-        controller.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
-        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));*/
+        ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
+//        controller.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
+//        controller.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
+//        controller.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
+//        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
-        //        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
-        //        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
-        //        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
-        //        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+//        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
+//        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
+//        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
+//        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
+//        controller.circleButton.whileTrue(new InstantCommand(EWS::requestHome));
+//        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
 
-        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
-        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
+        /* Climb SysId */
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+//        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
+//        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
+//        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
+//        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
+
+//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
+//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
+//        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+//        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+
+        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.triangleButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d(Math.PI))));
+
+//        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+//        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+//        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
@@ -191,12 +216,15 @@ public class ControlBoard {
 
     public SwerveRequest getDriverRequest() {
         if (driver == null) return null;
-        double x = driver.leftVerticalJoystick.getAsDouble();
-        double y = driver.leftHorizontalJoystick.getAsDouble();
+        double scale = preciseControl ? 0.25 : 1.0;
+        double rotScale = preciseControl ? 0.50 : 1.0;
+
+        double x = driver.leftVerticalJoystick.getAsDouble() * scale;
+        double y = driver.leftHorizontalJoystick.getAsDouble() * scale;
         double rot = driver.rightHorizontalJoystick.getAsDouble();
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x)
                 .withVelocityY(SwerveConstants.maxSpeed * y)
-                .withRotationalRate(SwerveConstants.maxAngularSpeed * Math.copySign(rot * rot, rot));
+                .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));
     }
 
     public String goalConfidence() {

@@ -46,12 +46,13 @@ public class Odometry extends SubsystemBase {
     private double previousTime = 0.0;
 
     Pose3d simulationPose = new Pose3d();
+    private static Pose2d globalPose = new Pose2d(0, 0, new Rotation2d(0));
 
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose3d.struct).publish();
 
-    StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
-            .getStructTopic("PredictedElementPose", Pose3d.struct).publish();
+    ///StructPublisher<Pose3d> predictPublisher = NetworkTableInstance.getDefault()
+            //.getStructTopic("PredictedElementPose", Pose3d.struct).publish();
 
     private RobotState.Velocity2D linearVelocity = new RobotState.Velocity2D(0, 0);
 
@@ -110,23 +111,49 @@ public class Odometry extends SubsystemBase {
         // from the central AprilTag
         private static final double WALL_EXTENSION = 0.825; // actual reef wall half-length
 
-        public static Object[] predictTargetElement(RobotState state, ControlBoard cb) {
+        public static class PredictionResult {
+            private final GameElement target;
+            private final Pose2d targetPose;
+            private final double confidence;
+            private final double cost;
 
-            if (cb.isAssisting) {
-                return new Object[] { cb.previousConfirmedGoal, 1.0 };
+            public PredictionResult(GameElement target, double confidence, double cost) {
+                this.target = target;
+                this.confidence = confidence;
+                this.cost = cost;
+                this.targetPose = (target != null) ? GameElement.getPoseWithOffset(target, 1.0) : null;
             }
 
-            // ----- Step 1: Forced Selection (element-faces-robot cone) -----
-            GameElement forcedTarget = getForcedConeTarget(state);
+            public GameElement getTarget() {
+                return target;
+            }
+
+            public Pose2d getTargetPose() {
+                return targetPose;
+            }
+
+            public double getConfidence() {
+                return confidence;
+            }
+
+            public double getCost() {
+                return cost;
+            }
+        }
+
+        public static PredictionResult predictTargetElement(RobotState state, ControlBoard cb) {
+            if (cb.isAssisting) {
+                return new PredictionResult(cb.previousConfirmedGoal, 1.0, 0.0);
+            }
+
+            GameElement forcedTarget = getForcedConeTarget(globalPose);
             if (forcedTarget != null) {
                 lastPredictedTarget = forcedTarget;
                 targetConfidence = 1.0;
-                return new Object[] { lastPredictedTarget, targetConfidence };
+                return new PredictionResult(lastPredictedTarget, targetConfidence, 0.0);
             }
 
-            // ----- Step 2: Prediction & Raycasting -----
-            Pose2d robotPose = state.getPose();
-            Translation2d robotTranslation = robotPose.getTranslation();
+            Translation2d robotTranslation = globalPose.getTranslation();
             double currentX = robotTranslation.getX();
             double currentY = robotTranslation.getY();
 
@@ -137,70 +164,52 @@ public class Odometry extends SubsystemBase {
 
             GameElement candidateTarget = null;
             double bestCost = Double.MAX_VALUE;
-            for (GameElement element : GameElement.values()) {
 
+            for (GameElement element : GameElement.values()) {
                 if (element.isBlue() != ALLIANCE_IS_BLUE || element.shouldIgnore()) {
                     continue;
                 }
-
                 Pose2d elementPose = GameElement.getPoseWithOffset(element, 1.0);
                 Translation2d elementTranslation = elementPose.getTranslation();
                 double elementX = elementTranslation.getX();
                 double elementY = elementTranslation.getY();
 
-                // tOptimal: time in the future that (assuming constant velocity)
-                // best aligns the robot with the target
-                double tOptimal = 0;
-                if (vSquared > FieldConstants.EPSILON) {
-                    double dotProduct = (currentX - elementX) * vX + (currentY - elementY) * vY;
-                    tOptimal = -dotProduct / vSquared;
-                    if (tOptimal < 0) {
-                        tOptimal = 0;
-                    }
+                // vector from robot to element
+                double dx = elementX - currentX;
+                double dy = elementY - currentY;
+
+                // dot product (for projection and angle difference)
+                double dot = dx * vX + dy * vY;
+
+                // cost based on distance from element to the line of motion
+                double cost = (currentSpeed > FieldConstants.EPSILON)
+                        ? Math.abs(vX * dy - vY * dx) / currentSpeed
+                        : Math.hypot(dx, dy);
+                if (currentSpeed > FieldConstants.EPSILON) {
+                    cost += TIME_COST_WEIGHT * (dot / currentSpeed);
                 }
 
-                // Predicted position if we keep current velocity for tOptimal
-                double predictedX = currentX + vX * tOptimal;
-                double predictedY = currentY + vY * tOptimal;
-                double predictedDistance = Math.hypot(predictedX - elementX, predictedY - elementY);
-
-                double cost = predictedDistance;
-                if (currentSpeed > 0) {
-                    cost += TIME_COST_WEIGHT * (tOptimal * currentSpeed);
+                // Reorientation energy computed via dot product
+                double distanceToElement = Math.hypot(dx, dy);
+                if (currentSpeed > FieldConstants.EPSILON && distanceToElement > FieldConstants.EPSILON) {
+                    double cosAngleDiff = dot / (currentSpeed * distanceToElement);
+                    cost += ENERGY_COST_WEIGHT * (vSquared * (1 - cosAngleDiff));
                 }
 
-                if (vSquared > FieldConstants.EPSILON) {
-                    // Angle from current robot position to this element
-                    double angleToTarget = Math.atan2(elementY - currentY, elementX - currentX);
-                    // Angle of robot velocity
-                    double angleVel = Math.atan2(vY, vX);
-                    double angleDiff = normalizeAngle(angleToTarget - angleVel);
-                    double absAngleDiff = Math.abs(angleDiff);
-
-                    // Simple "reorientation" energy ~ v^2 * (1 - cos(angleDiff))
-                    double reorientationEnergy = vSquared * (1 - Math.cos(absAngleDiff));
-                    cost += ENERGY_COST_WEIGHT * reorientationEnergy;
-                }
-
-                // Raycast from current robot position to element
+                // Ray-casting
                 Translation2d rayStart = new Translation2d(currentX, currentY);
                 Translation2d rayEnd = new Translation2d(elementX, elementY);
-
-                // If the ray is obstructed by any reef's wall (except this element's own), skip
                 if (isRayObstructed(rayStart, rayEnd, element)) {
                     continue;
                 }
 
+                // (game cycle knowledge)
                 GameElement previousGoal = cb.previousConfirmedGoal;
                 if (previousGoal != null) {
-                    // If the previous confirmed goal was a coral station...
                     if (previousGoal.name().startsWith("CORAL_STATION_") && element.hasBranches()) {
-                        // ...then bias in favor of reefs
                         cost *= 0.7;
                     }
-                    // If the previous confirmed goal was a reef (hasBranches)...
                     if (previousGoal.hasBranches() && element.name().startsWith("CORAL_STATION_")) {
-                        // ...then bias in favor of coral stations
                         cost *= 0.4;
                     }
                 }
@@ -211,7 +220,7 @@ public class Odometry extends SubsystemBase {
                 }
             }
 
-            // ----- Confidence (hysteresis) -----
+            // Confidence (hysteresis) to prevent flickering
             if (candidateTarget != null) {
                 if (candidateTarget.equals(lastPredictedTarget)) {
                     targetConfidence = Math.min(targetConfidence + CONFIDENCE_INCREMENT, 1.0);
@@ -219,51 +228,43 @@ public class Odometry extends SubsystemBase {
                     targetConfidence = Math.max(targetConfidence - CONFIDENCE_DECREMENT, 0.0);
                     if (targetConfidence < CONFIDENCE_THRESHOLD) {
                         lastPredictedTarget = candidateTarget;
-                        targetConfidence = CONFIDENCE_INCREMENT; // reset for new candidate
+                        targetConfidence = CONFIDENCE_INCREMENT;
                     }
                 }
             }
-
-            return new Object[] { lastPredictedTarget, targetConfidence };
+            return new PredictionResult(lastPredictedTarget, targetConfidence, bestCost);
         }
 
-        private static GameElement getForcedConeTarget(RobotState state) {
-            Pose2d robotPose = state.getPose();
-            Translation2d robotTranslation = robotPose.getTranslation();
+        private static GameElement getForcedConeTarget(Pose2d pose) {
+            Translation2d robotTranslation = pose.getTranslation();
             double robotX = robotTranslation.getX();
             double robotY = robotTranslation.getY();
 
             GameElement forcedTarget = null;
-            double forcedTargetDistance = Double.MAX_VALUE;
+            double bestDistanceSq = Double.MAX_VALUE;
+            double radiusSq = FORCE_SELECTION_RADIUS * FORCE_SELECTION_RADIUS;
 
             for (GameElement element : GameElement.values()) {
-
-                // Skip if alliance color doesn't match
                 if (element.isBlue() != ALLIANCE_IS_BLUE || element.shouldIgnore()) {
                     continue;
                 }
-
                 Pose2d elementPose = GameElement.getPoseWithOffset(element, 1.0);
                 Translation2d elementTranslation = elementPose.getTranslation();
-                double elementX = elementTranslation.getX();
-                double elementY = elementTranslation.getY();
-                double elementFacing = elementPose.getRotation().getRadians(); // element's facing
+                double dx = robotX - elementTranslation.getX();
+                double dy = robotY - elementTranslation.getY();
+                double distanceSq = dx * dx + dy * dy;
 
-                double distance = Math.hypot(robotX - elementX, robotY - elementY);
-                if (distance <= FORCE_SELECTION_RADIUS) {
-                    // Angle from element to robot
-                    double angleElementToRobot = Math.atan2(robotY - elementY, robotX - elementX);
-                    double angleDiff = Math.abs(normalizeAngle(angleElementToRobot - elementFacing));
+                if (distanceSq <= radiusSq) {
+                    double angleElementToRobot = Math.atan2(robotY - elementTranslation.getY(), robotX - elementTranslation.getX());
+                    double angleDiff = Math.abs(normalizeAngle(angleElementToRobot - elementPose.getRotation().getRadians()));
                     if (angleDiff <= FORCE_SELECTION_CONE_HALF_ANGLE) {
-                        // If multiple qualify, choose the closest
-                        if (distance < forcedTargetDistance) {
-                            forcedTargetDistance = distance;
+                        if (distanceSq < bestDistanceSq) {
+                            bestDistanceSq = distanceSq;
                             forcedTarget = element;
                         }
                     }
                 }
             }
-
             return forcedTarget;
         }
 
@@ -275,12 +276,17 @@ public class Odometry extends SubsystemBase {
                     double reefX = reefTranslation.getX();
                     double reefY = reefTranslation.getY();
                     double reefFacing = reefPose.getRotation().getRadians();
+                    double cosLeft = Math.cos(reefFacing + Math.PI / 2);
+                    double sinLeft = Math.sin(reefFacing + Math.PI / 2);
+                    double cosRight = Math.cos(reefFacing - Math.PI / 2);
+                    double sinRight = Math.sin(reefFacing - Math.PI / 2);
+
                     Translation2d wallLeft = new Translation2d(
-                            reefX + WALL_EXTENSION * Math.cos(reefFacing + Math.PI / 2),
-                            reefY + WALL_EXTENSION * Math.sin(reefFacing + Math.PI / 2));
+                            reefX + WALL_EXTENSION * cosLeft,
+                            reefY + WALL_EXTENSION * sinLeft);
                     Translation2d wallRight = new Translation2d(
-                            reefX + WALL_EXTENSION * Math.cos(reefFacing - Math.PI / 2),
-                            reefY + WALL_EXTENSION * Math.sin(reefFacing - Math.PI / 2));
+                            reefX + WALL_EXTENSION * cosRight,
+                            reefY + WALL_EXTENSION * sinRight);
 
                     if (rayIntersectsSegment(rayStart, rayEnd, wallLeft, wallRight)) {
                         return true;
@@ -318,9 +324,7 @@ public class Odometry extends SubsystemBase {
         }
 
         private static double normalizeAngle(double angle) {
-            while (angle > Math.PI) angle -= 2 * Math.PI;
-            while (angle < -Math.PI) angle += 2 * Math.PI;
-            return angle;
+            return Math.IEEEremainder(angle, 2 * Math.PI); // My brain is exploding with intellect
         }
     }
 
@@ -335,7 +339,7 @@ public class Odometry extends SubsystemBase {
         yawStatusSignal = gyro.getAngularVelocityZWorld();
 
         // Initialize previousPose and previousTime:
-        previousPose = swerve.getPose();
+        previousPose = globalPose;
         previousTime = Timer.getFPGATimestamp();
 
         controlBoard = ControlBoard.getInstance();
@@ -399,7 +403,7 @@ public class Odometry extends SubsystemBase {
     public RobotState getRobotState() {
         // Return the current Pose2d from the swerve, the *computed* velocity, and the measured angular velocity
         return new RobotState(
-                swerve.getPose(),
+                globalPose,
                 linearVelocity,
                 new RobotState.AngularVelocity3D(
                         getFieldRollRate(),
@@ -430,7 +434,7 @@ public class Odometry extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return swerve.getPose();
+        return globalPose;
     }
 
     public Pose3d getPose3d(){
@@ -452,19 +456,8 @@ public class Odometry extends SubsystemBase {
         swerve.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
     }
 
-    public void displayValues(){
-        SmartDashboard.putNumber("Odometry Position x", swerve.getPose().getX());
-        SmartDashboard.putNumber("Odometry Position y", swerve.getPose().getY());
-        SmartDashboard.putNumber("Odometry Rotation", swerve.getPose().getRotation().getDegrees());
-        SmartDashboard.putNumber("Odometry Velocity x", linearVelocity.x);
-        SmartDashboard.putNumber("Odometry Velocity y", linearVelocity.y);
-        SmartDashboard.putNumber("Odometry Angular Velocity", getFieldYawRate());
-        SmartDashboard.putString("P Target Element", controlBoard.desiredGoal.name());
-        SmartDashboard.putString("P Target Confidence", controlBoard.goalConfidence());
-        SmartDashboard.putString("Last Confirmed Target", (controlBoard.previousConfirmedGoal != null ? controlBoard.previousConfirmedGoal.name() : ""));
-        SmartDashboard.putString("Selected Branch", controlBoard.selectedBranch.name());
-        SmartDashboard.putString("Score Level", controlBoard.scoreLevel.name());
-        SmartDashboard.putString("isAssisting", controlBoard.isAssisting ? "YES" : "NO");
+    public void displayValues() {
+        SmartDashboard.putBoolean("preciseControl", controlBoard.preciseControl);
     }
 
     public Pose2d predictFuturePose(double secondsAhead) {
@@ -486,20 +479,24 @@ public class Odometry extends SubsystemBase {
 
     @Override
     public void periodic() {
+        globalPose = swerve.getPose();
 
         publisher.set(getPose3d());
-        Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
-        predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
+        //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
+        //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
 
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
-            EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
+            // not using photonvision yet
+            //EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
             if (limelightReset && limelightPose != null) {
                 swerve.resetPose(limelightPose.pose);
             }
-            if (!limelightReset && photonVisionPose != null) {
+            // not using photonvision yet
+            /*if (!limelightReset && photonVisionPose != null) {
                 swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
-            }
+            }*/
+
             odometryResetRequested = false;
         } else {
             addVisionMeasurement();
@@ -508,7 +505,7 @@ public class Odometry extends SubsystemBase {
         double currentTime = Timer.getFPGATimestamp();
         double dt = currentTime - previousTime;
         if (dt > 0) {
-            Pose2d currentPose = swerve.getPose();
+            Pose2d currentPose = globalPose;
             double dx = currentPose.getX() - previousPose.getX();
             double dy = currentPose.getY() - previousPose.getY();
 
@@ -521,10 +518,12 @@ public class Odometry extends SubsystemBase {
 
         // Update for next iteration
         previousTime = currentTime;
-        previousPose = swerve.getPose();
+        previousPose = globalPose;
 
-        controlBoard.desiredGoal = (GameElement) TargetPredictor.predictTargetElement(getRobotState(), controlBoard)[0];
-        controlBoard.goalConfidence = (double) TargetPredictor.predictTargetElement(getRobotState(), controlBoard)[1];
+        TargetPredictor.PredictionResult prediction = TargetPredictor.predictTargetElement(getRobotState(), controlBoard);
+
+        controlBoard.desiredGoal = prediction.getTarget();
+        controlBoard.goalConfidence = prediction.getConfidence();
         displayValues();
     }
 }

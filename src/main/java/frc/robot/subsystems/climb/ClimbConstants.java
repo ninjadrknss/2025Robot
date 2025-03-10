@@ -17,11 +17,11 @@ public class ClimbConstants {
     public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
     static {
         pivotEncoderConfig.withName("Climber Pivot Encoder")
-                .withCanID(0)
+                .withCanID(60)
                 .withBus(Robot.riobus);
         CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
-        encoderConfig.MagnetSensor.MagnetOffset = 0;
-        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive; // TODO: check
+        encoderConfig.MagnetSensor.MagnetOffset = 0.230712890625;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     }
 
     public static final CTREConfig<TalonFX, TalonFXConfiguration> pivotMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
@@ -31,13 +31,14 @@ public class ClimbConstants {
                         .withBus(Robot.riobus);
 
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;
-        pivotConfig.Slot0.kP = 0; // Increase until speed oscillates
-        pivotConfig.Slot0.kI = 0; // Don't touch
-        pivotConfig.Slot0.kD = 0; // Increase until jitter
-        pivotConfig.Slot0.kS = 0; // Increase until just before motor starts moving
-        pivotConfig.Slot0.kA = 0; //
-        pivotConfig.Slot0.kV = 0; //
-        pivotConfig.Slot0.kG = 0; // Increase until arm doesnt move
+        pivotConfig.Slot0.kP = 66.42;   // Increase until speed oscillates
+        pivotConfig.Slot0.kI = 0;       // Don't touch
+        pivotConfig.Slot0.kD = 10.0;  // Increase until jitter
+        pivotConfig.Slot0.kS = 2.1641;  // Increase until just before motor starts moving
+        pivotConfig.Slot0.kA = 4.7556;  //
+        pivotConfig.Slot0.kV = 1.5943;  //
+        pivotConfig.Slot0.kG = 0.95644; // Increase until arm moved
+        pivotConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
         pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
@@ -47,14 +48,23 @@ public class ClimbConstants {
         pivotConfig.Feedback.RotorToSensorRatio = 125;
 
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
-        pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: Check
+        pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        pivotConfig.CurrentLimits.StatorCurrentLimit = 100;
+        pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        pivotConfig.CurrentLimits.SupplyCurrentLimit = 100;
+        pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 2.5;
+        pivotConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Units.Degrees.of(3);
-    public static final Angle flapStoreAngle = Units.Degrees.of(0);
-    public static final Angle flapDeployAngle = Units.Degrees.of(0);
+    public static final Angle changeRate = Units.Degrees.of(5);
+    public static final Angle flapStoreAngle = Units.Degrees.of(90);
+    public static final Angle flapDeployAngle = Units.Degrees.of(270);
 
-    public static final Angle pivotStoreAngle = Units.Degrees.of(0);
-    public static final Angle pivotDeployAngle = Units.Degrees.of(0);
+    public static final Angle pivotStoreAngle = Units.Degrees.of(-10);
+    public static final Angle pivotDeployAngle = Units.Degrees.of(145);
+
+    public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);
 }

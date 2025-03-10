@@ -1,11 +1,5 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -213,9 +207,11 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         Pose2d pose = getPose();
         SmartDashboard.putNumber("Swerve/Pose x", pose.getX());
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
+//        System.out.println(this.getCurrentCommand().getName());
     }
 
     public Pose2d getPose() {
+        //return new Pose2d();
         return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
@@ -239,7 +235,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             sample.vy + m_pathYController.calculate(pose.getY(), sample.y),
             sample.omega + m_pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
-    
         setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
         // setControl(
         //         m_pathApplyFieldSpeeds.withSpeeds(speeds)

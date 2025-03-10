@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -70,6 +71,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         TunableParameter.updateAll();
         scheduler.run();
+//        printWatchdogEpochs();
         // ControlBoard.getInstance().tryInit();
     }
 
@@ -88,7 +90,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = autonSubsystem.getSelectedAuton(); // TODO: fetch from auton command chooser
+        autonomousCommand = autonSubsystem.getSelectedAuton();
 
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
@@ -104,7 +106,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 
-        new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
+        //new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
     }
 
     @Override

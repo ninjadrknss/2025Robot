@@ -15,8 +15,8 @@ public class VisionConstants {
 		public final static String dashboardIp = "http://10.7.51.11:5801";
         public final static String name = "limelight";
 
-        public final static double height = 15.61 + 3.75; // inches
-        public final static double angle = 35;
+        public final static double zOffset = 12.224 + 3.75; // inches
+        public final static double yOffset = 13-6.01; // inches
     }
 
     public static class PhotonVision {

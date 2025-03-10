@@ -27,6 +27,7 @@ public class ElevatorWristConstants {
         leaderConfig.Slot0.kP = 0; // Increase until elevator oscillates
         leaderConfig.Slot0.kI = 0; // Don't touch
         leaderConfig.Slot0.kD = 0; // Increase until jitter
+        leaderConfig.Slot0.kV = 0; // Voltage required to maintain speed
         leaderConfig.Slot0.kS = 0; // Increase until just before motor starts moving
         leaderConfig.Slot0.kG = 0; // Increase until elevator holds steady
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
@@ -40,13 +41,17 @@ public class ElevatorWristConstants {
         leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9999; // TODO: Change
 
-        leaderConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
+        leaderConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Tune
         leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
         leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
 
-        leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
+        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 0; // Unlimited
+        leaderConfig.MotionMagic.MotionMagicAcceleration = 400; // TODO: Tune
+        leaderConfig.MotionMagic.MotionMagicJerk = 4000; // TODO: Tune
+
+        leaderConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     }
 
     public static final CTREConfig<TalonFX, TalonFXConfiguration> leftElevatorMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
