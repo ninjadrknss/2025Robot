@@ -143,12 +143,26 @@ public class ControlBoard {
         //            .ignoringDisable(true)
         //        );
 
-        // precise control (enabled (true) while leftTrigger is held. false as soon as it is released/while it is not held)
-        controller.leftTrigger.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
-        controller.leftTrigger.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
+        // Precise Control
+        controller.rightBumper.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
+        controller.rightBumper.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
+        // Driver Assist
+        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
 
-        /* Driveassist testing */
-//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+        // EWS Score based on selected level
+        controller.leftTrigger.onTrue(new InstantCommand(() -> {
+            switch (scoreLevel) {
+                case L1 -> L1ScoreCommand.schedule();
+                case L2 -> L2ScoreCommand.schedule();
+                case L3 -> L3ScoreCommand.schedule();
+                case L4 -> L4ScoreCommand.schedule();
+                case BARGE -> BargeScoreCommand.schedule();
+            }
+        }));
+        // EWS Intake 
+        controller.leftBumper.onTrue(new InstantCommand(() -> {
+
+        }));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -193,9 +207,9 @@ public class ControlBoard {
 //        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
 //        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        controller.triangleButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d(Math.PI))));
+          /*controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+          controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));*/
+
 
 //        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
 //        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
@@ -203,15 +217,24 @@ public class ControlBoard {
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
+        // Select Score Branch (LeftBumper, TouchpadClick, RightBumper)
         controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).withName("Select Left Branch"));
         controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).withName("Select Center Branch"));
         controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
+        // Select Score Level (TriangleButton, XButton)
         controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
-            if(scoreLevel != ScoreLevel.L4) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
+            if(scoreLevel != ScoreLevel.BARGE) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
         }).withName("Score Level Up"));
         controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
             if(scoreLevel != ScoreLevel.L1) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
         }).withName("Score Level Down"));
+        // Deploy/Store Climber (CircleButton, SquareButton)
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (LeftTrigger, RightTrigger)
+        controller.leftTrigger.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
     }
 
     public SwerveRequest getDriverRequest() {

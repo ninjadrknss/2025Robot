@@ -81,13 +81,13 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public void requestStore() {
         targetPivotAngle = ClimbConstants.pivotStoreAngle;
-//        targetFlapAngle = ClimbConstants.flapStoreAngle;
+        targetFlapAngle = ClimbConstants.flapStoreAngle;
         currentState = ClimbState.STORE;
     }
 
     public void requestDeploy() {
         targetPivotAngle = ClimbConstants.pivotDeployAngle;
-//        targetFlapAngle = ClimbConstants.flapDeployAngle;
+        targetFlapAngle = ClimbConstants.flapDeployAngle;
         currentState = ClimbState.DEPLOY;
     }
 
