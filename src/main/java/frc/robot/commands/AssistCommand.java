@@ -22,7 +22,7 @@ public class AssistCommand extends Command {
 
     private GameElement gameElement;
 
-    private final Branch selectedBranch;
+    private  Branch selectedBranch = null;
 
     private boolean firstWaypoint = true;
     private boolean secondWaypoint = true;
@@ -37,17 +37,33 @@ public class AssistCommand extends Command {
     }
 
     public AssistCommand(Superstructure superstructure) {
-        this.selectedBranch = Branch.CENTER;
+        addRequirements(this.swerve);
+    }
+    
+
+    public AssistCommand(Superstructure superstructure, Branch selectedBranch, boolean firstWaypoint, boolean secondWaypoint) {
+        this.selectedBranch = selectedBranch;
+        this.firstWaypoint = firstWaypoint;
+        this.secondWaypoint = secondWaypoint;
         addRequirements(this.swerve);
     }
 
+    public AssistCommand(Superstructure superstructure, boolean firstWaypoint, boolean secondWaypoint) {
+        this.selectedBranch = null;
+        this.firstWaypoint = firstWaypoint;
+        this.secondWaypoint = secondWaypoint;
+        addRequirements(this.swerve);
+    }
 
     @Override
     public void initialize() {
-
         gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
         //elementPose = gameElement.getRightBranch();
+        if (gameElement.hasBranches() && selectedBranch == null) {
+            selectedBranch = closestBranch(swerve.getPose(), gameElement);
+        } 
+
         if (gameElement.hasBranches() && selectedBranch != Branch.CENTER) {
             elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
         }
@@ -70,6 +86,12 @@ public class AssistCommand extends Command {
         desiredPosePublisher.set(targetPose);
         goToPositionCommand.initialize();
         //superstructure.requestChuteIntake();
+    }
+
+    private Branch closestBranch(Pose2d currentPose, GameElement gameElement) {
+        double leftDistance = currentPose.getTranslation().getDistance(gameElement.getLeftBranch().getTranslation());
+        double rightDistance = currentPose.getTranslation().getDistance(gameElement.getRightBranch().getTranslation());
+        return leftDistance < rightDistance ? Branch.LEFT : Branch.RIGHT;
     }
 
     @Override

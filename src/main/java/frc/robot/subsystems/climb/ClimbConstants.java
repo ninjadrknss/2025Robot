@@ -59,7 +59,7 @@ public class ClimbConstants {
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Units.Degrees.of(5);
+    public static final Angle changeRate = Units.Degrees.of(15);
     public static final Angle flapStoreAngle = Units.Degrees.of(90);
     public static final Angle flapDeployAngle = Units.Degrees.of(270);
 

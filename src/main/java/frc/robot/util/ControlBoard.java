@@ -1,11 +1,10 @@
 package frc.robot.util;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
@@ -99,18 +98,14 @@ public class ControlBoard {
     }
 
     public void tryInit() {
-        if (true || (driver == null && DriverStation.isJoystickConnected(ControllerPreset.DRIVER.port()))) {
-            driver = new PS5Controller(ControllerPreset.DRIVER.port());
-            configureBindings(ControllerPreset.DRIVER, driver);
-            // Init operator bindings to driver:
-//            configureBindings(ControllerPreset.OPERATOR, driver);
+        driver = new PS5Controller(ControllerPreset.DRIVER.port());
+        configureBindings(ControllerPreset.DRIVER, driver);
 
-            SwerveSubsystem drive = SwerveSubsystem.getInstance();
-            drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
+        SwerveSubsystem drive = SwerveSubsystem.getInstance();
+        drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
 
-            if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
-            System.out.println("Driver Initialized");
-        }
+        if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
+        System.out.println("Driver Initialized");
 
         if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
             operator = new PS5Controller(ControllerPreset.OPERATOR.port());
@@ -159,7 +154,7 @@ public class ControlBoard {
                 case BARGE -> BargeScoreCommand.schedule();
             }
         }));
-        // EWS Intake 
+        // EWS Intake
         controller.leftBumper.onTrue(new InstantCommand(() -> {
 
         }));
