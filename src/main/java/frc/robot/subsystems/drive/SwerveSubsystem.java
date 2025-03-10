@@ -115,8 +115,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     );
 
     /* Autonomous Controllers */
-    private final PIDController m_pathXController = new PIDController(100, 0.0, 0.0);
-    private final PIDController m_pathYController = new PIDController(100, 0.0, 0.0);
+    private final PIDController m_pathXController = new PIDController(1, 0.0, 0.0);
+    private final PIDController m_pathYController = new PIDController(1, 0.0, 0.0);
     private final PIDController m_pathThetaController = new PIDController(30, 0.0, 0.0);
 
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
