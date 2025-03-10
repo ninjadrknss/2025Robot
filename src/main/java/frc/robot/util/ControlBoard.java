@@ -1,11 +1,10 @@
 package frc.robot.util;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
@@ -99,18 +98,14 @@ public class ControlBoard {
     }
 
     public void tryInit() {
-        if (true || (driver == null && DriverStation.isJoystickConnected(ControllerPreset.DRIVER.port()))) {
-            driver = new PS5Controller(ControllerPreset.DRIVER.port());
-            configureBindings(ControllerPreset.DRIVER, driver);
-            // Init operator bindings to driver:
-//            configureBindings(ControllerPreset.OPERATOR, driver);
+        driver = new PS5Controller(ControllerPreset.DRIVER.port());
+        configureBindings(ControllerPreset.DRIVER, driver);
 
-            SwerveSubsystem drive = SwerveSubsystem.getInstance();
-            drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
+        SwerveSubsystem drive = SwerveSubsystem.getInstance();
+        drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
 
-            if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
-            System.out.println("Driver Initialized");
-        }
+        if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
+        System.out.println("Driver Initialized");
 
         if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
             operator = new PS5Controller(ControllerPreset.OPERATOR.port());
@@ -133,38 +128,9 @@ public class ControlBoard {
     }
 
     private void configureDriverBindings(PS5Controller controller) {
-        /* Driversim testing */
-        //        controller.rightTrigger.onTrue(new InstantCommand(() ->
-        //            SimulatedArena.getInstance().addGamePiece(new ReefscapeCoralOnField(new Pose2d(1, 0.8, Rotation2d.fromDegrees(135)))))
-        //            .ignoringDisable(true)
-        //        );
-        //        controller.leftBumper.onTrue(new InstantCommand(() ->
-        //            SimulatedArena.getInstance().clearGamePieces())
-        //            .ignoringDisable(true)
-        //        );
-
         // precise control (enabled (true) while leftTrigger is held. false as soon as it is released/while it is not held)
-        controller.leftTrigger.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
-        controller.leftTrigger.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
-
-        /* Driveassist testing */
-//        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
-
-        /* Led Testing */
-        //        LEDSubsystem led = LEDSubsystem.getInstance();
-        //        controller.circleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.MAGENTA)).ignoringDisable(true));
-        //        controller.squareButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.WHITE)).ignoringDisable(true));
-        //        controller.triangleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.BLUE)).ignoringDisable(true));
-        //        controller.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
-        //
-        //        controller.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
-        //        controller.leftBumper.onTrue(new InstantCommand(() -> led.requestToggleBlinking()).ignoringDisable(true));
-
-        /* Servo Testing */
-        // Servo servoTest = new Servo(8);
-
-        // controller.leftBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(90)));
-        // controller.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
+        controller.leftTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Enable Precise Control"));
+        controller.leftBumper.whileTrue(/* TODO: AIM ASSIST*/ new InstantCommand());
 
         /* Elevator SysId */
         ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
@@ -182,24 +148,19 @@ public class ControlBoard {
 //        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
 
         /* Climb SysId */
-        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-//        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
-//        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
-//        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
-//        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
-
-//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
-//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
+//        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+//
+//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
+//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
 //        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
 //        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
-
-        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+//
+//        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+//        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
         controller.triangleButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d(Math.PI))));
 
 //        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
 //        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
-//        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {

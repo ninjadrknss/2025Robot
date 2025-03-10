@@ -35,7 +35,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         CHUTE_INTAKE(0, 0, LightsSubsystem.Colors.GREEN),
         GROUND_INTAKE(0, 0, LightsSubsystem.Colors.YELLOW),
         L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(100, 90, LightsSubsystem.Colors.CYAN),
+        L2_SCORE(30, 90, LightsSubsystem.Colors.CYAN),
         L3_SCORE(0, 0, LightsSubsystem.Colors.AQUAMARINE),
         L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
         L2_INTAKE(0, 0, LightsSubsystem.Colors.ORANGE),
