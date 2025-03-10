@@ -227,8 +227,10 @@ public class ControlBoard {
         }).withName("Score Level Down"));
         // Deploy/Store Climber (CircleButton, SquareButton)
         ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-        controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
-        controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+
+        //TODO: who even made this bruh
+        // controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        // controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
         // Retract/Extend Climber (LeftTrigger, RightTrigger)
         controller.leftTrigger.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
         controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
