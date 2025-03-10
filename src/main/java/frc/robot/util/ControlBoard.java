@@ -24,6 +24,7 @@ import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
 import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
+import frc.robot.commands.ScoreCommand.*;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -60,6 +61,7 @@ public class ControlBoard {
 
     public GameElement prevDesiredGoal;
 
+
     /* Commands */
     private final HomeCommand homeCommand;
     private final ChuteIntakeCommand chuteIntakeCommand;
@@ -89,11 +91,11 @@ public class ControlBoard {
         homeCommand = new HomeCommand(superstructure);
         chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
         groundIntakeCommand = new GroundIntakeCommand(superstructure);
-        L1ScoreCommand = new ScoreCommand(1);
-        L2ScoreCommand = new ScoreCommand(2);
-        L3ScoreCommand = new ScoreCommand(3);
-        L4ScoreCommand = new ScoreCommand(4);
-        BargeScoreCommand = new ScoreCommand(5);
+        L1ScoreCommand = new ScoreCommand(Action.SCOREL1);
+        L2ScoreCommand = new ScoreCommand(Action.SCOREL2);
+        L3ScoreCommand = new ScoreCommand(Action.SCOREL3);
+        L4ScoreCommand = new ScoreCommand(Action.SCOREL4);
+        BargeScoreCommand = new ScoreCommand(Action.SCOREBARGE);
         tryInit();
     }
 

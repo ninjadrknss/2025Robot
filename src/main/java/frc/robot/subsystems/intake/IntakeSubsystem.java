@@ -119,5 +119,9 @@ public class IntakeSubsystem extends SubsystemBase {
         unsetAllRequests();
         requestedSpit = true;
     }
+
+    public boolean isDone(){
+        return state == IntakeState.IDLE || state == IntakeState.SPITTING;
+    }
 }
 
