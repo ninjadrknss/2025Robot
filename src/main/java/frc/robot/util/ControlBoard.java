@@ -229,8 +229,8 @@ public class ControlBoard {
         ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 
         //TODO: who even made this bruh
-        // controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
-        // controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
         // Retract/Extend Climber (LeftTrigger, RightTrigger)
         controller.leftTrigger.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
         controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
