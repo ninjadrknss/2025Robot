@@ -36,16 +36,11 @@ public class ScoreCommand extends Command {
     public void initialize() {
         hasPerformedAction = false;
         switch (action) {
-            case SCOREL1 -> elevatorWristSubsystem.requestL1Score();
-            case SCOREL2 -> elevatorWristSubsystem.requestL2Score();
-            case SCOREL3 -> elevatorWristSubsystem.requestL3Score();
-            case SCOREL4 -> elevatorWristSubsystem.requestL4Score();
-            case SCOREBARGE -> elevatorWristSubsystem.requestBargeScore();
-            case PREPAREL1 -> elevatorWristSubsystem.requestL1Score();
-            case PREPAREL2 -> elevatorWristSubsystem.requestL2Score();
-            case PREPAREL3 -> elevatorWristSubsystem.requestL3Score();
-            case PREPAREL4 -> elevatorWristSubsystem.requestL4Score();
-            case PREPAREBARGE -> elevatorWristSubsystem.requestBargeScore();
+            case SCOREL1, PREPAREL1 -> elevatorWristSubsystem.requestL1Score();
+            case SCOREL2, PREPAREL2 -> elevatorWristSubsystem.requestL2Score();
+            case SCOREL3, PREPAREL3 -> elevatorWristSubsystem.requestL3Score();
+            case SCOREL4, PREPAREL4 -> elevatorWristSubsystem.requestL4Score();
+            case SCOREBARGE, PREPAREBARGE -> elevatorWristSubsystem.requestBargeScore();
             case INTAKE -> elevatorWristSubsystem.requestHome();
             case SPIT -> intakeSubsystem.requestSpit();
             case HOME -> elevatorWristSubsystem.requestHome();
@@ -76,5 +71,6 @@ public class ScoreCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("score command ended " + action.name());
     }
 }
