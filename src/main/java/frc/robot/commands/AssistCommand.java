@@ -8,8 +8,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.ControlBoard;
 import frc.robot.util.FieldConstants.GameElement;
@@ -31,24 +29,24 @@ public class AssistCommand extends Command {
         .getStructTopic("Desired Pose", Pose2d.struct)
         .publish();
 
-    public AssistCommand(Superstructure superstructure, Branch selectedBranch) {
+    public AssistCommand(Branch selectedBranch) {
         this.selectedBranch = selectedBranch;
         addRequirements(this.swerve);
     }
 
-    public AssistCommand(Superstructure superstructure) {
+    public AssistCommand() {
         addRequirements(this.swerve);
     }
     
 
-    public AssistCommand(Superstructure superstructure, Branch selectedBranch, boolean firstWaypoint, boolean secondWaypoint) {
+    public AssistCommand(Branch selectedBranch, boolean firstWaypoint, boolean secondWaypoint) {
         this.selectedBranch = selectedBranch;
         this.firstWaypoint = firstWaypoint;
         this.secondWaypoint = secondWaypoint;
         addRequirements(this.swerve);
     }
 
-    public AssistCommand(Superstructure superstructure, boolean firstWaypoint, boolean secondWaypoint) {
+    public AssistCommand(boolean firstWaypoint, boolean secondWaypoint) {
         this.selectedBranch = null;
         this.firstWaypoint = firstWaypoint;
         this.secondWaypoint = secondWaypoint;
