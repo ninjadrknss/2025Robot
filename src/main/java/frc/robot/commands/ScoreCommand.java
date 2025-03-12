@@ -3,74 +3,79 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-
+import frc.robot.util.ControlBoard;
 
 public class ScoreCommand extends Command {
+
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final Action action;
-    private boolean hasPerformedAction = false;
+    private boolean actionPerformed = false;
 
     public enum Action {
-        HOME,
-        INTAKE,
-        SPIT,
-        SCOREL1,
-        SCOREL2,
-        SCOREL3,
-        SCOREL4,
-        SCOREBARGE,
-        PREPAREL1,
-        PREPAREL2,
-        PREPAREL3,
-        PREPAREL4,
-        PREPAREBARGE
+        HOME, INTAKE, SPIT,
+        SCOREL1, SCOREL2, SCOREL3, SCOREL4, SCOREBARGE,
+        PREPAREL1, PREPAREL2, PREPAREL3, PREPAREL4, PREPAREBARGE,
+        PREPARESELECTED
     }
 
     public ScoreCommand(Action action) {
         this.action = action;
-        addRequirements(this.elevatorWristSubsystem);
+        addRequirements(elevatorWristSubsystem);
     }
 
     @Override
     public void initialize() {
-        hasPerformedAction = false;
+        actionPerformed = false;
+
+        if (action == Action.PREPARESELECTED) {
+            performElevatorAction(switch (ControlBoard.getInstance().scoreLevel) {
+                case L1 -> Action.PREPAREL1;
+                case L2 -> Action.PREPAREL2;
+                case L3 -> Action.PREPAREL3;
+                case L4 -> Action.PREPAREL4;
+                case BARGE -> Action.PREPAREBARGE;
+            });
+        } else {
+            performElevatorAction(action);
+        }
+
+        if (action == Action.SPIT) {
+            intakeSubsystem.requestSpit();
+        }
+    }
+
+    private void performElevatorAction(Action action) {
         switch (action) {
             case SCOREL1, PREPAREL1 -> elevatorWristSubsystem.requestL1Score();
             case SCOREL2, PREPAREL2 -> elevatorWristSubsystem.requestL2Score();
             case SCOREL3, PREPAREL3 -> elevatorWristSubsystem.requestL3Score();
             case SCOREL4, PREPAREL4 -> elevatorWristSubsystem.requestL4Score();
             case SCOREBARGE, PREPAREBARGE -> elevatorWristSubsystem.requestBargeScore();
-            case INTAKE -> elevatorWristSubsystem.requestHome();
-            case SPIT -> intakeSubsystem.requestSpit();
-            case HOME -> elevatorWristSubsystem.requestHome();
+            case INTAKE, HOME -> elevatorWristSubsystem.requestHome();
+            default -> {}
         }
-    }  
+    }
 
     @Override
     public void execute() {
-        if (elevatorWristSubsystem.isAtPosition() && !hasPerformedAction){
+        if (!actionPerformed && elevatorWristSubsystem.isAtPosition()) {
             switch (action) {
                 case INTAKE -> intakeSubsystem.requestIntake();
-                case SCOREL1 -> intakeSubsystem.requestSpit();
-                case SCOREL2 -> intakeSubsystem.requestSpit();
-                case SCOREL3 -> intakeSubsystem.requestSpit();
-                case SCOREL4 -> intakeSubsystem.requestSpit();
-                case SCOREBARGE -> intakeSubsystem.requestSpit();
-                default -> end(true);
+                case SCOREL1, SCOREL2, SCOREL3, SCOREL4, SCOREBARGE -> intakeSubsystem.requestSpit();
+                default -> {}
             }
-            hasPerformedAction = true;
+            actionPerformed = true;
         }
     }
 
     @Override
     public boolean isFinished() {
-        if (hasPerformedAction && intakeSubsystem.isDone()) return true;
-        return false;
+        return actionPerformed && intakeSubsystem.isDone();
     }
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("score command ended " + action.name());
+        System.out.println("ActionCommand ended: " + action);
     }
 }

@@ -20,13 +20,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.drive.Odometry;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import edu.wpi.first.units.measure.LinearVelocity;
-
 
 import frc.robot.util.Constants;
 import java.util.List;
@@ -50,6 +50,11 @@ public class MoveCommand extends Command {
     private final PreciseMoveCommand preciseMoveCommand;
     private boolean isPreciseMove = false;
 
+    // New fields for continuous timeout check
+    private double lastMovedTime;
+    private Pose2d lastMovedPose;
+    private boolean timeoutTriggered = false;
+
     public MoveCommand(Pose2d targetPose, List<Pose2d> intermediatePoints, SwerveSubsystem swerveSubsystem) {
         this.targetPose = targetPose;
         this.intermediatePoints = new ArrayList<>(intermediatePoints);
@@ -63,8 +68,13 @@ public class MoveCommand extends Command {
 
     @Override
     public void initialize() {
+        // Record the initial pose and time for the continuous timeout feature.
         Pose2d currentPose = swerveSubsystem.getPose();
-        if (distance(currentPose, targetPose) < 0.05 && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
+        this.lastMovedPose = currentPose;
+        this.lastMovedTime = Timer.getFPGATimestamp();
+
+        if (distance(currentPose, targetPose) < 0.05 &&
+            Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
             end(true);
             return;
         }
@@ -89,20 +99,7 @@ public class MoveCommand extends Command {
         );
         AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
         pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
-
-
-        //Pathfinding.getCurrentPath(null, null).generateTrajectory(null, null, null).getTotalTimeSeconds();
-        //pathCommand = AutoBuilder.pathfindToPose(intermediatePoints.get(0), constraints, 0);
-
-        
-        
-        //(new Pose2d(8, 6, new Rotation2d(30)), constraints, 2.0);
-        
-        //(new Pose2d(8, 6, new Rotation2d(30)), constraints);
-
-        //pathCommand = new FollowPathCommand(path, swerveSubsystem::getPose, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);   
         pathCommand.initialize();
-        
     }
 
     private void drive(ChassisSpeeds robotSpeeds, DriveFeedforwards feedforward) {
@@ -110,27 +107,45 @@ public class MoveCommand extends Command {
     }
 
     private double distance(Pose2d current, Pose2d target) {
-        double positionError = Math.hypot(current.getX() - target.getX(), current.getY() - target.getY());
-        return positionError;
+        return Math.hypot(current.getX() - target.getX(), current.getY() - target.getY());
     }
 
     @Override
     public void execute() {
+        // Continuously check if the robot has moved at least 5cm within any 3-second period.
+        double currentTime = Timer.getFPGATimestamp();
+        Pose2d currentPose = swerveSubsystem.getPose();
+        
+        if (distance(lastMovedPose, currentPose) >= 0.05) {
+            // Robot has moved significantly, update the reference.
+            lastMovedPose = currentPose;
+            lastMovedTime = currentTime;
+        } else if (currentTime - lastMovedTime > 3.0) {
+            // The robot hasn't moved at least 5cm in the last 3 seconds.
+            timeoutTriggered = true;
+        }
+        
+        // If timeout was triggered, skip further execution.
+        if (timeoutTriggered) {
+            return;
+        }
+        
+        // Existing execution logic.
         if (pathCommand != null && !pathCommand.isFinished()) {
             pathCommand.execute();
-        }
-        else if ((pathCommand == null || pathCommand.isFinished()) && preciseMoveCommand != null && !preciseMoveCommand.isFinished()) {
-            if (!isPreciseMove){
+        } else if ((pathCommand == null || pathCommand.isFinished()) && preciseMoveCommand != null && !preciseMoveCommand.isFinished()) {
+            if (!isPreciseMove) {
                 isPreciseMove = true;
                 preciseMoveCommand.initialize();
             }
-           preciseMoveCommand.execute();
+            preciseMoveCommand.execute();
         }
     }
 
     @Override
     public boolean isFinished() {
-        return pathCommand != null && pathCommand.isFinished() && preciseMoveCommand != null && preciseMoveCommand.isFinished();
+        return timeoutTriggered ||
+               (pathCommand != null && pathCommand.isFinished() && preciseMoveCommand != null && preciseMoveCommand.isFinished());
     }
 
     @Override
