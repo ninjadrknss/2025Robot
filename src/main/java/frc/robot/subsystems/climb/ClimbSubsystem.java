@@ -32,6 +32,7 @@ public class ClimbSubsystem extends SubsystemBase {
     private ClimbState currentState = ClimbState.IDLE;
 
     // Target angles for pivot and flap (tunable via ClimbConstants).
+    private boolean changes = true;
     private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
     private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
 
@@ -41,27 +42,19 @@ public class ClimbSubsystem extends SubsystemBase {
     }
     
     private ClimbSubsystem() {
-    }
-
-    public void setTargetPivotAngle(Angle angle) {
-        targetPivotAngle = angle;
-        currentState = ClimbState.CONTROL;
-    }
-
-    public void setTargetFlapAngle(Angle angle) {
-        targetFlapAngle = angle;
+        pivotMotor.setControl(pivotControl);
     }
 
     public void requestStorePivot() {
         targetPivotAngle = ClimbConstants.pivotStoreAngle;
-        targetFlapAngle = ClimbConstants.flapStoreAngle;
         currentState = ClimbState.STORE;
+        changes = true;
     }
 
     public void requestDeployPivot() {
         targetPivotAngle = ClimbConstants.pivotDeployAngle;
-        targetFlapAngle = ClimbConstants.flapDeployAngle;
         currentState = ClimbState.DEPLOY;
+        changes = true;
     }
 
     public void requestStore(){
@@ -72,11 +65,13 @@ public class ClimbSubsystem extends SubsystemBase {
     public void requestStoreFlap() {
         targetFlapAngle = ClimbConstants.flapStoreAngle;
         currentState = ClimbState.STORE;
+        changes = true;
     }
 
     public void requestDeployFlap() {
         targetFlapAngle = ClimbConstants.flapDeployAngle;
         currentState = ClimbState.DEPLOY;
+        changes = true;
     }
 
     public void requestDeploy(){
@@ -95,13 +90,17 @@ public class ClimbSubsystem extends SubsystemBase {
     public void modifyPivotAngle(Angle delta) {
         targetPivotAngle = targetPivotAngle.plus(delta);
         currentState = ClimbState.CONTROL;
+        changes = true;
     }
 
     @Override
     public void periodic() {
-        pivotControl.withPosition(targetPivotAngle);
-        pivotMotor.setControl(pivotControl);
-        flapServo.set(targetFlapAngle.in(Units.Rotations));
+        if (changes) {
+            pivotControl.withPosition(targetPivotAngle);
+            pivotMotor.setControl(pivotControl);
+            flapServo.set(targetFlapAngle.in(Units.Rotations));
+            changes = false;
+        }
 
         SmartDashboard.putString("Climb/Current State", currentState.name());
     }

@@ -1,9 +1,7 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.Utils;
-import edu.wpi.first.math.geometry.Rotation2d;
 
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -15,16 +13,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
 
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
 import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
-import frc.robot.commands.ScoreCommand.*;
+import frc.robot.commands.ActionCommand.*;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -49,8 +47,11 @@ public class ControlBoard {
     }
 
     /* Subsystems */
-    private final Superstructure superstructure;
+    private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
+    private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
+    private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 
+    /* State Variables */
     public GameElement desiredGoal;
     public GameElement previousConfirmedGoal;
     public boolean preciseControl;
@@ -64,13 +65,14 @@ public class ControlBoard {
 
     /* Commands */
     private final HomeCommand homeCommand;
+    private final ScoreCommand scoreCommand;
     private final ChuteIntakeCommand chuteIntakeCommand;
-    private final GroundIntakeCommand groundIntakeCommand;
-    private final ScoreCommand L1ScoreCommand;
-    private final ScoreCommand L2ScoreCommand;
-    private final ScoreCommand L3ScoreCommand;
-    private final ScoreCommand L4ScoreCommand;
-    private final ScoreCommand BargeScoreCommand;
+//    private final GroundIntakeCommand groundIntakeCommand;
+    private final ActionCommand L1ScoreCommand;
+    private final ActionCommand L2ScoreCommand;
+    private final ActionCommand L3ScoreCommand;
+    private final ActionCommand L4ScoreCommand;
+    private final ActionCommand BargeScoreCommand;
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 10% deadband
@@ -81,33 +83,36 @@ public class ControlBoard {
 
     private ControlBoard() {
         DriverStation.silenceJoystickConnectionWarning(true); // TODO: remove
-        superstructure = Superstructure.getInstance();
 
         desiredGoal = GameElement.PROCESSOR_BLUE;
         prevDesiredGoal = null;
         previousConfirmedGoal = null;
         preciseControl = false;
 
-        homeCommand = new HomeCommand(superstructure);
-        chuteIntakeCommand = new ChuteIntakeCommand(superstructure);
-        groundIntakeCommand = new GroundIntakeCommand(superstructure);
-        L1ScoreCommand = new ScoreCommand(Action.SCOREL1);
-        L2ScoreCommand = new ScoreCommand(Action.SCOREL2);
-        L3ScoreCommand = new ScoreCommand(Action.SCOREL3);
-        L4ScoreCommand = new ScoreCommand(Action.SCOREL4);
-        BargeScoreCommand = new ScoreCommand(Action.SCOREBARGE);
+        homeCommand = new HomeCommand();
+        chuteIntakeCommand = new ChuteIntakeCommand();
+        scoreCommand = new ScoreCommand();
+//        groundIntakeCommand = new GroundIntakeCommand();
+        L1ScoreCommand = new ActionCommand(Action.SCOREL1);
+        L2ScoreCommand = new ActionCommand(Action.SCOREL2);
+        L3ScoreCommand = new ActionCommand(Action.SCOREL3);
+        L4ScoreCommand = new ActionCommand(Action.SCOREL4);
+        BargeScoreCommand = new ActionCommand(Action.SCORE_BARGE);
         tryInit();
     }
 
     public void tryInit() {
-        driver = new PS5Controller(ControllerPreset.DRIVER.port());
-        configureBindings(ControllerPreset.DRIVER, driver);
+        if (driver == null) {
+            driver = new PS5Controller(ControllerPreset.DRIVER.port());
+            configureBindings(ControllerPreset.DRIVER, driver);
 
-        SwerveSubsystem drive = SwerveSubsystem.getInstance();
-        drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
+            SwerveSubsystem drive = SwerveSubsystem.getInstance();
+            drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
 
-        if (Utils.isSimulation()) drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
-        System.out.println("Driver Initialized");
+            if (Utils.isSimulation())
+                drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
+            System.out.println("Driver Initialized");
+        }
 
         if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
             operator = new PS5Controller(ControllerPreset.OPERATOR.port());
@@ -141,64 +146,30 @@ public class ControlBoard {
         //        );
 
         // Precise Control
-        controller.rightBumper.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
-        controller.rightBumper.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
+        controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
+
         // Driver Assist
-        controller.rightTrigger.whileTrue(new AssistCommand(superstructure, selectedBranch));
+        controller.rightBumper.whileTrue(new AssistCommand());
 
-        // EWS Score based on selected level
-        controller.leftTrigger.onTrue(new InstantCommand(() -> {
-            switch (scoreLevel) {
-                case L1 -> L1ScoreCommand.schedule();
-                case L2 -> L2ScoreCommand.schedule();
-                case L3 -> L3ScoreCommand.schedule();
-                case L4 -> L4ScoreCommand.schedule();
-                case BARGE -> BargeScoreCommand.schedule();
-            }
-        }));
-        // EWS Intake
-        controller.leftBumper.onTrue(new InstantCommand(() -> {
-
-        }));
-
-        /* Led Testing */
-        //        LEDSubsystem led = LEDSubsystem.getInstance();
-        //        controller.circleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.MAGENTA)).ignoringDisable(true));
-        //        controller.squareButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.WHITE)).ignoringDisable(true));
-        //        controller.triangleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.BLUE)).ignoringDisable(true));
-        //        controller.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
-        //
-        //        controller.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
-        //        controller.leftBumper.onTrue(new InstantCommand(() -> led.requestToggleBlinking()).ignoringDisable(true));
-
-        /* Servo Testing */
-        // Servo servoTest = new Servo(8);
-
-        // controller.leftBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(90)));
-        // controller.rightBumper.onTrue(new InstantCommand(() -> servoTest.setAngle(0)));
+        // Intake Subsystem
+        controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         /* Elevator SysId */
-        ElevatorWristSubsystem EWS = ElevatorWristSubsystem.getInstance();
-//        controller.leftBumper.whileTrue(EWS.elevatorDynamicId(true));
-//        controller.leftTrigger.whileTrue(EWS.elevatorDynamicId(false));
-//        controller.rightBumper.whileTrue(EWS.elevatorQuasistaticId(true));
-//        controller.rightTrigger.whileTrue(EWS.elevatorQuasistaticId(false));
+//        controller.leftBumper.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
+//        controller.leftTrigger.whileTrue(elevatorWristSubsystem.elevatorDynamicId(false));
+//        controller.rightBumper.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
+//        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
-//        controller.leftBumper.whileTrue(EWS.wristDynamicId(true));
-//        controller.leftTrigger.whileTrue(EWS.wristDynamicId(false));
-//        controller.rightBumper.whileTrue(EWS.wristQuasistaticId(true));
-//        controller.rightTrigger.whileTrue(EWS.wristQuasistaticId(false));
-//        controller.circleButton.whileTrue(new InstantCommand(EWS::requestHome));
-//        controller.squareButton.whileTrue(new InstantCommand(EWS::requestL2Score));
+//        controller.leftBumper.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
+//        controller.leftTrigger.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
+//        controller.rightBumper.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
+//        controller.rightTrigger.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
+//        controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
+//        controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
 
         /* Climb SysId */
-        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-//        controller.leftBumper.whileTrue(climbSubsystem.climberDynamicRoutine(true));
-//        controller.leftTrigger.whileTrue(climbSubsystem.climberDynamicRoutine(false));
-//        controller.rightBumper.whileTrue(climbSubsystem.climberQuasistaticRoutine(true));
-//        controller.rightTrigger.whileTrue(climbSubsystem.climberQuasistaticRoutine(false));
-
 //        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
 //        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
 //        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
@@ -225,9 +196,8 @@ public class ControlBoard {
         controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
             if(scoreLevel != ScoreLevel.L1) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
         }).withName("Score Level Down"));
-        // Deploy/Store Climber (CircleButton, SquareButton)
-        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 
+        // Deploy/Store Climber (CircleButton, SquareButton)
         //TODO: who even made this bruh
         controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
         controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
