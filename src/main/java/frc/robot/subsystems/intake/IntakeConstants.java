@@ -14,6 +14,7 @@ public class IntakeConstants {
     public static final double spitSpeed = 0.5; // Negated in request
     public static final int beamBreakPort = 2;
     public static final int algaeDistanceThreshold = 0;
+    public static final int stalledCurrentThreshold = 30;
 
     public static final CTREConfig<TalonFX, TalonFXConfiguration> intakeMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
