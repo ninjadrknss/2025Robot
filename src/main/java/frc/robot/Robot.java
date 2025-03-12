@@ -110,7 +110,9 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+        controlBoard.displayUI();
+    }
 
     @Override
     public void teleopExit() {}

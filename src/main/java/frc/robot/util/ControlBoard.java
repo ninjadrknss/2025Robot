@@ -1,30 +1,28 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.Utils;
-import edu.wpi.first.math.geometry.Rotation2d;
-
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import frc.robot.commands.*;
-import frc.robot.subsystems.climb.ClimbSubsystem;
-
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
-
+import frc.robot.commands.AssistCommand;
+import frc.robot.commands.ChuteIntakeCommand;
+import frc.robot.commands.GroundIntakeCommand;
+import frc.robot.commands.HomeCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ScoreCommand.Action;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
-
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
 import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
-import frc.robot.commands.ScoreCommand.*;
 
 public class ControlBoard {
     private static ControlBoard instance;
@@ -114,6 +112,11 @@ public class ControlBoard {
             configureBindings(ControllerPreset.OPERATOR, operator);
             System.out.println("Operator Initialized");
         }
+    }
+
+    public void displayUI(){
+        SmartDashboard.putString("Current Goal", desiredGoal.name());
+        SmartDashboard.putString("Current Level", scoreLevel.name());
     }
 
     public static ControlBoard getInstance() {
