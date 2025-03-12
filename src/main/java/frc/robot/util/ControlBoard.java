@@ -157,9 +157,7 @@ public class ControlBoard {
             }
         }));
         // EWS Intake
-        controller.leftBumper.onTrue(new InstantCommand(() -> {
-
-        }));
+        controller.leftBumper.onTrue(new ScoreCommand(Action.INTAKE));
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();
@@ -225,15 +223,16 @@ public class ControlBoard {
         controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
             if(scoreLevel != ScoreLevel.L1) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
         }).withName("Score Level Down"));
-        // Deploy/Store Climber (CircleButton, SquareButton)
-        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        // Elevator Go To Selected Position (RightTrigger)
+        controller.rightTrigger.onTrue(new ScoreCommand(Action.PREPARESELECTED));
 
-        //TODO: who even made this bruh
-        controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
-        controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
-        // Retract/Extend Climber (LeftTrigger, RightTrigger)
-        controller.leftTrigger.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
-        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        // Store/Deploy Climber (dPadLeft, dPadRight)
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (dPadUp, dPadDown)
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
     }
 
     public SwerveRequest getDriverRequest() {
