@@ -74,6 +74,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
     private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
+
+    private boolean elevatorStalled = false;
     private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
@@ -159,21 +161,18 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        if (Utils.isSimulation()) sim = ElevatorWristSim.getInstance();
 
         // TODO: add configs for leader in ElevatorWristConstants
-        leader.setNeutralMode(NeutralModeValue.Coast);
         leader.setControl(leaderControl);
 
         // TODO: add configs for follower in ElevatorWristConstants
-        follower.setNeutralMode(NeutralModeValue.Coast);
         follower.setControl(followerControl);
 
         // TODO: add configs for wrist in ElevatorWristConstants
-        wrist.setNeutralMode(NeutralModeValue.Coast);
         wrist.setControl(wristControl);
     }
 
     private void homeElevator() {
-        // TODO: force the elevator to move down until the home switch is trigger at a slower speed for safety
-        homeControl.withOutput(-0.5);
+        //Force the elevator to move down until the home switch is trigger at a slower speed for safety
+        homeControl.withOutput(-0.2);
         homing = true;
         leader.setControl(homeControl);
     }
@@ -209,8 +208,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
         elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorPositionStatus.getValueAsDouble() - state.height.magnitude()) < 10);
         wristAtPosition = wristDebouncer.calculate(Math.abs(wristAngleStatus.getValueAsDouble() - state.angle.magnitude()) < 5);
+        elevatorStalled = currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble()) > 20;
 
-        homingExecute();
+        homingPeriodic();
 
         SmartDashboard.putString("Elevator State", state.toString());
 //        SmartDashboard.putString("Prev Elevator State", prevState.toString());
@@ -230,9 +230,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         if (elevatorAtPosition && wristAtPosition) prevState = state;
     }
 
-    private void homingExecute() {
-        if (getHomeCANcoder() ||
-            currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble()) < 20) {
+    private void homingPeriodic() {
+        if (getHomeCANcoder() || elevatorStalled) {
             homing = false;
             homedOnce = true;
             leader.setPosition(0);
