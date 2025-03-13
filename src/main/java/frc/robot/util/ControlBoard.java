@@ -11,15 +11,23 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
+import frc.robot.commands.AssistCommand;
+import frc.robot.commands.ChuteIntakeCommand;
+import frc.robot.commands.GroundIntakeCommand;
+import frc.robot.commands.HomeCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ActionCommand.Action;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
-
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
 import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
@@ -122,6 +130,11 @@ public class ControlBoard {
         }
     }
 
+    public void displayUI(){
+        SmartDashboard.putString("Current Goal", desiredGoal.name());
+        SmartDashboard.putString("Current Level", scoreLevel.name());
+    }
+
     public static ControlBoard getInstance() {
         if (instance == null) instance = new ControlBoard();
         return instance;
@@ -200,12 +213,21 @@ public class ControlBoard {
         }).withName("Score Level Down"));
 
         // Deploy/Store Climber (CircleButton, SquareButton)
-        //TODO: who even made this bruh
-        controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
-        controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
-        // Retract/Extend Climber (LeftTrigger, RightTrigger)
-        controller.leftTrigger.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
-        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (dPadUp, dPadDown)
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+        // Elevator Go To Selected Position (RightTrigger)
+        controller.rightTrigger.onTrue(new ActionCommand(Action.PREPARE_SELECTED));
+
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        // Store/Deploy Climber (dPadLeft, dPadRight)
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (dPadUp, dPadDown)
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
     }
 
     public SwerveRequest getDriverRequest() {

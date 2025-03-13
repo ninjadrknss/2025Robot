@@ -78,6 +78,9 @@ public class ActionCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         System.out.println("ActionCommand ended: " + action);
-        // TODO: maybe request EWS home? -Alex
+        switch (action) {
+            case SCOREL1, SCOREL2, SCOREL3, SCOREL4, SCORE_BARGE -> elevatorWristSubsystem.requestHome();
+            default -> {}
+        }
     }
 }

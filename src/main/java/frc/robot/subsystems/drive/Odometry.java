@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import edu.wpi.first.math.VecBuilder;
@@ -102,7 +103,7 @@ public class Odometry extends SubsystemBase {
         private static final double FORCE_SELECTION_CONE_HALF_ANGLE = Math.toRadians(34);
 
         // "Time to approach" weight in the cost function
-        private static final double TIME_COST_WEIGHT = 0.29;
+        private static final double TIME_COST_WEIGHT = 0.29; 
 
         // Kinetic-energy penalty weight
         private static final double ENERGY_COST_WEIGHT = 0.5;
@@ -344,6 +345,8 @@ public class Odometry extends SubsystemBase {
 
         controlBoard = ControlBoard.getInstance();
 
+        SmartDashboard.putBoolean("Odometry Reset Requested", odometryResetRequested);
+
     }
 
     public static Odometry getInstance() {
@@ -384,7 +387,7 @@ public class Odometry extends SubsystemBase {
         return closest;
     }
 
-    public void addVisionMeasurement() {
+    private void addVisionMeasurement() {
         RobotState previousRobotState = getRobotState();
         PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
 //        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
@@ -450,6 +453,7 @@ public class Odometry extends SubsystemBase {
     public void resetOdometry() {
         resetGyro();
         odometryResetRequested = true;
+        SmartDashboard.putBoolean("Odometry Reset Requested", odometryResetRequested);
     }
 
     public void testResetOdo(){
@@ -484,20 +488,23 @@ public class Odometry extends SubsystemBase {
         publisher.set(getPose3d());
         //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
         //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
-
+        if (SmartDashboard.getBoolean("Odometry Reset Requested", false) != odometryResetRequested) {
+            odometryResetRequested = !odometryResetRequested;
+        }
         if (odometryResetRequested) {
             PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
             // not using photonvision yet
             //EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
             if (limelightReset && limelightPose != null) {
                 swerve.resetPose(limelightPose.pose);
+                
+                odometryResetRequested = false;
+                SmartDashboard.putBoolean("Odometry Reset Requested", odometryResetRequested);
             }
             // not using photonvision yet
             /*if (!limelightReset && photonVisionPose != null) {
                 swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
             }*/
-
-            odometryResetRequested = false;
         } else {
             addVisionMeasurement();
         }
