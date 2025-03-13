@@ -47,7 +47,7 @@ public class IntakeConstants {
     static {
         distanceSensorConfig.withName("Algae Distance Sensor")
                 .withCanID(52)
-                .withBus(Robot.riobus);
+                .withBus(Robot.elevatorbus);
 
         CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();
 

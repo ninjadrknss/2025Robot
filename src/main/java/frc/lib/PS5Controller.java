@@ -22,7 +22,7 @@ public class PS5Controller {
     public final JoystickButton leftTrigger;
     public final JoystickButton rightTrigger;
 
-    /* Trigger Buttons */
+    /* Joystick Buttons */
     public final JoystickButton leftJoystickButton;
     public final JoystickButton rightJoystickButton;
 
@@ -72,6 +72,6 @@ public class PS5Controller {
         dDown = new Trigger(() -> joystick.getPOV() == 180.0);
         dLeft = new Trigger(() -> joystick.getPOV() == 270.0);
 
-        touchpadButton = new JoystickButton(joystick, 14);
+        touchpadButton = new JoystickButton(joystick, Button.kTouchpad.value);
     }
 }

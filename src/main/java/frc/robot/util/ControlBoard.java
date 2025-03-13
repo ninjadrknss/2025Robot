@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -116,7 +117,7 @@ public class ControlBoard {
 
         if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
             operator = new PS5Controller(ControllerPreset.OPERATOR.port());
-            configureBindings(ControllerPreset.OPERATOR, operator);
+            // configureBindings(ControllerPreset.OPERATOR, operator);
             System.out.println("Operator Initialized");
         }
     }
@@ -145,15 +146,15 @@ public class ControlBoard {
         //            .ignoringDisable(true)
         //        );
 
-        // Precise Control
-        controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
+        // // Precise Control
+        // controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
-        // Driver Assist
-        controller.rightBumper.whileTrue(new AssistCommand());
+        // // Driver Assist
+        // controller.rightBumper.whileTrue(new AssistCommand());
 
-        // Intake Subsystem
-        controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
-        controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
+        // // Intake Subsystem
+        // controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         /* Elevator SysId */
 //        controller.leftBumper.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
@@ -162,12 +163,13 @@ public class ControlBoard {
 //        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
 
         /* Wrist SysId */
-//        controller.leftBumper.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
-//        controller.leftTrigger.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
-//        controller.rightBumper.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
-//        controller.rightTrigger.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
-//        controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
-//        controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+       controller.leftBumper.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
+       controller.leftTrigger.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
+       controller.rightBumper.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
+       controller.rightTrigger.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
+
+       controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL3Score));
+       controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
 
         /* Climb SysId */
 //        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
@@ -179,8 +181,8 @@ public class ControlBoard {
           controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));*/
 
 
-//        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-//        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+       controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+       controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
 //        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 

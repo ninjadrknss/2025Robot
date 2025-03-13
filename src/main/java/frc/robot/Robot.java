@@ -64,8 +64,8 @@ public class Robot extends TimedRobot {
         FollowPathCommand.warmupCommand().schedule();
 
         // TODO: disable this for competitions
-        scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName()));
-        scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName()));
+        scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName() + "@" + command.getRequirements()));
+        scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName() + "@" + command.getRequirements()));
     }
 
     @Override
