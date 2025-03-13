@@ -159,10 +159,20 @@ public class ControlBoard {
         //        );
 
         // Precise Control
-        controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
-
+        controller.rightBumper.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
+        controller.rightBumper.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
         // Driver Assist
-        controller.rightBumper.whileTrue(new AssistCommand());
+        controller.rightTrigger.whileTrue(new AssistCommand(selectedBranch));
+
+        /* Led Testing */
+        //        LEDSubsystem led = LEDSubsystem.getInstance();
+        //        controller.circleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.MAGENTA)).ignoringDisable(true));
+        //        controller.squareButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.WHITE)).ignoringDisable(true));
+        //        controller.triangleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.BLUE)).ignoringDisable(true));
+        //        controller.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
+        //
+        //        controller.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
+        //        controller.leftBumper.onTrue(new InstantCommand(() -> led.requestToggleBlinking()).ignoringDisable(true));
 
         // Intake Subsystem
         controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
@@ -211,12 +221,21 @@ public class ControlBoard {
         }).withName("Score Level Down"));
 
         // Deploy/Store Climber (CircleButton, SquareButton)
-        //TODO: who even made this bruh
-        controller.circleButton.onTrue(new InstantCommand(climbSubsystem::requestStore));
-        controller.squareButton.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
-        // Retract/Extend Climber (LeftTrigger, RightTrigger)
-        controller.leftTrigger.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
-        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (dPadUp, dPadDown)
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+        // Elevator Go To Selected Position (RightTrigger)
+        controller.rightTrigger.onTrue(new ActionCommand(Action.PREPARE_SELECTED));
+
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        // Store/Deploy Climber (dPadLeft, dPadRight)
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (dPadUp, dPadDown)
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
     }
 
     public SwerveRequest getDriverRequest() {
