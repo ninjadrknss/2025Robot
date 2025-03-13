@@ -7,17 +7,25 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
+
+import java.util.List;
+
 import org.ironmaple.simulation.SimulatedArena;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import frc.robot.subsystems.drive.Odometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.AssistCommand;
@@ -27,6 +35,8 @@ import frc.robot.util.Constants;
 import frc.robot.util.FieldConstants;
 import frc.robot.util.ControlBoard;
 import frc.lib.TunableParameter;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 
 public class Robot extends TimedRobot {
     public static final CANBus riobus = new CANBus("rio");
@@ -40,6 +50,7 @@ public class Robot extends TimedRobot {
     private final ControlBoard controlBoard;
     private final CommandScheduler scheduler;
     private final AutonSubsystem autonSubsystem;
+    private final Field2d m_field = new Field2d();
 
     //temp here bc i dont think i can put it into swervesubsystems because of the way odometry is set up with swerve as a subsystem
     private final Odometry odometry;
@@ -50,6 +61,24 @@ public class Robot extends TimedRobot {
         autonSubsystem = AutonSubsystem.getInstance();
         SwerveSubsystem.getInstance();
         odometry = Odometry.getInstance();
+
+        SmartDashboard.putData("Field", m_field);
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            m_field.setRobotPose(pose);
+        });
+        // Logging callback for target robot pose
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+            // Do whatever you want with the pose here
+            m_field.getObject("target pose").setPose(pose);
+        });
+
+        // Logging callback for the active path, this is sent as a list of poses
+        PathPlannerLogging.setLogActivePathCallback((poses) -> {
+            // Do whatever you want with the poses here
+            m_field.getObject("path").setPoses(poses);
+        });
+
     }
 
     @Override
