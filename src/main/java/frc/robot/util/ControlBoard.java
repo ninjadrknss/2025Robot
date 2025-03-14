@@ -173,10 +173,17 @@ public class ControlBoard {
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         /* Elevator SysId */
+        controller.leftBumper.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
+        controller.leftTrigger.whileTrue(elevatorWristSubsystem.elevatorDynamicId(false));
+        controller.rightBumper.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
+        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
 //        controller.leftBumper.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
 //        controller.leftTrigger.whileTrue(elevatorWristSubsystem.elevatorDynamicId(false));
 //        controller.rightBumper.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
 //        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
+        controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestGroundIntake));
+        controller.dUp.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
 
         // controller.rightBumper.whileTrue(new RunCommand(elevatorWristSubsystem::increaseAngle));
         // controller.rightTrigger.whileTrue(new RunCommand(elevatorWristSubsystem::decreaseAngle));
@@ -188,20 +195,20 @@ public class ControlBoard {
         // controller.crossButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
 
         /* Climb SysId */
-        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
-        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
-        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
-        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+        // controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
+        // controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
+        // controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+        // controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        // controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        // controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
 
-        controller.dUp.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
-        controller.dDown.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
+        // controller.dUp.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        // controller.dDown.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
 
 
-    //    controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-    //    controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+       controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+       controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
 //        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 

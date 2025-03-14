@@ -31,7 +31,7 @@ public class ElevatorWristConstants {
         leaderConfig.Slot0.kD = 0; // Increase until jitter
         leaderConfig.Slot0.kV = 0; // Voltage required to maintain speed
         leaderConfig.Slot0.kS = 0; // Increase until just before motor starts moving
-        leaderConfig.Slot0.kG = 0; // Increase until elevator holds steady
+        leaderConfig.Slot0.kG = 7; // Increase until elevator holds steady
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
@@ -75,7 +75,7 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         CANcoderConfiguration wristConfig = wristEncoderConfig.config;
-        wristConfig.MagnetSensor.MagnetOffset = -0.5435; // in revs
+        wristConfig.MagnetSensor.MagnetOffset = -0.54345703125; // in revs
         wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         wristConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
     }
@@ -87,11 +87,11 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kP = 35;
+        wristConfig.Slot0.kP = 60;
         wristConfig.Slot0.kI = 0;
-        wristConfig.Slot0.kD = 5;
-        wristConfig.Slot0.kS = 2;
-        wristConfig.Slot0.kG = 31;
+        wristConfig.Slot0.kD = 17;
+        wristConfig.Slot0.kS = 2.75;
+        wristConfig.Slot0.kG = 43;
         wristConfig.Slot0.kV = 0;
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;

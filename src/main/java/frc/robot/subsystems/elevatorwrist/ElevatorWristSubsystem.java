@@ -37,9 +37,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         // home position -90 deg
         HOME(0, -90, LightsSubsystem.Colors.WHITE),
         CHUTE_INTAKE(0, -20, LightsSubsystem.Colors.GREEN),
-        GROUND_INTAKE(0, 0, LightsSubsystem.Colors.YELLOW),
+        GROUND_INTAKE(10, 0, LightsSubsystem.Colors.YELLOW),
         L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(0, -250, LightsSubsystem.Colors.CYAN),
+        L2_SCORE(4, -180, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
         L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
         L2_INTAKE(0, 0, LightsSubsystem.Colors.ORANGE),
@@ -165,7 +165,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        if (Utils.isSimulation()) sim = ElevatorWristSim.getInstance();
 
         // TODO: add configs for leader in ElevatorWristConstants
-        leader.setControl(leaderControl);
+        // leader.setControl(leaderControl);
 
         // TODO: add configs for follower in ElevatorWristConstants
         follower.setControl(followerControl);
@@ -193,8 +193,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         wrist.setControl(wristControl);
     }
 
-    double angle = 0;
-
     @Override
     public void periodic() {
         ElevatorState nextState = getNextState();
@@ -207,7 +205,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             // else 
             // setElevatorHeight(state.height);
             setElevatorAngle(state.angle);
-            angle = state.angle.in(Units.Revolutions);
 
 //            lightSubsystem.requestColor(state.color);
         }
@@ -229,7 +226,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Elevator Current", elevatorCurrentStatus.getValueAsDouble());
         SmartDashboard.putNumber("Elevator Setpoint", state.height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch);
         SmartDashboard.putNumber("Wrist Angle", wristAngleStatus.getValueAsDouble());
-        SmartDashboard.putNumber("Wrist Target Angle Scuffed", angle); // TODO: REVMOVE
         SmartDashboard.putNumber("Wrist Setpoint", state.angle.in(Revolutions));
 
         SmartDashboard.putBoolean("Homed Once", homedOnce);
@@ -241,21 +237,13 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         if (elevatorAtPosition && wristAtPosition) prevState = state;
     }
 
-    public void increaseAngle() {
-        angle += 0.01;
-    }
-
-    public void decreaseAngle() {
-        angle -= 0.01;
-    }
-
     private void homingPeriodic() {
-        if (getHomeCANcoder() || elevatorStalled) {
-            homing = false;
-            homedOnce = true;
-            leader.setPosition(0);
-//            System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
-        }
+//         if (getHomeCANcoder() || elevatorStalled) {
+//             homing = false;
+//             homedOnce = true;
+//             leader.setPosition(0);
+// //            System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
+//         }
     }
 
     private ElevatorState getNextState() {
