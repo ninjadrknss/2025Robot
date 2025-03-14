@@ -16,11 +16,18 @@ public class ChuteIntakeCommand extends Command {
 
     @Override
     public void initialize() {
-        elevatorWristSubsystem.requestChuteIntake();
+        // elevatorWristSubsystem.requestChuteIntake();
+        intakeSubsystem.requestIntake();
     }
 
     @Override
     public boolean isFinished() {
-        return intakeSubsystem.coralBeamBroken(); // Maybe
+        // return intakeSubsystem.coralBeamBroken(); // Maybe
+        return false;
+    }
+
+    @Override
+    public void end(boolean isInterupted) {
+        intakeSubsystem.requestIdle();
     }
 }

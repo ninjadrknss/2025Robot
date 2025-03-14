@@ -34,13 +34,13 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
-        // home position ~ 0.175 revs
-        HOME(0, 0, LightsSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 0, LightsSubsystem.Colors.GREEN),
+        // home position -90 deg
+        HOME(0, -90, LightsSubsystem.Colors.WHITE),
+        CHUTE_INTAKE(0, -20, LightsSubsystem.Colors.GREEN),
         GROUND_INTAKE(0, 0, LightsSubsystem.Colors.YELLOW),
         L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(0, 0, LightsSubsystem.Colors.CYAN),
-        L3_SCORE(20, -180, LightsSubsystem.Colors.AQUAMARINE),
+        L2_SCORE(0, -250, LightsSubsystem.Colors.CYAN),
+        L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
         L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
         L2_INTAKE(0, 0, LightsSubsystem.Colors.ORANGE),
         L3_INTAKE(0, 0, LightsSubsystem.Colors.PINK),
@@ -73,7 +73,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
 
     private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
-    private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(0);
+    private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(ElevatorState.HOME.angle);
 
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
@@ -90,7 +90,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private final StatusSignal<Angle> wristAngleStatus = wristEncoder.getPosition();
 
     /* State Machine Logic */
-    private ElevatorState prevState = ElevatorState.HOME;
+    private ElevatorState prevState = null;
     private ElevatorState state = ElevatorState.HOME;
 
     private boolean requestHome = false;
@@ -193,6 +193,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         wrist.setControl(wristControl);
     }
 
+    double angle = 0;
+
     @Override
     public void periodic() {
         ElevatorState nextState = getNextState();
@@ -203,8 +205,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
             // if (state == ElevatorState.HOME) homeElevator();
             // else 
-            setElevatorHeight(state.height);
-            // setElevatorAngle(state.angle);
+            // setElevatorHeight(state.height);
+            setElevatorAngle(state.angle);
+            angle = state.angle.in(Units.Revolutions);
 
 //            lightSubsystem.requestColor(state.color);
         }
@@ -221,14 +224,13 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
         SmartDashboard.putString("Elevator State", state.toString());
 //        SmartDashboard.putString("Prev Elevator State", prevState.toString());
-        SmartDashboard.putNumber("Elevator Setpoint", state.height.magnitude());
-        SmartDashboard.putNumber("Wrist Setpoint", state.angle.magnitude());
 
         SmartDashboard.putNumber("Elevator Height", elevatorPositionStatus.getValueAsDouble());
         SmartDashboard.putNumber("Elevator Current", elevatorCurrentStatus.getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Target Height", state.height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch);
+        SmartDashboard.putNumber("Elevator Setpoint", state.height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch);
         SmartDashboard.putNumber("Wrist Angle", wristAngleStatus.getValueAsDouble());
-        SmartDashboard.putNumber("Wrist Target Angle", state.angle.in(Revolutions));
+        SmartDashboard.putNumber("Wrist Target Angle Scuffed", angle); // TODO: REVMOVE
+        SmartDashboard.putNumber("Wrist Setpoint", state.angle.in(Revolutions));
 
         SmartDashboard.putBoolean("Homed Once", homedOnce);
         SmartDashboard.putBoolean("Elevator At Position", elevatorAtPosition);
@@ -237,6 +239,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("Both At Position", elevatorAtPosition && wristAtPosition);
 
         if (elevatorAtPosition && wristAtPosition) prevState = state;
+    }
+
+    public void increaseAngle() {
+        angle += 0.01;
+    }
+
+    public void decreaseAngle() {
+        angle -= 0.01;
     }
 
     private void homingPeriodic() {

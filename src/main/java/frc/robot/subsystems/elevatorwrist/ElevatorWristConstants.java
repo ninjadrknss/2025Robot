@@ -25,14 +25,15 @@ public class ElevatorWristConstants {
         rightElevatorMotorConfig.withName("Right Elevator Motor")
                 .withCanID(31)
                 .withBus(Robot.elevatorbus);
-        TalonFXConfiguration leaderConfig = new TalonFXConfiguration();
+        TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
         leaderConfig.Slot0.kP = 0; // Increase until elevator oscillates
         leaderConfig.Slot0.kI = 0; // Don't touch
         leaderConfig.Slot0.kD = 0; // Increase until jitter
         leaderConfig.Slot0.kV = 0; // Voltage required to maintain speed
         leaderConfig.Slot0.kS = 0; // Increase until just before motor starts moving
-        leaderConfig.Slot0.kG = 16; // Increase until elevator holds steady
+        leaderConfig.Slot0.kG = 0; // Increase until elevator holds steady
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+        leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
         leaderConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
         leaderConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
@@ -74,7 +75,7 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         CANcoderConfiguration wristConfig = wristEncoderConfig.config;
-        wristConfig.MagnetSensor.MagnetOffset = -0.291748046875 - 0.25; // in revs
+        wristConfig.MagnetSensor.MagnetOffset = -0.5435; // in revs
         wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         wristConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
     }
@@ -86,13 +87,12 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kP = 45;
+        wristConfig.Slot0.kP = 35;
         wristConfig.Slot0.kI = 0;
-        wristConfig.Slot0.kD = 10;
-        wristConfig.Slot0.kS = 0;
-        wristConfig.Slot0.kG = 36;
+        wristConfig.Slot0.kD = 5;
+        wristConfig.Slot0.kS = 2;
+        wristConfig.Slot0.kG = 31;
         wristConfig.Slot0.kV = 0;
-        // wristConfig.Slot0.kV = 0.89489;
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 

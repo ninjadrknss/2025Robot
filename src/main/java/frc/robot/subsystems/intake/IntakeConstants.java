@@ -10,9 +10,9 @@ import frc.lib.CTREConfig;
 import frc.robot.Robot;
 
 public class IntakeConstants {
-    public static final double intakeSpeed = 0.5;
-    public static final double spitSpeed = 0.5; // Negated in request
-    public static final int beamBreakPort = 2;
+    public static final double intakeSpeed = 8;
+    public static final double spitSpeed = 2; // Negated in request
+    public static final int beamBreakPort = 9;
     public static final int algaeDistanceThreshold = 0;
     public static final int stalledCurrentThreshold = 30;
 

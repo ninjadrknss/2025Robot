@@ -81,6 +81,7 @@ public class ClimbSubsystem extends SubsystemBase {
     
     public void increasePivotAngle() {
         modifyPivotAngle(ClimbConstants.changeRate);
+        System.out.println(targetPivotAngle.in(Units.Degrees));
     }
 
     public void decreasePivotAngle() {
@@ -95,12 +96,12 @@ public class ClimbSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (changes) {
+        // if (changes) {
             pivotControl.withPosition(targetPivotAngle);
             pivotMotor.setControl(pivotControl);
             flapServo.set(targetFlapAngle.in(Units.Rotations));
             changes = false;
-        }
+        // }
 
         SmartDashboard.putString("Climb/Current State", currentState.name());
     }

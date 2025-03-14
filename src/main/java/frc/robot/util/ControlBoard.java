@@ -10,9 +10,12 @@ import frc.robot.subsystems.climb.ClimbSubsystem;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.commands.ChuteIntakeCommand;
@@ -123,11 +126,11 @@ public class ControlBoard {
             System.out.println("Driver Initialized");
         }
 
-        if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
-            operator = new PS5Controller(ControllerPreset.OPERATOR.port());
-            // configureBindings(ControllerPreset.OPERATOR, operator);
-            System.out.println("Operator Initialized");
-        }
+        // if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
+        //     operator = new PS5Controller(ControllerPreset.OPERATOR.port());
+        //     // configureBindings(ControllerPreset.OPERATOR, operator);
+        //     System.out.println("Operator Initialized");
+        // }
     }
 
     public void displayUI(){
@@ -175,27 +178,30 @@ public class ControlBoard {
 //        controller.rightBumper.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
 //        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
 
-        /* Wrist SysId */
-       controller.leftBumper.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
-       controller.leftTrigger.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
-       controller.rightBumper.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
-       controller.rightTrigger.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
+        // controller.rightBumper.whileTrue(new RunCommand(elevatorWristSubsystem::increaseAngle));
+        // controller.rightTrigger.whileTrue(new RunCommand(elevatorWristSubsystem::decreaseAngle));
 
-       controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL3Score));
-       controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        // controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        // // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL3Score));
+        // controller.circleButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d())));
+        // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
+        // controller.crossButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
 
         /* Climb SysId */
-//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
-//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
-//        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
-//        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
+        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
+        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-          /*controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-          controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));*/
+        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+
+        controller.dUp.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        controller.dDown.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
 
 
-       controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-       controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+    //    controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+    //    controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
 //        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
