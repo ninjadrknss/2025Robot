@@ -54,10 +54,6 @@ public class AutonSubsystem {
         return autoChooser.selectedCommand();
     }
 
-    public boolean isRedAlliance() {
-        return DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Red);
-    }
-
     private AutoRoutine getAuton(String name) {
         AutoRoutine routine = autoFactory.newRoutine(name);
         List<Command> commandList = new ArrayList<>();

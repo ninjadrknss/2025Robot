@@ -6,6 +6,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 
 import java.util.List;
@@ -44,6 +45,8 @@ public class Robot extends TimedRobot {
     public static final CANBus drivebus = new CANBus(Constants.drivebus);
     @SuppressWarnings("deprecation")
     public static final CANBus elevatorbus = new CANBus(Constants.elevatorbus);
+
+    public static DriverStation.Alliance alliance = DriverStation.Alliance.Blue;
 
     private Command autonomousCommand;
 
@@ -95,6 +98,9 @@ public class Robot extends TimedRobot {
         // TODO: disable this for competitions
         scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName() + "@" + command.getRequirements()));
         scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName() + "@" + command.getRequirements()));
+
+        // get alliance color from FMS (defaults to Blue if unavailable)
+        alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
     }
 
     @Override
