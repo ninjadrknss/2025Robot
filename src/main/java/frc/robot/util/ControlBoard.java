@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -9,9 +10,12 @@ import frc.robot.subsystems.climb.ClimbSubsystem;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.PS5Controller;
 import frc.robot.commands.AssistCommand;
 import frc.robot.commands.ChuteIntakeCommand;
@@ -123,11 +127,11 @@ public class ControlBoard {
             System.out.println("Driver Initialized");
         }
 
-        if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
-            operator = new PS5Controller(ControllerPreset.OPERATOR.port());
-            configureBindings(ControllerPreset.OPERATOR, operator);
-            System.out.println("Operator Initialized");
-        }
+        // if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
+        //     operator = new PS5Controller(ControllerPreset.OPERATOR.port());
+        //     // configureBindings(ControllerPreset.OPERATOR, operator);
+        //     System.out.println("Operator Initialized");
+        // }
     }
 
     public void displayUI(){
@@ -165,20 +169,15 @@ public class ControlBoard {
         controller.rightBumper.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
         // Driver Assist
         controller.rightTrigger.whileTrue(new AssistCommand());
+        // // Precise Control
+        // controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
-        /* Led Testing */
-        //        LEDSubsystem led = LEDSubsystem.getInstance();
-        //        controller.circleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.MAGENTA)).ignoringDisable(true));
-        //        controller.squareButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.WHITE)).ignoringDisable(true));
-        //        controller.triangleButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.BLUE)).ignoringDisable(true));
-        //        controller.crossButton.onTrue(new InstantCommand(() -> led.requestColor(LEDSubsystem.Colors.RED)).ignoringDisable(true));
-        //
-        //        controller.leftTrigger.onTrue(new InstantCommand(() -> led.requestRainbow()).ignoringDisable(true));
-        //        controller.leftBumper.onTrue(new InstantCommand(() -> led.requestToggleBlinking()).ignoringDisable(true));
+        // // Driver Assist
+        // controller.rightBumper.whileTrue(new AssistCommand());
 
-        // Intake Subsystem
-        controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
-        controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
+        // // Intake Subsystem
+        // controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         /* Elevator SysId */
 //        controller.leftBumper.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
@@ -186,26 +185,30 @@ public class ControlBoard {
 //        controller.rightBumper.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
 //        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
 
-        /* Wrist SysId */
-//        controller.leftBumper.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
-//        controller.leftTrigger.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
-//        controller.rightBumper.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
-//        controller.rightTrigger.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
-//        controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
-//        controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        // controller.rightBumper.whileTrue(new RunCommand(elevatorWristSubsystem::increaseAngle));
+        // controller.rightTrigger.whileTrue(new RunCommand(elevatorWristSubsystem::decreaseAngle));
+
+        // controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        // // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL3Score));
+        // controller.circleButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d())));
+        // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
+        // controller.crossButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
 
         /* Climb SysId */
-//        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStore));
-//        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeploy));
-//        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
-//        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+        controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
+        controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
+        controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
+        controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-          /*controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-          controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));*/
+        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+
+        controller.dUp.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        controller.dDown.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
 
 
-//        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-//        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+    //    controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+    //    controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
 //        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 

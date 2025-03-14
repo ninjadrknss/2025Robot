@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
@@ -11,6 +12,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -19,7 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /* Motors */
     private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
-    private final VelocityTorqueCurrentFOC intakeControl = new VelocityTorqueCurrentFOC(0); // TODO: Tempted to use dutyCycle, but that will not adapt to forces as much
+    private final VoltageOut intakeControl = new VoltageOut(0); // TODO: Tempted to use dutyCycle, but that will not adapt to forces as much
 
     /* Sensors */
     private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
@@ -59,10 +61,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /**
      * Set the intake motor to a given speed
-     * @param speed in rev/s
+     * @param voltage in volts
      */
-    private void setIntakeMotor(double speed) {
-        intakeMotor.setControl(intakeControl.withVelocity(speed));
+    private void setIntakeMotor(double voltage) {
+        intakeMotor.setControl(intakeControl.withOutput(voltage));
     }
 
     @Override
@@ -77,21 +79,21 @@ public class IntakeSubsystem extends SubsystemBase {
             unsetAllRequests();
 
             switch (state) {
-                case IDLE -> setIntakeMotor(0);
+                case IDLE -> setIntakeMotor(2);
                 case INTAKING -> setIntakeMotor(IntakeConstants.intakeSpeed);
                 case SPITTING -> setIntakeMotor(-IntakeConstants.spitSpeed);
             }
 //            LightsSubsystem.getInstance().requestBlinking(state != IntakeState.IDLE);
         }
 
-        if (state == IntakeState.INTAKING && (coralBeamBroken || algaeDetected)) {
-            setIntakeMotor(0);
-            state = IntakeState.IDLE;
+        // if (state == IntakeState.INTAKING && (coralBeamBroken || algaeDetected)) {
+        //     setIntakeMotor(0);
+        //     state = IntakeState.IDLE;
 
-            System.out.println("IntakeSubsystem: Stopping intake due to: " + (coralBeamBroken ? "coral beam broken" : "algae detected"));
-        }
+        //     System.out.println("IntakeSubsystem: Stopping intake due to: " + (coralBeamBroken ? "coral beam broken" : "algae detected"));
+        // }
 
-        coralBeamBroken = coralBeamBreakDebouncer.calculate(coralBeamBreak.get());
+        coralBeamBroken = coralBeamBreakDebouncer.calculate(!coralBeamBreak.get());
         algaeDistanceSignal.refresh(); // TODO: Run all signals in signal thread?
         algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
         currentSignal.refresh();
