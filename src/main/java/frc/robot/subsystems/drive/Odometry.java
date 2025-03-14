@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -89,7 +90,7 @@ public class Odometry extends SubsystemBase {
 
     public static class TargetPredictor {
 
-        private static final boolean ALLIANCE_IS_BLUE = true;
+        private static final boolean ALLIANCE_IS_BLUE = (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue);
 
         private static GameElement lastPredictedTarget = null;
         private static double targetConfidence = 0.0;
