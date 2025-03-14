@@ -145,7 +145,7 @@ public class Robot extends TimedRobot {
         //new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
 
         if (controlBoard.operator != null) {
-            double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble() * 3;
+            double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble() * 0.5;
             controlBoard.getRawVoltageCommand(thing);
         }
     }
