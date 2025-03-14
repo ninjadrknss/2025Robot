@@ -112,7 +112,8 @@ public class ControlBoard {
     public void tryInit() {
         if (driver == null) {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
-            configureBindings(ControllerPreset.DRIVER, driver);
+            configureBindings(ControllerPreset.DRIVER, driver); // TODO: remove
+            configureBindings(ControllerPreset.OPERATOR, driver);
 
             SwerveSubsystem drive = SwerveSubsystem.getInstance();
             drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
@@ -132,6 +133,7 @@ public class ControlBoard {
     public void displayUI(){
         SmartDashboard.putString("Current Goal", desiredGoal.name());
         SmartDashboard.putString("Current Level", scoreLevel.name());
+        SmartDashboard.putString("Current Branch", selectedBranch.name());
     }
 
     public static ControlBoard getInstance() {
@@ -162,7 +164,7 @@ public class ControlBoard {
         controller.rightBumper.whileTrue(new InstantCommand(() -> preciseControl = true).withName("Enable Precise Control"));
         controller.rightBumper.onFalse(new InstantCommand(() -> preciseControl = false).withName("Disable Precise Control"));
         // Driver Assist
-        controller.rightTrigger.whileTrue(new AssistCommand(selectedBranch));
+        controller.rightTrigger.whileTrue(new AssistCommand());
 
         /* Led Testing */
         //        LEDSubsystem led = LEDSubsystem.getInstance();

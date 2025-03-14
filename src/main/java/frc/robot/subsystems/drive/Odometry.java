@@ -89,7 +89,7 @@ public class Odometry extends SubsystemBase {
 
     public static class TargetPredictor {
 
-        private static final boolean ALLIANCE_IS_BLUE = true;
+        private static final boolean ALLIANCE_IS_BLUE = false;
 
         private static GameElement lastPredictedTarget = null;
         private static double targetConfidence = 0.0;

@@ -29,25 +29,12 @@ public class AssistCommand extends Command {
         .getStructTopic("Desired Pose", Pose2d.struct)
         .publish();
 
-    public AssistCommand(Branch selectedBranch) {
-        this.selectedBranch = selectedBranch;
-        addRequirements(this.swerve);
-    }
-
     public AssistCommand() {
         addRequirements(this.swerve);
     }
     
 
-    public AssistCommand(Branch selectedBranch, boolean firstWaypoint, boolean secondWaypoint) {
-        this.selectedBranch = selectedBranch;
-        this.firstWaypoint = firstWaypoint;
-        this.secondWaypoint = secondWaypoint;
-        addRequirements(this.swerve);
-    }
-
     public AssistCommand(boolean firstWaypoint, boolean secondWaypoint) {
-        this.selectedBranch = null;
         this.firstWaypoint = firstWaypoint;
         this.secondWaypoint = secondWaypoint;
         addRequirements(this.swerve);
@@ -58,6 +45,7 @@ public class AssistCommand extends Command {
         gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
         //elementPose = gameElement.getRightBranch();
+        selectedBranch = ControlBoard.getInstance().selectedBranch;
         if (gameElement.hasBranches() && selectedBranch == null) {
             selectedBranch = closestBranch(swerve.getPose(), gameElement);
         } 
