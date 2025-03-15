@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
@@ -14,14 +16,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.PS5Controller;
-import frc.robot.commands.AssistCommand;
-import frc.robot.commands.ChuteIntakeCommand;
-import frc.robot.commands.GroundIntakeCommand;
-import frc.robot.commands.HomeCommand;
-import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.ActionCommand.Action;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.climb.ClimbSubsystem;
@@ -41,7 +39,7 @@ public class ControlBoard {
 
     /* Controllers */
     private PS5Controller driver = null;
-    private PS5Controller operator = null;
+    public PS5Controller operator = null;
 
     private enum ControllerPreset {
         DRIVER(0),
@@ -62,6 +60,7 @@ public class ControlBoard {
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+    
 
     /* State Variables */
     public GameElement desiredGoal;
@@ -219,7 +218,25 @@ public class ControlBoard {
 
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.onTrue(new ActionCommand(Action.PREPARE_SELECTED));
+
+        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+
+
+        // Store/Deploy Climber (dPadLeft, dPadRight)
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
+        // Retract/Extend Climber (dPadUp, dPadDown)
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+
     }
+
+    // In ElevatorWristSubsystem.java
+    public void getRawVoltageCommand(double input) {
+        elevatorWristSubsystem.setRawVoltage(input);
+    }
+    
+
 
     public SwerveRequest getDriverRequest() {
         if (driver == null) return null;

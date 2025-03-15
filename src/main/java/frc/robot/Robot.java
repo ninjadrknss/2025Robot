@@ -7,6 +7,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PS5Controller;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 
 import java.util.List;
@@ -142,6 +143,11 @@ public class Robot extends TimedRobot {
 
         //TODO: please dont forget about this: 
         //new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
+
+        if (controlBoard.operator != null) {
+            double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble() * 0.5;
+            controlBoard.getRawVoltageCommand(thing);
+        }
     }
 
     @Override

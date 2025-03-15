@@ -93,6 +93,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private ElevatorState prevState = null;
     private ElevatorState state = ElevatorState.HOME;
 
+    private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false);
+
+
+    private double tempElevatorGravityVoltage = 0.4;
+
     private boolean requestHome = false;
     private boolean requestChuteIntake = false;
     private boolean requestGroundIntake = false;
@@ -245,6 +250,17 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 // //            System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
 //         }
     }
+
+    public void setRawVoltage(double rawInput) {
+        // Apply a deadband to ignore small inputs
+        if (Math.abs(rawInput) < 0.05) {
+            rawInput = 0;
+        }
+        double voltageCommand = rawInput;
+        tempVoltageControl.withOutput(voltageCommand + 0.4);
+        leader.setControl(tempVoltageControl);
+    }
+    
 
     private ElevatorState getNextState() {
         ElevatorState nextState = state;
