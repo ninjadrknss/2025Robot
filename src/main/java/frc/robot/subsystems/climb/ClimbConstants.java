@@ -31,12 +31,12 @@ public class ClimbConstants {
                         .withBus(Robot.riobus);
 
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;
-        pivotConfig.Slot0.kP = 66.42;   // Increase until speed oscillates
+        pivotConfig.Slot0.kP = 35.00;   // Increase until speed oscillates
         pivotConfig.Slot0.kI = 0;       // Don't touch
-        pivotConfig.Slot0.kD = 10.0;  // Increase until jitter
-        pivotConfig.Slot0.kS = 2.1641;  // Increase until just before motor starts moving
-        pivotConfig.Slot0.kA = 4.7556;  //
-        pivotConfig.Slot0.kV = 1.5943;  //
+        pivotConfig.Slot0.kD = 5.0;  // Increase until jitter
+        pivotConfig.Slot0.kS = 0;  // Increase until just before motor starts moving
+        pivotConfig.Slot0.kA = 0;  //
+        pivotConfig.Slot0.kV = 0;  //
         pivotConfig.Slot0.kG = 0.95644; // Increase until arm moved
         pivotConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
@@ -45,7 +45,7 @@ public class ClimbConstants {
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
         pivotConfig.Feedback.SensorToMechanismRatio = 1;
-        pivotConfig.Feedback.RotorToSensorRatio = 125;
+        pivotConfig.Feedback.RotorToSensorRatio = 625;
 
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
         pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -59,11 +59,11 @@ public class ClimbConstants {
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Units.Degrees.of(15);
+    public static final Angle changeRate = Units.Degrees.of(10);
     public static final Angle flapStoreAngle = Units.Degrees.of(90);
-    public static final Angle flapDeployAngle = Units.Degrees.of(270);
+    public static final Angle flapDeployAngle = Units.Degrees.of(360);
 
-    public static final Angle pivotStoreAngle = Units.Degrees.of(-10);
+    public static final Angle pivotStoreAngle = Units.Degrees.of(0);
     public static final Angle pivotDeployAngle = Units.Degrees.of(145);
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);

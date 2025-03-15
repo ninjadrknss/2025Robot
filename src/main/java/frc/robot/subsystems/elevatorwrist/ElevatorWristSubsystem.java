@@ -31,7 +31,7 @@ import frc.robot.subsystems.lights.LightsSubsystem;
 public class ElevatorWristSubsystem extends SubsystemBase {
     private static ElevatorWristSubsystem instance;
 
-    enum ElevatorState { // TODO: ? add algae L2 and L3 Intake States
+    enum ElevatorState {
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
         // home position -90 deg
@@ -39,7 +39,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         CHUTE_INTAKE(0, -20, LightsSubsystem.Colors.GREEN),
         GROUND_INTAKE(10, 0, LightsSubsystem.Colors.YELLOW),
         L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(4, -180, LightsSubsystem.Colors.CYAN),
+        L2_SCORE(4, -235, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
         L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
         L2_INTAKE(0, 0, LightsSubsystem.Colors.ORANGE),

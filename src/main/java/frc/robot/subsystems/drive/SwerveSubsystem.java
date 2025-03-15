@@ -211,8 +211,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     }
 
     public Pose2d getPose() {
-        //return new Pose2d();
-        return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
+        return getState().Pose;
+        //return simDrivetrain == null ? getState().Pose : simDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
     public ChassisSpeeds getChassisSpeeds(){

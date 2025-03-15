@@ -393,7 +393,7 @@ public class Odometry extends SubsystemBase {
         PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
 //        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
 
-        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+        if (limelightPose != null ){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
             swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
         }
@@ -492,8 +492,9 @@ public class Odometry extends SubsystemBase {
         if (SmartDashboard.getBoolean("Odometry Reset Requested", false) != odometryResetRequested) {
             odometryResetRequested = !odometryResetRequested;
         }
+
+        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
         if (odometryResetRequested) {
-            PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
             // not using photonvision yet
             //EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
             if (limelightReset && limelightPose != null) {
@@ -507,7 +508,10 @@ public class Odometry extends SubsystemBase {
                 swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
             }*/
         } else {
-            addVisionMeasurement();
+            if (limelightPose != null ){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+                swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
+            }
         }
 
         double currentTime = Timer.getFPGATimestamp();

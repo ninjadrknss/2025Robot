@@ -117,7 +117,7 @@ public class ControlBoard {
         if (driver == null) {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
             configureBindings(ControllerPreset.DRIVER, driver); // TODO: remove
-            configureBindings(ControllerPreset.OPERATOR, driver);
+            //configureBindings(ControllerPreset.OPERATOR, driver);
 
             SwerveSubsystem drive = SwerveSubsystem.getInstance();
             drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
@@ -190,6 +190,8 @@ public class ControlBoard {
 
         controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
 
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
