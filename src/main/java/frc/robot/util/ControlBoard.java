@@ -126,11 +126,11 @@ public class ControlBoard {
             System.out.println("Driver Initialized");
         }
 
-        // if (DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) && operator == null) {
-        //     operator = new PS5Controller(ControllerPreset.OPERATOR.port());
-        //     // configureBindings(ControllerPreset.OPERATOR, operator);
-        //     System.out.println("Operator Initialized");
-        // }
+        if (/*DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) &&*/ operator == null) {
+            operator = new PS5Controller(ControllerPreset.OPERATOR.port());
+            // configureBindings(ControllerPreset.OPERATOR, operator);
+            System.out.println("Operator Initialized");
+        }
     }
 
     public void displayUI(){
@@ -187,7 +187,8 @@ public class ControlBoard {
         // controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
         // controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-        controller.squareButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d())));
+        controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
         controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));

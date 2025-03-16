@@ -252,12 +252,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     public void setRawVoltage(double rawInput) {
-        // Apply a deadband to ignore small inputs
-        if (Math.abs(rawInput) < 0.05) {
-            rawInput = 0;
-        }
-        double voltageCommand = rawInput;
-        tempVoltageControl.withOutput(voltageCommand + 0.4);
+        tempVoltageControl.withOutput(rawInput * 1.25 + 0.38);
+        //System.out.println("lets goo" + rawInput + 0.38);
         leader.setControl(tempVoltageControl);
     }
     

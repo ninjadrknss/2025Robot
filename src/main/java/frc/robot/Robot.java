@@ -6,6 +6,8 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PS5Controller;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
@@ -23,6 +25,7 @@ import frc.robot.subsystems.drive.Odometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.net.PortForwarder;
@@ -30,6 +33,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.auton.AutonSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -123,16 +127,21 @@ public class Robot extends TimedRobot {
     public void disabledExit() {
         // ElevatorWristSubsystem.getInstance().setBrakeMode();
     }
+    SwerveRequest swerveRequest = new SwerveRequest.FieldCentric().withVelocityX(2).withVelocityY(0);
 
     @Override
     public void autonomousInit() {
-        autonomousCommand = autonSubsystem.getSelectedAuton();
+        // autonomousCommand = autonSubsystem.getSelectedAuton();
+        autonomousCommand = Commands.sequence(
+        Commands.runOnce(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())),
+        SwerveSubsystem.getInstance().applyRequest(() -> swerveRequest));
 
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
 
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+    }
 
     @Override
     public void autonomousExit() {}
@@ -143,16 +152,17 @@ public class Robot extends TimedRobot {
 
         //TODO: please dont forget about this: 
         //new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
-
-        if (controlBoard.operator != null) {
-            double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble() * 0.5;
-            controlBoard.getRawVoltageCommand(thing);
-        }
     }
 
     @Override
     public void teleopPeriodic() {
         controlBoard.displayUI();
+
+        
+        if (controlBoard.operator != null) {
+            double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble();
+            controlBoard.getRawVoltageCommand(thing);
+        }
     }
 
     @Override

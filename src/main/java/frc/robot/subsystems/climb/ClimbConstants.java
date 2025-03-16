@@ -20,7 +20,7 @@ public class ClimbConstants {
                 .withCanID(60)
                 .withBus(Robot.riobus);
         CANcoderConfiguration encoderConfig = pivotEncoderConfig.config;
-        encoderConfig.MagnetSensor.MagnetOffset = 0.230712890625;
+        encoderConfig.MagnetSensor.MagnetOffset = 0.32763671875;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     }
 
@@ -31,9 +31,9 @@ public class ClimbConstants {
                         .withBus(Robot.riobus);
 
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;
-        pivotConfig.Slot0.kP = 35.00;   // Increase until speed oscillates
+        pivotConfig.Slot0.kP = 18.00;   // Increase until speed oscillates
         pivotConfig.Slot0.kI = 0;       // Don't touch
-        pivotConfig.Slot0.kD = 5.0;  // Increase until jitter
+        pivotConfig.Slot0.kD = 3.0;  // Increase until jitter
         pivotConfig.Slot0.kS = 0;  // Increase until just before motor starts moving
         pivotConfig.Slot0.kA = 0;  //
         pivotConfig.Slot0.kV = 0;  //
@@ -45,7 +45,7 @@ public class ClimbConstants {
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
         pivotConfig.Feedback.SensorToMechanismRatio = 1;
-        pivotConfig.Feedback.RotorToSensorRatio = 625;
+        pivotConfig.Feedback.RotorToSensorRatio = 125;
 
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
         pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
