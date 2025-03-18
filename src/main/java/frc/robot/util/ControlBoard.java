@@ -187,7 +187,7 @@ public class ControlBoard {
         // controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
         // controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
 
-        controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d())));
+        controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
         controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
@@ -236,7 +236,9 @@ public class ControlBoard {
     public void getRawVoltageCommand(double input) {
         elevatorWristSubsystem.setRawVoltage(input);
     }
-    
+    public void getRawVoltageCommand2(double input) {
+        climbSubsystem.setRawVoltage(input);
+    }
 
 
     public SwerveRequest getDriverRequest() {

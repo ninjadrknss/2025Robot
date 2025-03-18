@@ -127,7 +127,7 @@ public class Robot extends TimedRobot {
     public void disabledExit() {
         // ElevatorWristSubsystem.getInstance().setBrakeMode();
     }
-    SwerveRequest swerveRequest = new SwerveRequest.FieldCentric().withVelocityX(2).withVelocityY(0);
+    SwerveRequest swerveRequest = new SwerveRequest.FieldCentric().withVelocityX(-2).withVelocityY(0);
 
     @Override
     public void autonomousInit() {
@@ -162,6 +162,9 @@ public class Robot extends TimedRobot {
         if (controlBoard.operator != null) {
             double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble();
             controlBoard.getRawVoltageCommand(thing);
+
+            double thing2 = controlBoard.operator.leftVerticalJoystick.getAsDouble();
+            controlBoard.getRawVoltageCommand2(thing2);
         }
     }
 

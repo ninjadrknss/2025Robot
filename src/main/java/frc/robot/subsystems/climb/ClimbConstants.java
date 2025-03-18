@@ -56,6 +56,11 @@ public class ClimbConstants {
         pivotConfig.CurrentLimits.SupplyCurrentLimit = 100;
         pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 2.5;
         pivotConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
+
+        // pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 200/360;
+        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10/360;
     }
 
     /** All in Degrees */
@@ -63,7 +68,7 @@ public class ClimbConstants {
     public static final Angle flapStoreAngle = Units.Degrees.of(90);
     public static final Angle flapDeployAngle = Units.Degrees.of(360);
 
-    public static final Angle pivotStoreAngle = Units.Degrees.of(0);
+    public static final Angle pivotStoreAngle = Units.Degrees.of(10);
     public static final Angle pivotDeployAngle = Units.Degrees.of(145);
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);

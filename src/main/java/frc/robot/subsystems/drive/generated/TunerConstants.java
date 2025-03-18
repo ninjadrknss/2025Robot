@@ -141,7 +141,7 @@ public class TunerConstants {
     private static final int kFrontRightDriveMotorId = 19;
     private static final int kFrontRightSteerMotorId = 17;
     private static final int kFrontRightEncoderId = 18;
-    private static final Angle kFrontRightEncoderOffset = Units.Rotations.of(-0.026123046875);
+    private static final Angle kFrontRightEncoderOffset = Units.Rotations.of(0.2353515625);
     private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = false;
 

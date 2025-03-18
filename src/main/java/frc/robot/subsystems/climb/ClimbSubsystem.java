@@ -4,6 +4,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -20,6 +21,8 @@ public class ClimbSubsystem extends SubsystemBase {
             .withSlot(0);
     private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
     private final Servo flapServo = new Servo(ClimbConstants.servoPort);
+
+    private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false);
 
     // Define the states of the climber.
     public enum ClimbState {
@@ -49,12 +52,14 @@ public class ClimbSubsystem extends SubsystemBase {
         targetPivotAngle = ClimbConstants.pivotStoreAngle;
         currentState = ClimbState.STORE;
         changes = true;
+        feedforward = 0;
     }
 
     public void requestDeployPivot() {
         targetPivotAngle = ClimbConstants.pivotDeployAngle;
         currentState = ClimbState.DEPLOY;
         changes = true;
+        feedforward = 0;
     }
 
     public void requestStore(){
@@ -78,14 +83,24 @@ public class ClimbSubsystem extends SubsystemBase {
         requestDeployPivot();
         requestDeployFlap();
     }
+
+    public void setRawVoltage(double rawInput) {
+        tempVoltageControl.withOutput(rawInput * 12);
+        System.out.println("i hate everything" + rawInput);
+        pivotMotor.setControl(tempVoltageControl);
+    }
     
     public void increasePivotAngle() {
-        modifyPivotAngle(ClimbConstants.changeRate);
-        System.out.println(targetPivotAngle.in(Units.Degrees));
+        // modifyPivotAngle(ClimbConstants.changeRate);
+        // System.out.println(targetPivotAngle.in(Units.Degrees));
+        feedforward += 0.2;
+        System.out.println(feedforward);
     }
 
     public void decreasePivotAngle() {
-        modifyPivotAngle(ClimbConstants.changeRate.unaryMinus());
+        // modifyPivotAngle(ClimbConstants.changeRate.unaryMinus());
+        feedforward -= 0.2;
+        System.out.println(feedforward);
     }
 
     public void modifyPivotAngle(Angle delta) {
@@ -94,11 +109,13 @@ public class ClimbSubsystem extends SubsystemBase {
         changes = true;
     }
 
+    double feedforward = 0;
+
     @Override
     public void periodic() {
         // if (changes) {
-            pivotControl.withPosition(targetPivotAngle);
-            pivotMotor.setControl(pivotControl);
+            pivotControl.withPosition(targetPivotAngle).withFeedForward(feedforward);
+            // pivotMotor.setControl(pivotControl);
             flapServo.set(targetFlapAngle.in(Units.Rotations));
             changes = false;
         // }

@@ -252,7 +252,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     public void setRawVoltage(double rawInput) {
-        tempVoltageControl.withOutput(rawInput * 1.25 + 0.38);
+        tempVoltageControl.withOutput(rawInput * 2.5 + 0.38);
         //System.out.println("lets goo" + rawInput + 0.38);
         leader.setControl(tempVoltageControl);
     }

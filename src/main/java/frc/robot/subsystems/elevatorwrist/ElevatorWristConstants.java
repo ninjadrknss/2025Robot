@@ -90,7 +90,7 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.kP = 60;
         wristConfig.Slot0.kI = 0;
         wristConfig.Slot0.kD = 17;
-        wristConfig.Slot0.kS = 2.75;
+        wristConfig.Slot0.kS = 2.0;
         wristConfig.Slot0.kG = 43;
         wristConfig.Slot0.kV = 0;
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
