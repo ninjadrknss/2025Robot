@@ -101,8 +101,11 @@ public class Robot extends TimedRobot {
         FollowPathCommand.warmupCommand().schedule();
 
         // TODO: disable this for competitions
-        scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName() + "@" + command.getRequirements()));
-        scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName() + "@" + command.getRequirements()));
+        scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName() + "@" + command.getSubsystem() + " w/" + command.getRequirements()));
+        scheduler.onCommandFinish(command -> System.out.println("Finishing command: " + command.getName() + "@" + command.getSubsystem() + " w/" + command.getRequirements()));
+
+        SignalLogger.setPath("/media/sda1/");
+        // SignalLogger.start();
 
         // get alliance color from FMS (defaults to Blue if unavailable)
     }
@@ -118,6 +121,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         // ElevatorWristSubsystem.getInstance().setCoastMode();
+        SignalLogger.stop();
     }
 
     @Override

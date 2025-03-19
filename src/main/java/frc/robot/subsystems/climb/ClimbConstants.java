@@ -45,7 +45,7 @@ public class ClimbConstants {
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
         pivotConfig.Feedback.SensorToMechanismRatio = 1;
-        pivotConfig.Feedback.RotorToSensorRatio = 125;
+        pivotConfig.Feedback.RotorToSensorRatio = 100;
 
         pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
         pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

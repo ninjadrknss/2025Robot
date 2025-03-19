@@ -6,6 +6,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
@@ -57,6 +58,7 @@ public class ControlBoard {
     }
 
     /* Subsystems */
+    private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
@@ -86,7 +88,7 @@ public class ControlBoard {
     private final ActionCommand BargeScoreCommand;
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
-            .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 10% deadband
+            .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 5% deadband
             .withRotationalDeadband(SwerveConstants.maxAngularSpeed * 0.1) // Add a 10% deadband
             .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
             .withSteerRequestType(SwerveModule.SteerRequestType.Position)
@@ -160,48 +162,27 @@ public class ControlBoard {
         // controller.rightBumper.whileTrue(new AssistCommand());
 
         // // Intake Subsystem
-        controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
-        controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
-
-        /* Elevator SysId */
-//        controller.leftBumper.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
-//        controller.leftTrigger.whileTrue(elevatorWristSubsystem.elevatorDynamicId(false));
-//        controller.rightBumper.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
-//        controller.rightTrigger.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
-        // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
-        // controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestGroundIntake));
-        // controller.dUp.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
-
-        // controller.rightBumper.whileTrue(new RunCommand(elevatorWristSubsystem::increaseAngle));
-        // controller.rightTrigger.whileTrue(new RunCommand(elevatorWristSubsystem::decreaseAngle));
-
-        // controller.squareButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
-        // // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL3Score));
-        // controller.circleButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(new Rotation2d())));
-        // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
-        // controller.crossButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestChuteIntake));
-
-        /* Climb SysId */
-        // controller.rightTrigger.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
-        // controller.rightBumper.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
-        // controller.leftBumper.whileTrue(new RunCommand(climbSubsystem::increasePivotAngle));
-        // controller.leftTrigger.whileTrue(new RunCommand(climbSubsystem::decreasePivotAngle));
+        // controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
-        controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
+        // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
+        // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
 
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
         controller.dRight.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
         controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
 
+        // controller.dUp.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
+        // controller.dRight.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
+        // controller.dDown.whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
+        // controller.dLeft.whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
 
     //    controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
     //    controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
-//        controller.squareButton.onTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetPose(new Pose2d(3, 3, new Rotation2d(0)))).withName("Reset Pose"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
@@ -229,7 +210,6 @@ public class ControlBoard {
         // Retract/Extend Climber (dPadUp, dPadDown)
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
-
     }
 
     // In ElevatorWristSubsystem.java

@@ -66,14 +66,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     /* Motors and Controls */
     private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
-    private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
+    // private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
     private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(false);
 
     private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
 
     private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
-    private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(ElevatorState.HOME.angle);
+    // private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(ElevatorState.HOME.angle);
 
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
@@ -176,7 +176,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         follower.setControl(followerControl);
 
         // TODO: add configs for wrist in ElevatorWristConstants
-        wrist.setControl(wristControl);
+        // wrist.setControl(wristControl);
 
         leader.setPosition(0);
     }
@@ -189,13 +189,13 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     private void setElevatorHeight(Distance height) {
-        leaderControl.withPosition(Units.Revolutions.of(height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch));
-        if (!homing) leader.setControl(leaderControl);
+        // leaderControl.withPosition(Units.Revolutions.of(height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch));
+        // if (!homing) leader.setControl(leaderControl);
     }
 
     private void setElevatorAngle(Angle angle) {
-        wristControl.withPosition(angle.in(Revolutions));
-        wrist.setControl(wristControl);
+        // wristControl.withPosition(angle.in(Revolutions));
+        // wrist.setControl(wristControl);
     }
 
     @Override

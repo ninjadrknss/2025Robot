@@ -114,11 +114,11 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private final PIDController m_pathThetaController = new PIDController(30, 0.0, 0.0);
 
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
-            .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+            .withSteerRequestType(SwerveModule.SteerRequestType.Position)
             .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
     /* The SysId routine to test */
-    private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
     
     private static SwerveSubsystem instance = null;
 
@@ -147,7 +147,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
 
-        if (Utils.isSimulation()) startSimThread();
+        // if (Utils.isSimulation()) startSimThread();
 
         System.out.println("Swerve Starting!");
     }
@@ -252,32 +252,32 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     @Override
     public void resetPose(Pose2d pose) {
-        if (simDrivetrain != null) {
-            simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-            Timer.delay(0.05); // Wait for simulation to update
-        }
+        // if (simDrivetrain != null) {
+        //     simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+        //     Timer.delay(0.05); // Wait for simulation to update
+        // }
         super.resetPose(pose);
     }
     
     private void startSimThread() {
-        simDrivetrain = new MapleSimSwerveDrivetrain(
-            Units.Seconds.of(kSimLoopPeriod),
-            Units.Pounds.of(110),
-            Units.Inches.of(30),
-            Units.Inches.of(30),
-            DCMotor.getKrakenX60Foc(1),
-            DCMotor.getKrakenX60Foc(1),
-            1.2,
-            getModuleLocations(),
-            getPigeon2(),
-            getModules(),
-            TunerConstants.FrontLeft,
-            TunerConstants.FrontRight,
-            TunerConstants.BackLeft,
-            TunerConstants.BackRight
-        );
+        // simDrivetrain = new MapleSimSwerveDrivetrain(
+        //     Units.Seconds.of(kSimLoopPeriod),
+        //     Units.Pounds.of(110),
+        //     Units.Inches.of(30),
+        //     Units.Inches.of(30),
+        //     DCMotor.getKrakenX60Foc(1),
+        //     DCMotor.getKrakenX60Foc(1),
+        //     1.2,
+        //     getModuleLocations(),
+        //     getPigeon2(),
+        //     getModules(),
+        //     TunerConstants.FrontLeft,
+        //     TunerConstants.FrontRight,
+        //     TunerConstants.BackLeft,
+        //     TunerConstants.BackRight
+        // );
 
-        m_simNotifier = new Notifier(simDrivetrain::update);
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
+        // m_simNotifier = new Notifier(simDrivetrain::update);
+        // m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 }

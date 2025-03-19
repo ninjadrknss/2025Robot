@@ -4,6 +4,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.units.Units;
@@ -22,7 +23,7 @@ public class ClimbSubsystem extends SubsystemBase {
     private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
     private final Servo flapServo = new Servo(ClimbConstants.servoPort);
 
-    private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false);
+    private final TorqueCurrentFOC tempCurrentControl = new TorqueCurrentFOC(0);
 
     // Define the states of the climber.
     public enum ClimbState {
@@ -85,9 +86,9 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     public void setRawVoltage(double rawInput) {
-        tempVoltageControl.withOutput(rawInput * 12);
+        tempCurrentControl.withOutput(Math.copySign(rawInput * rawInput, rawInput) * 60);
         System.out.println("i hate everything" + rawInput);
-        pivotMotor.setControl(tempVoltageControl);
+        pivotMotor.setControl(tempCurrentControl);
     }
     
     public void increasePivotAngle() {
