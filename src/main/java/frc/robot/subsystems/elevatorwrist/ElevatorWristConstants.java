@@ -26,17 +26,21 @@ public class ElevatorWristConstants {
                 .withCanID(31)
                 .withBus(Robot.elevatorbus);
         TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
+        leaderConfig.Slot0.kG = 7; // Increase until elevator holds steady
+        leaderConfig.Slot0.kS = 0; // Increase until just before motor starts moving
+        leaderConfig.Slot0.kV = 0; // Voltage required to maintain speed
         leaderConfig.Slot0.kP = 0; // Increase until elevator oscillates
         leaderConfig.Slot0.kI = 0; // Don't touch
-        leaderConfig.Slot0.kD = 0; // Increase until jitter
-        leaderConfig.Slot0.kV = 0; // Voltage required to maintain speed
-        leaderConfig.Slot0.kS = 0; // Increase until just before motor starts moving
-        leaderConfig.Slot0.kG = 7; // Increase until elevator holds steady
+        leaderConfig.Slot0.kD = 0; // Don't touch
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-        leaderConfig.Feedback.RotorToSensorRatio = 1; // TODO: CHANGE
-        leaderConfig.Feedback.SensorToMechanismRatio = 1; // TODO: CHANGE
+        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 0; // TODO: Tune
+        leaderConfig.MotionMagic.MotionMagicAcceleration = 400; // TODO: Tune
+        leaderConfig.MotionMagic.MotionMagicJerk = 4000; // TODO: Tune
+
+        leaderConfig.Feedback.RotorToSensorRatio = 1;
+        leaderConfig.Feedback.SensorToMechanismRatio = 1;
 
         // leaderConfig.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.RemoteCANcoder;
         // leaderConfig.HardwareLimitSwitch.ReverseLimitRemoteSensorID = ElevatorWristConstants.homeHallEffect.canID;
@@ -49,10 +53,6 @@ public class ElevatorWristConstants {
 
         leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
         leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
-
-        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 0; // Unlimited
-        leaderConfig.MotionMagic.MotionMagicAcceleration = 400; // TODO: Tune
-        leaderConfig.MotionMagic.MotionMagicJerk = 4000; // TODO: Tune
 
         leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -87,19 +87,23 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kP = 60;
-        wristConfig.Slot0.kI = 0;
-        wristConfig.Slot0.kD = 17;
-        wristConfig.Slot0.kS = 2.0;
-        wristConfig.Slot0.kG = 43;
-        wristConfig.Slot0.kV = 0;
+        wristConfig.Slot0.kG = 43; // Increase until wrist holds steady
+        wristConfig.Slot0.kS = 2.0; // Increase to overcome static friction
+        wristConfig.Slot0.kV = 0; // Voltage required to maintain speed
+        wristConfig.Slot0.kP = 60; // Increase until wrist oscillates
+        wristConfig.Slot0.kI = 0; // Don't touch
+        wristConfig.Slot0.kD = 17; // Increase to reduce overshoot but prob dont touch
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+
+        wristConfig.MotionMagic.MotionMagicCruiseVelocity = 4000; // TODO: Tune
+        wristConfig.MotionMagic.MotionMagicAcceleration = 4000; // TODO: Tune
+        wristConfig.MotionMagic.MotionMagicJerk = 4000; // TODO: Tune
 
         wristConfig.Feedback.RotorToSensorRatio = 10;
         wristConfig.Feedback.SensorToMechanismRatio = 1;
         wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristEncoderConfig.canID;
-        wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         wristConfig.Feedback.FeedbackRotorOffset = 0;
 
         wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
@@ -107,7 +111,7 @@ public class ElevatorWristConstants {
         wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0; // TODO: Change
 
-        wristConfig.CurrentLimits.StatorCurrentLimit = 60; // TODO: Change
+        wristConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
         wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;

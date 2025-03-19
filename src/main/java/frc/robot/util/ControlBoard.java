@@ -149,15 +149,14 @@ public class ControlBoard {
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
-        controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
-        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
-        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
+        controller.dUp.onTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
+        controller.dDown.onTrue(new InstantCommand(climbSubsystem::requestStorePivot));
+        controller.touchpadButton.onTrue(new InstantCommand(climbSubsystem::requestClimbPivot));
+        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
 
         // controller.dUp.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
         // controller.dRight.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));

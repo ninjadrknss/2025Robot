@@ -31,23 +31,25 @@ public class ClimbConstants {
                         .withBus(Robot.riobus);
 
         TalonFXConfiguration pivotConfig = pivotMotorConfig.config;
+        pivotConfig.Slot0.kG = 0.95644; // Increase until arm moved
+        pivotConfig.Slot0.kS = 0;  // Increase until just before motor starts moving
+        pivotConfig.Slot0.kV = 0;  //
         pivotConfig.Slot0.kP = 18.00;   // Increase until speed oscillates
         pivotConfig.Slot0.kI = 0;       // Don't touch
         pivotConfig.Slot0.kD = 3.0;  // Increase until jitter
-        pivotConfig.Slot0.kS = 0;  // Increase until just before motor starts moving
-        pivotConfig.Slot0.kA = 0;  //
-        pivotConfig.Slot0.kV = 0;  //
-        pivotConfig.Slot0.kG = 0.95644; // Increase until arm moved
-        pivotConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-
+        pivotConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
         pivotConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+
+        pivotConfig.MotionMagic.MotionMagicCruiseVelocity = 0; // TODO: Tune
+        pivotConfig.MotionMagic.MotionMagicAcceleration = 400; // TODO: Tune
+        pivotConfig.MotionMagic.MotionMagicJerk = 4000; // TODO: Tune
 
         pivotConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         pivotConfig.Feedback.FeedbackRemoteSensorID = pivotEncoderConfig.canID;
         pivotConfig.Feedback.SensorToMechanismRatio = 1;
         pivotConfig.Feedback.RotorToSensorRatio = 100;
 
-        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake; // TODO: make sure spencer adds a easy way to disconnect power
+        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -57,19 +59,19 @@ public class ClimbConstants {
         pivotConfig.CurrentLimits.SupplyCurrentLowerTime = 2.5;
         pivotConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
 
-        // pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 200/360;
-        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10/360;
+        pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false; // TODO: Change
+        pivotConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 200.0/360;
+        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false; // TODO: Change
+        pivotConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 10.0/360;
     }
 
     /** All in Degrees */
-    public static final Angle changeRate = Units.Degrees.of(10);
     public static final Angle flapStoreAngle = Units.Degrees.of(90);
     public static final Angle flapDeployAngle = Units.Degrees.of(360);
 
     public static final Angle pivotStoreAngle = Units.Degrees.of(10);
     public static final Angle pivotDeployAngle = Units.Degrees.of(145);
+    public static final Angle pivotClimbAngle = Units.Degrees.of(30);
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);
 }

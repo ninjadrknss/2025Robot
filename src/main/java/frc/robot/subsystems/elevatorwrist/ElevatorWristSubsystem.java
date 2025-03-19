@@ -5,6 +5,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
 
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -66,7 +67,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     /* Motors and Controls */
     private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
-    // private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
+//    private final MotionMagicTorqueCurrentFOC leaderControl = new MotionMagicTorqueCurrentFOC(0);
     private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(false);
     private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
@@ -75,7 +76,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
     private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
-    // private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(ElevatorState.HOME.angle);
+//    private final MotionMagicTorqueCurrentFOC wristControl = new MotionMagicTorqueCurrentFOC(ElevatorState.HOME.angle);
     private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
     private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
