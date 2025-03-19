@@ -14,13 +14,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.lib.PS5Controller;
-import frc.robot.commands.ActionCommand.Action;
 
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
+
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
 import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
@@ -67,11 +67,7 @@ public class ControlBoard {
     /* Commands */
     private final IdleCommand idleCommand;
     private final ScoreCommand scoreCommand;
-    private final ChuteIntakeCommand chuteIntakeCommand;
-//    private final ActionCommand L1ScoreCommand;
-    private final ActionCommand L2ScoreCommand;
-    private final ActionCommand L3ScoreCommand;
-//    private final ActionCommand L4ScoreCommand;
+    private final IntakeCommand intakeCommand;
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 5% deadband
@@ -89,12 +85,8 @@ public class ControlBoard {
         preciseControl = false;
 
         idleCommand = new IdleCommand();
-        chuteIntakeCommand = new ChuteIntakeCommand();
+        intakeCommand = new IntakeCommand();
         scoreCommand = new ScoreCommand();
-//        L1ScoreCommand = new ActionCommand(Action.SCOREL1);
-        L2ScoreCommand = new ActionCommand(Action.SCOREL2);
-        L3ScoreCommand = new ActionCommand(Action.SCOREL3);
-//        L4ScoreCommand = new ActionCommand(Action.SCOREL4);
         tryInit();
     }
 
@@ -119,9 +111,10 @@ public class ControlBoard {
     }
 
     public void displayUI(){
-        SmartDashboard.putString("Current Goal", desiredGoal.name());
-        SmartDashboard.putString("Current Level", scoreLevel.name());
-        SmartDashboard.putString("Current Branch", selectedBranch.name());
+        SmartDashboard.putBoolean("ControlBoard/preciseControl", preciseControl);
+        SmartDashboard.putString("ControlBoard/Current Goal", desiredGoal.name());
+        SmartDashboard.putString("ControlBoard/Current Level", scoreLevel.name());
+        SmartDashboard.putString("ControlBoard/Current Branch", selectedBranch.name());
     }
 
     public static ControlBoard getInstance() {
@@ -145,18 +138,18 @@ public class ControlBoard {
         // controller.rightBumper.whileTrue(new AssistCommand());
 
         // // Intake Subsystem
-        // controller.leftTrigger.whileTrue(chuteIntakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
-        controller.dUp.onTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
-        controller.dDown.onTrue(new InstantCommand(climbSubsystem::requestStorePivot));
-        controller.touchpadButton.onTrue(new InstantCommand(climbSubsystem::requestClimbPivot));
-        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot, climbSubsystem));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot, climbSubsystem));
+        controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
+        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
 
         // controller.dUp.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
         // controller.dRight.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
@@ -172,6 +165,7 @@ public class ControlBoard {
         controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).withName("Select Left Branch"));
         controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).withName("Select Center Branch"));
         controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
+
         // Select Score Level (TriangleButton, XButton)
         controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
             if(scoreLevel != ScoreLevel.L3) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
@@ -181,7 +175,7 @@ public class ControlBoard {
         }).withName("Score Level Down"));
 
         // Elevator Go To Selected Position (RightTrigger)
-        controller.rightTrigger.onTrue(new ActionCommand(Action.PREPARE_SELECTED));
+        controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
 
         ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
         climbSubsystem.setDefaultCommand(new RunCommand(

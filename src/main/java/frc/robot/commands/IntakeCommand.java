@@ -6,11 +6,11 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 
-public class ChuteIntakeCommand extends Command {
+public class IntakeCommand extends Command {
     private final Superstructure superstructure = Superstructure.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
-    public ChuteIntakeCommand() {
+    public IntakeCommand() {
         addRequirements(ElevatorWristSubsystem.getInstance());
     }
 

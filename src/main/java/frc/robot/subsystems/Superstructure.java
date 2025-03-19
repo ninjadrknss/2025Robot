@@ -57,7 +57,7 @@ public class Superstructure extends SubsystemBase {
         Logger.recordOutput("Superstructure/loopCycleTime", time - lastFPGATimestamp);
 
         lastFPGATimestamp = time;
-        SmartDashboard.putString("Superstructure State", systemState.toString());
+        SmartDashboard.putString("Superstructure/Superstructure State", systemState.toString());
 
         SuperstructureState nextState = systemState;
         switch (systemState) {

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.lights.LightsSubsystem;
+import org.opencv.core.Mat;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
     public enum ElevatorState {
@@ -219,29 +220,29 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             homingPeriodic(); // TODO: test homing
         }
 
-        elevatorPositionStatus.refresh();
-        elevatorCurrentStatus.refresh();
-        wristAngleStatus.refresh();
+        elevatorPositionStatus.refresh(false);
+        elevatorCurrentStatus.refresh(false);
+        wristAngleStatus.refresh(false);
 
-        elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorPositionStatus.getValueAsDouble() - state.height.magnitude()) < 10);
-        wristAtPosition = wristDebouncer.calculate(Math.abs(wristAngleStatus.getValueAsDouble() - state.angle.magnitude()) < 5);
-        elevatorStalled = currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble()) > 20;
+        elevatorAtPosition = elevatorDebouncer.calculate(Math.abs(elevatorPositionStatus.getValue().in(Units.Revolutions) - state.height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch) < 10);
+        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
+        elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
 
-        SmartDashboard.putString("Elevator State", state.toString());
-        SmartDashboard.putString("Prev Elevator State", prevState != null ? prevState.toString() : "null");
+        SmartDashboard.putString("ElevatorWrist/Elevator State", state.toString());
+        SmartDashboard.putString("ElevatorWrist/Prev Elevator State", prevState != null ? prevState.toString() : "null");
 
-        SmartDashboard.putNumber("Elevator Height", elevatorPositionStatus.getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Current", elevatorCurrentStatus.getValueAsDouble());
-        SmartDashboard.putNumber("Elevator Setpoint", state.height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch);
-        SmartDashboard.putNumber("Wrist Angle", wristAngleStatus.getValueAsDouble());
-        SmartDashboard.putNumber("Wrist Setpoint", state.angle.in(Units.Revolutions));
+        SmartDashboard.putNumber("ElevatorWrist/Elevator Height", elevatorPositionStatus.getValueAsDouble());
+        SmartDashboard.putNumber("ElevatorWrist/Elevator Current", elevatorCurrentStatus.getValueAsDouble());
+        SmartDashboard.putNumber("ElevatorWrist/Elevator Setpoint", state.height.in(Units.Inches) * ElevatorWristConstants.revolutionsPerInch);
+        SmartDashboard.putNumber("ElevatorWrist/Wrist Angle", wristAngleStatus.getValueAsDouble());
+        SmartDashboard.putNumber("ElevatorWrist/Wrist Setpoint", state.angle.in(Units.Revolutions));
 
-        SmartDashboard.putBoolean("Homed Once", homedOnce);
-        SmartDashboard.putBoolean("Elevator At Position", elevatorAtPosition);
-        SmartDashboard.putBoolean("Wrist At Position", wristAtPosition);
-        SmartDashboard.putBoolean("Home Switch", getHomeCANcoder());
-        SmartDashboard.putBoolean("Both At Position", elevatorAtPosition && wristAtPosition);
+        SmartDashboard.putBoolean("ElevatorWrist/Homed Once", homedOnce);
+        SmartDashboard.putBoolean("ElevatorWrist/Elevator At Position", elevatorAtPosition);
+        SmartDashboard.putBoolean("ElevatorWrist/Wrist At Position", wristAtPosition);
+        SmartDashboard.putBoolean("ElevatorWrist/Home Switch", getHomeCANcoder());
+        SmartDashboard.putBoolean("ElevatorWrist/Both At Position", elevatorAtPosition && wristAtPosition);
 
         if (elevatorAtPosition && wristAtPosition) prevState = state;
     }

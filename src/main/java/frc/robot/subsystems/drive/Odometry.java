@@ -346,7 +346,7 @@ public class Odometry extends SubsystemBase {
 
         controlBoard = ControlBoard.getInstance();
 
-        SmartDashboard.putBoolean("Odometry Reset Requested", odometryResetRequested);
+        SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
 
     }
 
@@ -454,7 +454,7 @@ public class Odometry extends SubsystemBase {
     public void resetOdometry() {
         resetGyro();
         odometryResetRequested = true;
-        SmartDashboard.putBoolean("Odometry Reset Requested", odometryResetRequested);
+        SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
     }
 
     public void testResetOdo(){
@@ -462,7 +462,6 @@ public class Odometry extends SubsystemBase {
     }
 
     public void displayValues() {
-        SmartDashboard.putBoolean("preciseControl", controlBoard.preciseControl);
     }
 
     public Pose2d predictFuturePose(double secondsAhead) {
@@ -489,7 +488,7 @@ public class Odometry extends SubsystemBase {
         publisher.set(getPose3d());
         //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
         //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
-        if (SmartDashboard.getBoolean("Odometry Reset Requested", false) != odometryResetRequested) {
+        if (SmartDashboard.getBoolean("Odometry/Odometry Reset Requested", false) != odometryResetRequested) {
             odometryResetRequested = !odometryResetRequested;
         }
 
@@ -501,7 +500,7 @@ public class Odometry extends SubsystemBase {
                 swerve.resetPose(limelightPose.pose);
                 
                 odometryResetRequested = false;
-                SmartDashboard.putBoolean("Odometry Reset Requested", odometryResetRequested);
+                SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
             }
             // not using photonvision yet
             /*if (!limelightReset && photonVisionPose != null) {
