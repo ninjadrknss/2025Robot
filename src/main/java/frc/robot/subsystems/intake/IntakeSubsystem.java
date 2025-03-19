@@ -1,8 +1,6 @@
 package frc.robot.subsystems.intake;
 
-
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -12,7 +10,6 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -94,9 +91,9 @@ public class IntakeSubsystem extends SubsystemBase {
         // }
 
         coralBeamBroken = coralBeamBreakDebouncer.calculate(!coralBeamBreak.get());
-        algaeDistanceSignal.refresh(); // TODO: Run all signals in signal thread?
+        algaeDistanceSignal.refresh(false);
         algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
-        currentSignal.refresh();
+        currentSignal.refresh(false);
         stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
 
         SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);

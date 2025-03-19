@@ -16,6 +16,7 @@ public class CTREConfig<Device extends ParentDevice, Config extends ParentConfig
     public int canID = 0;
     public CANBus canbus = Robot.riobus;
     public Config config;
+    public boolean optimizeBus = true;
 
     public CTREConfig(Supplier<Config> configSupplier) {
         this.config = configSupplier.get();
@@ -36,11 +37,16 @@ public class CTREConfig<Device extends ParentDevice, Config extends ParentConfig
         return this;
     }
 
+    public CTREConfig<Device, Config> withOptimizeBus(boolean optimizeBus) {
+        this.optimizeBus = optimizeBus;
+        return this;
+    }
+
     public Device createDevice(DeviceSupplier<Device> deviceSupplier) {
         Device device = deviceSupplier.get(canID, canbus);
         CTREUtil.applyConfiguration(device, config);
 
-        if (device instanceof TalonFX talon) {
+        if (optimizeBus && device instanceof TalonFX talon) {
             StatusSignal<Angle> positionSignal = talon.getPosition();
             StatusSignal<AngularVelocity> velocitySignal = talon.getVelocity();
             StatusSignal<Voltage> voltageSignal = talon.getMotorVoltage();

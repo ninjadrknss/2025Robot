@@ -3,40 +3,36 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drive.SwerveSubsystem;
 
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem.WristOrder;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
     private static Superstructure instance = null;
 
-    enum SuperstructureState { // TODO: ? add algae L2 and L3 Intake States
+    enum SuperstructureState {
         PRE_HOME,
         IDLE,
         CHUTE_INTAKE,
-        GROUND_INTAKE,
-        L1_SCORE,
+//        L1_SCORE,
         L2_SCORE,
         L3_SCORE,
-        L4_SCORE,
-        BARGE_SCORE,
+//        L4_SCORE,
         CLIMB
     }
 
     /* Subsystems */
-    private final SwerveSubsystem swerve = SwerveSubsystem.getInstance();
-//     private final ElevatorWristSubsystem elevator = ElevatorWristSubsystem.getInstance();
+    private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
 
     /* State Flags */
     boolean requestHome = true;
     boolean requestIdle = false;
     boolean requestChuteIntake = false;
-    boolean requestGroundIntake = false;
-    boolean requestL1Score = false;
+//    boolean requestL1Score = false;
     boolean requestL2Score = false;
     boolean requestL3Score = false;
-    boolean requestL4Score = false;
-    boolean requestBargeScore = false;
+//    boolean requestL4Score = false;
     boolean requestClimb = false;
 
     /* Other Variables */
@@ -61,21 +57,90 @@ public class Superstructure extends SubsystemBase {
         Logger.recordOutput("Superstructure/loopCycleTime", time - lastFPGATimestamp);
 
         lastFPGATimestamp = time;
-        SmartDashboard.putString("Superstructure State", systemState.toString());
+        SmartDashboard.putString("Superstructure/Superstructure State", systemState.toString());
 
         SuperstructureState nextState = systemState;
-//        if (nextState == SuperstructureState.PRE_HOME && !homedOnce) {
-//            elevator.requestHome();
-//            if (elevator.isAtPosition()) nextState = SuperstructureState.IDLE;
-//        }
-
-        if (requestHome || requestIdle) {
-            nextState = SuperstructureState.IDLE;
-        }
-        // TODO: implement all states
         switch (systemState) {
-            case PRE_HOME -> {}
-            case IDLE -> {}
+            case PRE_HOME -> {
+                elevatorWristSubsystem.requestHome(WristOrder.MOVE_BOTH);
+                if (elevatorWristSubsystem.isAtPosition()) {
+                    homedOnce = true;
+                    nextState = SuperstructureState.IDLE;
+                }
+            }
+            case IDLE -> {
+                if (requestL2Score) {
+                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L2_SCORE;
+                } else if (requestL3Score) {
+                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L3_SCORE;
+                } else if (requestClimb) {
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.CLIMB;
+                } else if (requestChuteIntake) {
+                    elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.CHUTE_INTAKE;
+                }
+            }
+            case CHUTE_INTAKE -> {
+                if (requestIdle) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.IDLE;
+                } else if (requestL2Score) {
+                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L2_SCORE;
+                } else if (requestL3Score) {
+                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L3_SCORE;
+                } else if (requestClimb) {
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.CLIMB;
+                }
+            }
+            case L2_SCORE -> {
+                if (requestIdle) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                } else if (requestChuteIntake) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                } else if (requestL3Score) {
+                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.L3_SCORE;
+                } else if (requestClimb) {
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_FIRST); // TODO: might just be move_both
+                    nextState = SuperstructureState.CLIMB;
+                }
+            }
+
+            case L3_SCORE -> {
+                if (requestIdle) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                } else if (requestChuteIntake) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                } else if (requestL2Score) {
+                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.L2_SCORE;
+                } else if (requestClimb) {
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_FIRST); // TODO: might just be move_both
+                    nextState = SuperstructureState.CLIMB;
+                }
+            }
+
+            case CLIMB -> {
+                if (requestIdle) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.IDLE;
+                } else if (requestChuteIntake) {
+                    elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.CHUTE_INTAKE;
+                } else if (requestL2Score) {
+                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L2_SCORE;
+                } else if (requestL3Score) {
+                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L3_SCORE;
+                }
+            }
             default -> throw new IllegalArgumentException("Guess I missed a state");
         }
 
@@ -89,12 +154,10 @@ public class Superstructure extends SubsystemBase {
         requestHome = false;
         requestIdle = false;
         requestChuteIntake = false;
-        requestGroundIntake = false;
-        requestL1Score = false;
+//        requestL1Score = false;
         requestL2Score = false;
         requestL3Score = false;
-        requestL4Score = false;
-        requestBargeScore = false;
+//        requestL4Score = false;
         requestClimb = false;
     }
 
@@ -113,15 +176,10 @@ public class Superstructure extends SubsystemBase {
         requestChuteIntake = true;
     }
 
-    public void requestGroundIntake() {
-        unsetAllRequests();
-        requestGroundIntake = true;
-    }
-
-    public void requestL1Score() {
-        unsetAllRequests();
-        requestL1Score = true;
-    }
+//    public void requestL1Score() {
+//        unsetAllRequests();
+//        requestL1Score = true;
+//    }
 
     public void requestL2Score() {
         unsetAllRequests();
@@ -133,15 +191,10 @@ public class Superstructure extends SubsystemBase {
         requestL3Score = true;
     }
 
-    public void requestL4Score() {
-        unsetAllRequests();
-        requestL4Score = true;
-    }
-
-    public void requestBargeScore() {
-        unsetAllRequests();
-        requestBargeScore = true;
-    }
+//    public void requestL4Score() {
+//        unsetAllRequests();
+//        requestL4Score = true;
+//    }
 
     public void requestClimb() {
         unsetAllRequests();
@@ -149,7 +202,6 @@ public class Superstructure extends SubsystemBase {
     }
 
     public boolean isAtPosition() {
-        // return elevator.isAtPosition();
-        return false;
+         return elevatorWristSubsystem.isAtPosition();
     }
 }

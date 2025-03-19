@@ -1,10 +1,13 @@
 package frc.robot.subsystems.climb;
 
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Servo;
@@ -16,23 +19,27 @@ public class ClimbSubsystem extends SubsystemBase {
 
     // Motor, sensor, and servo devices.
     private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
-    private final PositionTorqueCurrentFOC pivotControl = new PositionTorqueCurrentFOC(0)
-            .withSlot(0);
+    private final MotionMagicTorqueCurrentFOC pivotControl = new MotionMagicTorqueCurrentFOC(0);
     private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
     private final Servo flapServo = new Servo(ClimbConstants.servoPort);
 
+    private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
+    private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+    private boolean pivotAtPosition = false;
+
+    private final TorqueCurrentFOC tempCurrentControl = new TorqueCurrentFOC(0);
+
     // Define the states of the climber.
     public enum ClimbState {
-        IDLE,
         STORE,
         DEPLOY,
+        CLIMB,
         CONTROL
     }
 
-    private ClimbState currentState = ClimbState.IDLE;
+    private ClimbState currentState = ClimbState.STORE;
 
     // Target angles for pivot and flap (tunable via ClimbConstants).
-    private boolean changes = true;
     private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
     private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
 
@@ -48,13 +55,16 @@ public class ClimbSubsystem extends SubsystemBase {
     public void requestStorePivot() {
         targetPivotAngle = ClimbConstants.pivotStoreAngle;
         currentState = ClimbState.STORE;
-        changes = true;
     }
 
     public void requestDeployPivot() {
         targetPivotAngle = ClimbConstants.pivotDeployAngle;
         currentState = ClimbState.DEPLOY;
-        changes = true;
+    }
+
+    public void requestClimbPivot() {
+        targetPivotAngle = ClimbConstants.pivotClimbAngle;
+        currentState = ClimbState.CLIMB;
     }
 
     public void requestStore(){
@@ -65,44 +75,45 @@ public class ClimbSubsystem extends SubsystemBase {
     public void requestStoreFlap() {
         targetFlapAngle = ClimbConstants.flapStoreAngle;
         currentState = ClimbState.STORE;
-        changes = true;
     }
 
     public void requestDeployFlap() {
         targetFlapAngle = ClimbConstants.flapDeployAngle;
         currentState = ClimbState.DEPLOY;
-        changes = true;
     }
 
     public void requestDeploy(){
         requestDeployPivot();
         requestDeployFlap();
     }
-    
-    public void increasePivotAngle() {
-        modifyPivotAngle(ClimbConstants.changeRate);
-        System.out.println(targetPivotAngle.in(Units.Degrees));
-    }
 
-    public void decreasePivotAngle() {
-        modifyPivotAngle(ClimbConstants.changeRate.unaryMinus());
+    public void setRawCurrent(double rawInput) {
+        double output = Math.copySign(rawInput * rawInput, rawInput) * 60;
+        tempCurrentControl.withOutput(output);
+        SmartDashboard.putNumber("Climb/TorqueCurrent", output);
+        pivotMotor.setControl(tempCurrentControl);
     }
 
     public void modifyPivotAngle(Angle delta) {
         targetPivotAngle = targetPivotAngle.plus(delta);
         currentState = ClimbState.CONTROL;
-        changes = true;
     }
 
     @Override
     public void periodic() {
-        // if (changes) {
-            pivotControl.withPosition(targetPivotAngle);
-            pivotMotor.setControl(pivotControl);
-            flapServo.set(targetFlapAngle.in(Units.Rotations));
-            changes = false;
-        // }
+        pivotControl.withPosition(targetPivotAngle);
+        // pivotMotor.setControl(pivotControl);
+        flapServo.set(targetFlapAngle.in(Units.Rotations));
+
+        pivotAngleStatus.refresh(false);
+
+        pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
 
         SmartDashboard.putString("Climb/Current State", currentState.name());
+        SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
+    }
+
+    public boolean pivotAtPosition() {
+        return pivotAtPosition;
     }
 }
