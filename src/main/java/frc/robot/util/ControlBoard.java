@@ -1,29 +1,20 @@
 package frc.robot.util;
 
-import java.util.function.Supplier;
-
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.lib.PS5Controller;
 import frc.robot.commands.ActionCommand.Action;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.climb.ClimbSubsystem;
 
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
@@ -33,14 +24,13 @@ import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.Branch;
 import frc.robot.util.FieldConstants.GameElement.ScoreLevel;
-import frc.robot.commands.ActionCommand.*;
 
 public class ControlBoard {
     private static ControlBoard instance;
 
     /* Controllers */
     private PS5Controller driver = null;
-    public PS5Controller operator = null;
+    private PS5Controller operator = null;
 
     private enum ControllerPreset {
         DRIVER(0),
@@ -62,7 +52,6 @@ public class ControlBoard {
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-    
 
     /* State Variables */
     public GameElement desiredGoal;
@@ -75,17 +64,14 @@ public class ControlBoard {
 
     public GameElement prevDesiredGoal;
 
-
     /* Commands */
-    private final HomeCommand homeCommand;
+    private final IdleCommand idleCommand;
     private final ScoreCommand scoreCommand;
     private final ChuteIntakeCommand chuteIntakeCommand;
-//    private final GroundIntakeCommand groundIntakeCommand;
-    private final ActionCommand L1ScoreCommand;
+//    private final ActionCommand L1ScoreCommand;
     private final ActionCommand L2ScoreCommand;
     private final ActionCommand L3ScoreCommand;
-    private final ActionCommand L4ScoreCommand;
-    private final ActionCommand BargeScoreCommand;
+//    private final ActionCommand L4ScoreCommand;
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 5% deadband
@@ -102,15 +88,13 @@ public class ControlBoard {
         previousConfirmedGoal = null;
         preciseControl = false;
 
-        homeCommand = new HomeCommand();
+        idleCommand = new IdleCommand();
         chuteIntakeCommand = new ChuteIntakeCommand();
         scoreCommand = new ScoreCommand();
-//        groundIntakeCommand = new GroundIntakeCommand();
-        L1ScoreCommand = new ActionCommand(Action.SCOREL1);
+//        L1ScoreCommand = new ActionCommand(Action.SCOREL1);
         L2ScoreCommand = new ActionCommand(Action.SCOREL2);
         L3ScoreCommand = new ActionCommand(Action.SCOREL3);
-        L4ScoreCommand = new ActionCommand(Action.SCOREL4);
-        BargeScoreCommand = new ActionCommand(Action.SCORE_BARGE);
+//        L4ScoreCommand = new ActionCommand(Action.SCOREL4);
         tryInit();
     }
 
@@ -118,7 +102,6 @@ public class ControlBoard {
         if (driver == null) {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
             configureBindings(ControllerPreset.DRIVER, driver); // TODO: remove
-            //configureBindings(ControllerPreset.OPERATOR, driver);
 
             SwerveSubsystem drive = SwerveSubsystem.getInstance();
             drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
@@ -130,7 +113,7 @@ public class ControlBoard {
 
         if (/*DriverStation.isJoystickConnected(ControllerPreset.OPERATOR.port()) &&*/ operator == null) {
             operator = new PS5Controller(ControllerPreset.OPERATOR.port());
-            // configureBindings(ControllerPreset.OPERATOR, operator);
+            configureBindings(ControllerPreset.OPERATOR, operator);
             System.out.println("Operator Initialized");
         }
     }
@@ -169,7 +152,7 @@ public class ControlBoard {
         controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         controller.crossButton.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
-        // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestHome));
+        // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
@@ -192,32 +175,20 @@ public class ControlBoard {
         controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
         // Select Score Level (TriangleButton, XButton)
         controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
-            if(scoreLevel != ScoreLevel.BARGE) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
+            if(scoreLevel != ScoreLevel.L3) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
         }).withName("Score Level Up"));
         controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
-            if(scoreLevel != ScoreLevel.L1) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
+            if(scoreLevel != ScoreLevel.L2) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
         }).withName("Score Level Down"));
 
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.onTrue(new ActionCommand(Action.PREPARE_SELECTED));
 
         ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-
-
-        // Store/Deploy Climber (dPadLeft, dPadRight)
-        controller.dLeft.onTrue(new InstantCommand(climbSubsystem::requestStore));
-        controller.dRight.onTrue(new InstantCommand(climbSubsystem::requestDeploy));
-        // Retract/Extend Climber (dPadUp, dPadDown)
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::increasePivotAngle));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::decreasePivotAngle));
-    }
-
-    // In ElevatorWristSubsystem.java
-    public void getRawVoltageCommand(double input) {
-        elevatorWristSubsystem.setRawVoltage(input);
-    }
-    public void getRawVoltageCommand2(double input) {
-        climbSubsystem.setRawVoltage(input);
+        climbSubsystem.setDefaultCommand(new RunCommand(
+                () -> climbSubsystem.setRawCurrent(controller.leftVerticalJoystick.getAsDouble()),
+                climbSubsystem
+        ));
     }
 
 

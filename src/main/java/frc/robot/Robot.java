@@ -8,11 +8,9 @@ package frc.robot;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
-
-import java.util.List;
 
 import org.ironmaple.simulation.SimulatedArena;
 
@@ -24,21 +22,15 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import frc.robot.subsystems.drive.Odometry;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.AssistCommand;
 import frc.robot.subsystems.auton.AutonSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.Constants;
-import frc.robot.util.FieldConstants;
 import frc.robot.util.ControlBoard;
 import frc.lib.TunableParameter;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -50,8 +42,6 @@ public class Robot extends TimedRobot {
     public static final CANBus drivebus = new CANBus(Constants.drivebus);
     @SuppressWarnings("deprecation")
     public static final CANBus elevatorbus = new CANBus(Constants.elevatorbus);
-
-    public static DriverStation.Alliance alliance = DriverStation.Alliance.Blue;
 
     private Command autonomousCommand;
 
@@ -67,7 +57,6 @@ public class Robot extends TimedRobot {
         scheduler = CommandScheduler.getInstance();
         controlBoard = ControlBoard.getInstance();
         autonSubsystem = AutonSubsystem.getInstance();
-        SwerveSubsystem.getInstance();
         odometry = Odometry.getInstance();
 
         SmartDashboard.putData("Field", m_field);
@@ -161,15 +150,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         controlBoard.displayUI();
-
-        
-        if (controlBoard.operator != null) {
-            double thing = controlBoard.operator.rightVerticalJoystick.getAsDouble();
-            controlBoard.getRawVoltageCommand(thing);
-
-            double thing2 = controlBoard.operator.leftVerticalJoystick.getAsDouble();
-            controlBoard.getRawVoltageCommand2(thing2);
-        }
     }
 
     @Override
@@ -190,7 +170,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {
-        PhotonvisionSim.getInstance().update();
-        SimulatedArena.getInstance().simulationPeriodic();
+//        PhotonvisionSim.getInstance().update();
+//        SimulatedArena.getInstance().simulationPeriodic();
     }
 }

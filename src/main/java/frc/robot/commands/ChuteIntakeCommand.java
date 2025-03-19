@@ -7,11 +7,11 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 
 
 public class ChuteIntakeCommand extends Command {
-    private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
+    private final Superstructure superstructure = Superstructure.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
     public ChuteIntakeCommand() {
-        addRequirements(this.elevatorWristSubsystem);
+        addRequirements(ElevatorWristSubsystem.getInstance());
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ChuteIntakeCommand extends Command {
     }
 
     @Override
-    public void end(boolean isInterupted) {
+    public void end(boolean isInterrupted) {
         intakeSubsystem.requestIdle();
     }
 }

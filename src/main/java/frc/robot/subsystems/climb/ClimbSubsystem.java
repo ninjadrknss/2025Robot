@@ -5,7 +5,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -85,7 +84,7 @@ public class ClimbSubsystem extends SubsystemBase {
         requestDeployFlap();
     }
 
-    public void setRawVoltage(double rawInput) {
+    public void setRawCurrent(double rawInput) {
         tempCurrentControl.withOutput(Math.copySign(rawInput * rawInput, rawInput) * 60);
         System.out.println("i hate everything" + rawInput);
         pivotMotor.setControl(tempCurrentControl);
