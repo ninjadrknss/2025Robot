@@ -254,5 +254,6 @@ public class ControlBoard {
 
     public String goalConfidence() {
         return String.format("%.0f%%", goalConfidence * 100);
+        
     }
 }

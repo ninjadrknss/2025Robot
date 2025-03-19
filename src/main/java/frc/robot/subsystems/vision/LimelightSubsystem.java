@@ -44,6 +44,7 @@ public class LimelightSubsystem extends SubsystemBase {
         );
 
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.Limelight.name);
+
         if (mt2 == null) return null; // Pose not found
         if (!(Math.abs(rotationRate) < 360) || mt2.tagCount <= 0) return null;
 
@@ -52,7 +53,6 @@ public class LimelightSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Limelight Rotation", mt2.pose.getRotation().getDegrees());
         SmartDashboard.putNumber("Limelight latency", mt2.latency);
         SmartDashboard.putNumber("Limelight tag count", mt2.tagCount);
-        SmartDashboard.putBoolean("Limelight has target", hasTarget());
         return mt2;
     }
 

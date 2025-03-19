@@ -235,6 +235,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             sample.vy + m_pathYController.calculate(pose.getY(), sample.y),
             sample.omega + m_pathThetaController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
+        
         setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
         // setControl(
         //         m_pathApplyFieldSpeeds.withSpeeds(speeds)
