@@ -31,7 +31,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     public enum ElevatorState {
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
-        HOME(0, 0, LightsSubsystem.Colors.YELLOW),
+        HOME(0, 0, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
         // idle position -90 deg
         IDLE(0, -90, LightsSubsystem.Colors.WHITE),
         CHUTE_INTAKE(0, -20, LightsSubsystem.Colors.GREEN),
@@ -39,7 +39,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         L2_SCORE(4, -235, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
         //        L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
-        CLIMB(0, 0, LightsSubsystem.Colors.PURPLE);
+        CLIMB(0, 0, LightsSubsystem.Colors.PURPLE); // just get intake out of the way
 
         /**
          * The height of the elevator in inches.
@@ -200,7 +200,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             state = nextState;
             unsetAllRequests();
 
-            if (state == ElevatorState.HOME) homeElevator();
+            if (state == ElevatorState.HOME) homeElevator(); // special case for homing
             else {
                 if ((wristOrder != WristOrder.MOVE_FIRST || wristAtPosition) && // scuffed logic to make sure the elevator doesn't move before the wrist
                         !state.height.isEquivalent(requestedHeight)) { // buffer requests to hopefully reduce overhead
@@ -264,13 +264,15 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private ElevatorState getNextState() {
         ElevatorState nextState = state;
 
-        if (requestIdle) nextState = ElevatorState.IDLE;
+        if (requestHome) nextState = ElevatorState.HOME;
+        else if (requestIdle) nextState = ElevatorState.IDLE;
         else if (requestChuteIntake) nextState = ElevatorState.CHUTE_INTAKE;
 //        else if (requestL1Score) nextState = ElevatorState.L1_SCORE;
         else if (requestL2Score) nextState = ElevatorState.L2_SCORE;
         else if (requestL3Score) nextState = ElevatorState.L3_SCORE;
 //        else if (requestL4Score) nextState = ElevatorState.L4_SCORE;
         else if (requestClimb) nextState = ElevatorState.CLIMB;
+
         if (nextState != state) prevState = state;
         return nextState;
     }
@@ -282,6 +284,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     public boolean isAtPosition() {
         return elevatorAtPosition && wristAtPosition;
+    }
+
+    public boolean isTall() {
+        return elevatorPositionStatus.getValue().in(Units.Revolutions) > 6 * ElevatorWristConstants.revolutionsPerInch; // if the elevator is taller than 6 inches
     }
 
 //    @Override
@@ -365,5 +371,4 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        requestL4Score = true;
 //        wristOrder = order;
 //    }
-
 }

@@ -193,14 +193,16 @@ public class ControlBoard {
 
     public SwerveRequest getDriverRequest() {
         if (driver == null) return null;
-        double scale = preciseControl ? 0.25 : 1.0;
-        double rotScale = preciseControl ? 0.50 : 1.0;
 
-        double x = driver.leftVerticalJoystick.getAsDouble() * scale;
-        double y = driver.leftHorizontalJoystick.getAsDouble() * scale;
+        boolean tippyMode = elevatorWristSubsystem.isTall();
+        double scale = preciseControl || tippyMode ? 0.25 : 1.0;
+        double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
+
+        double x = driver.leftVerticalJoystick.getAsDouble();
+        double y = driver.leftHorizontalJoystick.getAsDouble();
         double rot = driver.rightHorizontalJoystick.getAsDouble();
-        return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x)
-                .withVelocityY(SwerveConstants.maxSpeed * y)
+        return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
+                .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                 .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));
     }
 

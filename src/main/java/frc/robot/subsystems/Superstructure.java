@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drive.SwerveSubsystem;
 
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem.WristOrder;
@@ -24,7 +23,6 @@ public class Superstructure extends SubsystemBase {
     }
 
     /* Subsystems */
-    private final SwerveSubsystem swerve = SwerveSubsystem.getInstance();
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
 
     /* State Flags */
@@ -62,10 +60,6 @@ public class Superstructure extends SubsystemBase {
         SmartDashboard.putString("Superstructure State", systemState.toString());
 
         SuperstructureState nextState = systemState;
-        if (requestHome || requestIdle) {
-            nextState = SuperstructureState.IDLE;
-        }
-        // TODO: implement all states
         switch (systemState) {
             case PRE_HOME -> {
                 elevatorWristSubsystem.requestHome(WristOrder.MOVE_BOTH);
