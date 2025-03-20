@@ -107,7 +107,7 @@ public class Superstructure extends SubsystemBase {
                     elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_BOTH);
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_FIRST); // TODO: might just be move_both
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
                     nextState = SuperstructureState.CLIMB;
                 }
             }
@@ -121,7 +121,7 @@ public class Superstructure extends SubsystemBase {
                     elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH);
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_FIRST); // TODO: might just be move_both
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
                     nextState = SuperstructureState.CLIMB;
                 }
             }

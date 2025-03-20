@@ -131,13 +131,13 @@ public class ControlBoard {
     }
 
     private void configureDriverBindings(PS5Controller controller) {
-        // Precise Control
+        /* Precise Control */
         controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
-        // Driver Assist
+        /* Driver Assist */
         // controller.rightBumper.whileTrue(new AssistCommand());
 
-        // // Intake Subsystem
+        /* Intake Subsystem */
         // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
@@ -145,6 +145,7 @@ public class ControlBoard {
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
+        /* Climb Subsystem */
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot, climbSubsystem));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot, climbSubsystem));
         controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
@@ -202,6 +203,5 @@ public class ControlBoard {
 
     public String goalConfidence() {
         return String.format("%.0f%%", goalConfidence * 100);
-        
     }
 }

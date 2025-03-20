@@ -15,6 +15,7 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.simulation.VisionTargetSim;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class PhotonvisionSim {
     private final HashMap<Integer, Integer> targetMap2 = new HashMap<>();
     private final HashMap<Integer, Integer> targetMap3 = new HashMap<>();
 
-    public void update() {
+    public ArrayList<PhotonPipelineResult> update() {
         // Publish the estimated robot pose to the network table
         estimatedPose.set(visionSim.getRobotPose().toPose2d());
         // Publish the camera poses to the network table
@@ -172,5 +173,10 @@ public class PhotonvisionSim {
         visionTargets1.set(targets1.toArray(new Pose3d[0]));
         visionTargets2.set(targets2.toArray(new Pose3d[0]));
         visionTargets3.set(targets3.toArray(new Pose3d[0]));
+
+        ArrayList<PhotonPipelineResult> results = new ArrayList<>(camera1Sim.getCamera().getAllUnreadResults());
+        results.addAll(camera2Sim.getCamera().getAllUnreadResults());
+        results.addAll(camera3Sim.getCamera().getAllUnreadResults()); // LL3G
+        return results;
     }
 }
