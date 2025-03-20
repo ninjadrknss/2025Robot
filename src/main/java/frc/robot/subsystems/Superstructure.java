@@ -63,7 +63,7 @@ public class Superstructure extends SubsystemBase {
         switch (systemState) {
             case PRE_HOME -> {
                 elevatorWristSubsystem.requestHome(WristOrder.MOVE_BOTH);
-                if (elevatorWristSubsystem.isAtPosition()) {
+                if (elevatorWristSubsystem.homedOnce()) {
                     homedOnce = true;
                     nextState = SuperstructureState.IDLE;
                 }
