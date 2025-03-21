@@ -88,7 +88,7 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     public void setRawCurrent(double rawInput) {
-        double output = Math.copySign(rawInput * rawInput, rawInput) * 60;
+        double output = Math.copySign(rawInput * rawInput, rawInput) * 100;
         tempCurrentControl.withOutput(output);
         SmartDashboard.putNumber("Climb/TorqueCurrent", output);
         pivotMotor.setControl(tempCurrentControl);
