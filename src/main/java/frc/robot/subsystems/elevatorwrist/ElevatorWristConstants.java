@@ -5,13 +5,17 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Per;
 import frc.lib.CTREConfig;
 import frc.robot.Robot;
 
 public class ElevatorWristConstants {
     // 36 teeth of pulley, 5mm spacing, with a 10:58 gear ratio
-    public static final double revolutionsPerInch = 36 * Units.Millimeter.of(5).in(Units.Inches) * 10 / 58; // I think
+    private static final double doubleRevolutionsPerInch = 36 * Units.Millimeter.of(5).in(Units.Inches) * 10 / 58; // I think
+    public static final Per<AngleUnit, DistanceUnit> revolutionsPerInch = Units.Revolutions.of(doubleRevolutionsPerInch).per(Units.Inch); // I think
 
     public static final CTREConfig<CANcoder, CANcoderConfiguration> homeHallEffect = new CTREConfig<>(CANcoderConfiguration::new);
     static {
