@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.lights.LightsSubsystem;
 
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem instance;
@@ -80,7 +81,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 case INTAKING -> setIntakeMotor(IntakeConstants.intakeSpeed);
                 case SPITTING -> setIntakeMotor(-IntakeConstants.spitSpeed);
             }
-//            LightsSubsystem.getInstance().requestBlinking(state != IntakeState.IDLE);
+            LightsSubsystem.getInstance().requestBlinking(state != IntakeState.IDLE);
         }
 
         // if (state == IntakeState.INTAKING && (coralBeamBroken || algaeDetected)) {

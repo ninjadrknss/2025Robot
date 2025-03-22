@@ -200,7 +200,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     public void periodic() {
         ElevatorState nextState = getNextState();
 
-        if (state != ElevatorState.HOME && state != nextState) { // TODO: remove 2nd condition if stuff doesn't work
+        if (state != ElevatorState.HOME) {
             state = nextState;
             unsetAllRequests();
 
@@ -218,7 +218,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                 setWristAngle(state.angle);
             }
 
-            lightSubsystem.requestColor(state.color);
+            if(state != nextState) lightSubsystem.requestColor(state.color);
         }
         homingPeriodic(); // TODO: test homing
 
