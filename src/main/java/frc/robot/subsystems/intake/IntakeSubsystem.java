@@ -17,7 +17,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem instance;
 
     /* Motors */
-    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
+//    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
     private final VoltageOut intakeControl = new VoltageOut(0); // TODO: Tempted to use dutyCycle, but that will not adapt to forces as much
 
     /* Sensors */
@@ -32,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final StatusSignal<Distance> algaeDistanceSignal = algaeDistanceSensor.getDistance();
 
     private boolean stalled = false;
-    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
+//    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
     /* State Machine Logic */
@@ -61,7 +61,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param voltage in volts
      */
     private void setIntakeMotor(double voltage) {
-        intakeMotor.setControl(intakeControl.withOutput(voltage));
+//        intakeMotor.setControl(intakeControl.withOutput(voltage));
     }
 
     @Override
@@ -93,14 +93,14 @@ public class IntakeSubsystem extends SubsystemBase {
         coralBeamBroken = coralBeamBreakDebouncer.calculate(!coralBeamBreak.get());
         algaeDistanceSignal.refresh(false);
         algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
-        currentSignal.refresh(false);
-        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
+//        currentSignal.refresh(false);
+//        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
 
         SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);
         SmartDashboard.putBoolean("Intake/Algae Detected", algaeDetected);
         SmartDashboard.putBoolean("Intake/Stalled", stalled);
         SmartDashboard.putNumber("Intake/Algae Distance", algaeDistanceSignal.getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
+//        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }
 
     public boolean coralBeamBroken() {
