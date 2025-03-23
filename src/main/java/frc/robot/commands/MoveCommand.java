@@ -83,21 +83,21 @@ public class MoveCommand extends Command {
 
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(intermediatePoints);
         
-        PathConstraints constraints = new PathConstraints(6.0, 3.0, 4 * Math.PI, 2 * Math.PI); // The constraints for this path.
+        PathConstraints constraints = new PathConstraints(1.0, 1.0, 4 * Math.PI, 2 * Math.PI); // The constraints for this path.
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             constraints,
-            new IdealStartingState(6, targetPose.getRotation()), 
+            new IdealStartingState(1, targetPose.getRotation()), 
             new GoalEndState(1.0, targetPose.getRotation()) 
         );
 
         path.preventFlipping = true;
 
         PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(1, 0.0, 0.0),
-            new PIDConstants(2, 0.05, 0.0)
+            new PIDConstants(0.25, 0.0, 0.0),
+            new PIDConstants(1, 0.0, 0.0)
         );
-        AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
+        //AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
         pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
         pathCommand.initialize();
     }

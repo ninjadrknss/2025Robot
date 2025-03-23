@@ -23,14 +23,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /* Sensors */
     private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
-    private final CANrange algaeDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
+    // private final CANrange algaeDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
 
     /* Statuses */
     private boolean coralBeamBroken = false;
     private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.1);
 
     private boolean algaeDetected = false;
-    private final StatusSignal<Distance> algaeDistanceSignal = algaeDistanceSensor.getDistance();
+    // private final StatusSignal<Distance> algaeDistanceSignal = algaeDistanceSensor.getDistance();
 
     private boolean stalled = false;
 //    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
@@ -92,15 +92,15 @@ public class IntakeSubsystem extends SubsystemBase {
         // }
 
         coralBeamBroken = coralBeamBreakDebouncer.calculate(!coralBeamBreak.get());
-        algaeDistanceSignal.refresh(false);
-        algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
+        // algaeDistanceSignal.refresh(false);
+        // algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
 //        currentSignal.refresh(false);
 //        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
 
         SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);
         SmartDashboard.putBoolean("Intake/Algae Detected", algaeDetected);
         SmartDashboard.putBoolean("Intake/Stalled", stalled);
-        SmartDashboard.putNumber("Intake/Algae Distance", algaeDistanceSignal.getValueAsDouble());
+        // SmartDashboard.putNumber("Intake/Algae Distance", algaeDistanceSignal.getValueAsDouble());
 //        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }
 

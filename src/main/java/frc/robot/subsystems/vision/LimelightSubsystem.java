@@ -2,6 +2,8 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.LimelightHelpers;
 import frc.lib.LimelightHelpers.PoseEstimate;
@@ -26,7 +28,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
 	private LimelightSubsystem() {
         name = VisionConstants.Limelight.name;
-        LimelightHelpers.setCameraPose_RobotSpace(name, VisionConstants.Limelight.yOffset, 0, VisionConstants.Limelight.zOffset, 0, 0, 0);
+        LimelightHelpers.setCameraPose_RobotSpace(name, VisionConstants.Limelight.yOffset.in(Units.Meters), 0, VisionConstants.Limelight.zOffset.in(Units.Meters), 0, 0, 0);
     }
 
     public boolean hasTarget() {
@@ -40,13 +42,13 @@ public class LimelightSubsystem extends SubsystemBase {
         LimelightHelpers.SetRobotOrientation(
                 VisionConstants.Limelight.name,
                 previousRobotPose.getRotation().getDegrees(),
-                rotationRate, 0, 0, 0, 0
+                0, 0, 0, 0, 0
         );
 
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.Limelight.name);
 
         if (mt2 == null) return null; // Pose not found
-        if (!(Math.abs(rotationRate) < 360) || mt2.tagCount <= 0) return null;
+        //if (!(Math.abs(rotationRate) < 360) || mt2.tagCount <= 0) return null;
 
         SmartDashboard.putNumber("Limelight X", mt2.pose.getX());
         SmartDashboard.putNumber("Limelight Y", mt2.pose.getY());

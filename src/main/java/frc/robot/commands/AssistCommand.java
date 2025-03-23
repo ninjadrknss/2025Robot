@@ -42,10 +42,11 @@ public class AssistCommand extends Command {
 
     @Override
     public void initialize() {
-        gameElement = ControlBoard.getInstance().desiredGoal;
+        gameElement = GameElement.poop;
         Pose2d elementPose = gameElement.getCenter();
         //elementPose = gameElement.getRightBranch();
-        selectedBranch = ControlBoard.getInstance().selectedBranch;
+        selectedBranch = Branch.CENTER;//ControlBoard.getInstance().selectedBranch;
+
         if (gameElement.hasBranches() && selectedBranch == null) {
             selectedBranch = closestBranch(swerve.getPose(), gameElement);
         } 

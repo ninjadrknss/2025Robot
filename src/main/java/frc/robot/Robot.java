@@ -11,15 +11,18 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
+import frc.robot.subsystems.vision.LimelightSubsystem;
 
 import org.ironmaple.simulation.SimulatedArena;
 
 import com.ctre.phoenix6.CANBus;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import frc.robot.subsystems.drive.Odometry;
+import frc.robot.subsystems.drive.SwerveConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
@@ -84,6 +87,8 @@ public class Robot extends TimedRobot {
             PortForwarder.add(port, "limelight.local", port);
         }
 
+        //AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
+
 //        SignalLogger.start(); // TODO: enable this for competition
 
         PathfindingCommand.warmupCommand().schedule();
@@ -103,6 +108,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         TunableParameter.updateAll();
         scheduler.run();
+        SmartDashboard.putBoolean("Limelight Has Target", LimelightSubsystem.getInstance().hasTarget());
 //        printWatchdogEpochs(); // TODO: PRINT ALL THE EPOCHS ON EVERY LOOP
         // ControlBoard.getInstance().tryInit();
     }

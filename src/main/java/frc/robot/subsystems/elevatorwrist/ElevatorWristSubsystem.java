@@ -81,8 +81,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //    private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
     private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
-    private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
-    private final StatusSignal<Angle> wristAngleStatus = wristEncoder.getPosition();
+    // private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
+    // private final StatusSignal<Angle> wristAngleStatus = wristEncoder.getPosition(); // TODO: Pull data from motor
     //    private final CANcoder homeCANcoder = ElevatorWristConstants.homeHallEffect.createDevice(CANcoder::new);
     private boolean elevatorStalled = false;
 
@@ -224,14 +224,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
 //        elevatorPositionStatus.refresh(false);
 //        elevatorCurrentStatus.refresh(false);
-        wristAngleStatus.refresh(false);
+        // wristAngleStatus.refresh(false);
 
 //        elevatorAtPosition = elevatorDebouncer.calculate(
 //                elevatorPositionStatus.getValue().isNear(
 //                state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
 //                , Units.Revolutions.of(0.1))
 //        ); // 0.1 revolutions tolerance
-        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
+        // wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
 //        elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
 
@@ -375,7 +375,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        SmartDashboard.putNumber("ElevatorWrist/Elevator Current", elevatorCurrentStatus.getValueAsDouble());
         SmartDashboard.putNumber("ElevatorWrist/Elevator Setpoint", state.height.in(Units.Inches) *
                 ElevatorWristConstants.revolutionsPerInch.in(PerUnit.combine(Units.Revolutions, Units.Inches)));
-        SmartDashboard.putNumber("ElevatorWrist/Wrist Angle", wristAngleStatus.getValueAsDouble());
+        // SmartDashboard.putNumber("ElevatorWrist/Wrist Angle", wristAngleStatus.getValueAsDouble());
         SmartDashboard.putNumber("ElevatorWrist/Wrist Setpoint", state.angle.in(Units.Revolutions));
 
         SmartDashboard.putBoolean("ElevatorWrist/Homed Once", homedOnce);
