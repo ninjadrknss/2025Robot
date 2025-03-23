@@ -258,11 +258,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         // );
     }
 
-    // TODO: Make as its own class? Also allow targetPose to be a supplier?
-    public Command goToPositionCommand(Pose2d targetPose, List<Pose2d> intermediatePoints) {
-        return new MoveCommand(targetPose, intermediatePoints, this);
-    }
-
     public static MapleSimSwerveDrivetrain simDrivetrain = null;
 
     @Override
