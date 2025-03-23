@@ -42,7 +42,7 @@ public class AssistCommand extends Command {
 
     @Override
     public void initialize() {
-        gameElement = GameElement.poop;
+        gameElement = GameElement.REEF_BLUE_1;
         Pose2d elementPose = gameElement.getCenter();
         //elementPose = gameElement.getRightBranch();
         selectedBranch = Branch.CENTER;//ControlBoard.getInstance().selectedBranch;
