@@ -1,4 +1,4 @@
-package frc.robot.subsystems.simulation;
+wpackage frc.robot.subsystems.simulation;
 
 import org.ironmaple.simulation.SimulatedArena;
 
