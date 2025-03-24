@@ -12,27 +12,28 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.lights.LightsSubsystem;
 
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem instance;
 
     /* Motors */
-    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
+//    private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
     private final VoltageOut intakeControl = new VoltageOut(0); // TODO: Tempted to use dutyCycle, but that will not adapt to forces as much
 
     /* Sensors */
     private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
-    private final CANrange algaeDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
+    // private final CANrange algaeDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
 
     /* Statuses */
     private boolean coralBeamBroken = false;
     private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.1);
 
     private boolean algaeDetected = false;
-    private final StatusSignal<Distance> algaeDistanceSignal = algaeDistanceSensor.getDistance();
+    // private final StatusSignal<Distance> algaeDistanceSignal = algaeDistanceSensor.getDistance();
 
     private boolean stalled = false;
-    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
+//    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
     /* State Machine Logic */
@@ -61,7 +62,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param voltage in volts
      */
     private void setIntakeMotor(double voltage) {
-        intakeMotor.setControl(intakeControl.withOutput(voltage));
+//        intakeMotor.setControl(intakeControl.withOutput(voltage));
     }
 
     @Override
@@ -80,7 +81,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 case INTAKING -> setIntakeMotor(IntakeConstants.intakeSpeed);
                 case SPITTING -> setIntakeMotor(-IntakeConstants.spitSpeed);
             }
-//            LightsSubsystem.getInstance().requestBlinking(state != IntakeState.IDLE);
+            LightsSubsystem.getInstance().requestBlinking(state != IntakeState.IDLE);
         }
 
         // if (state == IntakeState.INTAKING && (coralBeamBroken || algaeDetected)) {
@@ -91,16 +92,16 @@ public class IntakeSubsystem extends SubsystemBase {
         // }
 
         coralBeamBroken = coralBeamBreakDebouncer.calculate(!coralBeamBreak.get());
-        algaeDistanceSignal.refresh(false);
-        algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
-        currentSignal.refresh(false);
-        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
+        // algaeDistanceSignal.refresh(false);
+        // algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
+//        currentSignal.refresh(false);
+//        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
 
         SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);
         SmartDashboard.putBoolean("Intake/Algae Detected", algaeDetected);
         SmartDashboard.putBoolean("Intake/Stalled", stalled);
-        SmartDashboard.putNumber("Intake/Algae Distance", algaeDistanceSignal.getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("Intake/Algae Distance", algaeDistanceSignal.getValueAsDouble());
+//        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }
 
     public boolean coralBeamBroken() {

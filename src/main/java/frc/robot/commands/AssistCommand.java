@@ -14,13 +14,12 @@ import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.FieldConstants.GameElement.*;
 
 public class AssistCommand extends Command {
-    //private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
     private final SwerveSubsystem swerve = SwerveSubsystem.getInstance();
-    private Command goToPositionCommand;
+    private MoveCommand goToPositionCommand;
 
     private GameElement gameElement;
 
-    private  Branch selectedBranch = null;
+    private Branch selectedBranch = null;
 
     private boolean firstWaypoint = true;
     private boolean secondWaypoint = true;
@@ -42,10 +41,11 @@ public class AssistCommand extends Command {
 
     @Override
     public void initialize() {
-        gameElement = ControlBoard.getInstance().desiredGoal;
+        gameElement = GameElement.REEF_BLUE_1;
         Pose2d elementPose = gameElement.getCenter();
         //elementPose = gameElement.getRightBranch();
-        selectedBranch = ControlBoard.getInstance().selectedBranch;
+        selectedBranch = Branch.CENTER;//ControlBoard.getInstance().selectedBranch;
+
         if (gameElement.hasBranches() && selectedBranch == null) {
             selectedBranch = closestBranch(swerve.getPose(), gameElement);
         } 
@@ -67,7 +67,7 @@ public class AssistCommand extends Command {
 
         Pose2d targetPose = new Pose2d(offsetPose1.getX(), offsetPose1.getY(), targetRotation);
         
-        goToPositionCommand = swerve.goToPositionCommand(targetPose, waypoints);
+        goToPositionCommand = new MoveCommand(targetPose, waypoints, swerve);
 
         desiredPosePublisher.set(targetPose);
         goToPositionCommand.initialize();

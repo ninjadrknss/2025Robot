@@ -8,6 +8,11 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PathFollowingController;
+import com.pathplanner.lib.util.DriveFeedforwards;
 
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
@@ -28,12 +33,17 @@ import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.drive.generated.TunerConstants;
 import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.simulation.MapleSimSwerveDrivetrain;
+
 import edu.wpi.first.math.system.plant.DCMotor;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.002; // 2 ms or 50hz
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    private final SwerveRequest.ApplyRobotSpeeds poop3;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -142,12 +152,20 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      */
     public SwerveSubsystem(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
-
+         PathFollowingController controller = new PPHolonomicDriveController(
+            new PIDConstants(0.5, 0.0, 0.0),
+            new PIDConstants(1, 0.0, 0.0)
+        );
+        this.poop3= new SwerveRequest.ApplyRobotSpeeds();
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
-
+        AutoBuilder.configure(this::getPose, null, this::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, this);
         // if (Utils.isSimulation()) startSimThread();
 
         System.out.println("Swerve Starting!");
+    }
+
+    private void drive(ChassisSpeeds robotSpeeds, DriveFeedforwards feedforward) {
+        this.setControl(poop3.withSpeeds(robotSpeeds));
     }
 
     /**
@@ -205,6 +223,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         Pose2d pose = getPose();
         SmartDashboard.putNumber("Swerve/Pose x", pose.getX());
         SmartDashboard.putNumber("Swerve/Pose y", pose.getY());
+        SmartDashboard.putNumber("Swerve/Rotation", pose.getRotation().getDegrees());
 //        System.out.println(this.getCurrentCommand().getName());
     }
 
@@ -240,11 +259,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         //                 .withWheelForceFeedforwardsX(sample.moduleForcesX())
         //                 .withWheelForceFeedforwardsY(sample.moduleForcesY())
         // );
-    }
-
-    // TODO: Make as its own class? Also allow targetPose to be a supplier?
-    public Command goToPositionCommand(Pose2d targetPose, List<Pose2d> intermediatePoints) {
-        return new MoveCommand(targetPose, intermediatePoints, this);
     }
 
     public static MapleSimSwerveDrivetrain simDrivetrain = null;

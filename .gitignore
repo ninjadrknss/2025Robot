@@ -79,6 +79,9 @@ local.properties
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+simgui.json
+simgui-ds.json
+simgui-window.json
 
 # AWS User-specific
 .idea/**/aws.xml

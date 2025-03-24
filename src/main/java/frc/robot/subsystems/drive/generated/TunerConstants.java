@@ -22,8 +22,8 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(50).withKI(0).withKD(5) // TODO: Manually tune kP and kD
-        .withKS(0.175).withKV(2.66).withKA(0) // kS is average voltage to overcome static friction kS = (0.16868 + 0.19482 + 0.18378 + 0.15174) / 4
+        .withKP(10).withKI(0).withKD(0) // TODO: Manually tune kP and kD
+        .withKS(0).withKV(0).withKA(0) // kS is average voltage to overcome static friction kS = (0.16868 + 0.19482 + 0.18378 + 0.15174) / 4
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput

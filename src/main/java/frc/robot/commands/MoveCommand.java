@@ -40,6 +40,8 @@ import frc.robot.subsystems.drive.SwerveConstants;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 
 public class MoveCommand extends Command {
+    private static final PathConstraints constraints = new PathConstraints(1.0, 1.0, 4 * Math.PI, 2 * Math.PI); // The constraints for this path.
+
     private final Pose2d targetPose;
     private final List<Pose2d> intermediatePoints;
     private final SwerveSubsystem swerveSubsystem;
@@ -61,43 +63,40 @@ public class MoveCommand extends Command {
         this.swerveSubsystem = swerveSubsystem;
         this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyRobotSpeeds();
         this.preciseMoveCommand = new PreciseMoveCommand(targetPose);
-        LocalADStar pathfinder = new LocalADStar();
-        Pathfinding.setPathfinder(pathfinder);
-        addRequirements(swerveSubsystem);
+        Pathfinding.setPathfinder(new LocalADStar()); // can the LocalADStar be static? It likely takes a lot of resources even if its spun off into its own thread
     }
 
     @Override
     public void initialize() {
         // Record the initial pose and time for the continuous timeout feature.
         Pose2d currentPose = swerveSubsystem.getPose();
-        this.lastMovedPose = currentPose;
-        this.lastMovedTime = Timer.getFPGATimestamp();
+        lastMovedPose = currentPose;
+        lastMovedTime = Timer.getFPGATimestamp();
 
         if (distance(currentPose, targetPose) < 0.05 &&
             Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
             end(true);
             return;
         }
-        if (intermediatePoints.size() == 0) intermediatePoints.add(currentPose);
+        if (intermediatePoints.isEmpty()) intermediatePoints.add(currentPose);
         intermediatePoints.add(targetPose);
 
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(intermediatePoints);
         
-        PathConstraints constraints = new PathConstraints(6.0, 3.0, 4 * Math.PI, 2 * Math.PI); // The constraints for this path.
-        PathPlannerPath path = new PathPlannerPath(
+        path = new PathPlannerPath(
             waypoints,
             constraints,
-            new IdealStartingState(6, targetPose.getRotation()), 
+            new IdealStartingState(1, targetPose.getRotation()), 
             new GoalEndState(1.0, targetPose.getRotation()) 
         );
 
         path.preventFlipping = true;
 
         PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(1, 0.0, 0.0),
-            new PIDConstants(2, 0.05, 0.0)
+            new PIDConstants(0.25, 0.0, 0.0),
+            new PIDConstants(1, 0.0, 0.0)
         );
-        AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
+        //AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
         pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
         pathCommand.initialize();
     }
@@ -126,9 +125,7 @@ public class MoveCommand extends Command {
         }
         
         // If timeout was triggered, skip further execution.
-        if (timeoutTriggered) {
-            return;
-        }
+        if (timeoutTriggered) return;
         
         // Existing execution logic.
         if (pathCommand != null && !pathCommand.isFinished()) {
@@ -150,11 +147,7 @@ public class MoveCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        if (pathCommand != null) {
-            pathCommand.end(interrupted);
-        }
-        if (preciseMoveCommand != null) {
-            preciseMoveCommand.end(interrupted);
-        }
+        if (pathCommand != null) pathCommand.end(interrupted);
+        if (preciseMoveCommand != null) preciseMoveCommand.end(interrupted);
     }
 }

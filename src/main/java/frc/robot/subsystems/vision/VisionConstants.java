@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
+
 import org.photonvision.PhotonPoseEstimator;
 
 public class VisionConstants {
@@ -15,8 +17,8 @@ public class VisionConstants {
 		public final static String dashboardIp = "http://10.7.51.11:5801";
         public final static String name = "limelight";
 
-        public final static double zOffset = 12.224 + 3.75; // inches
-        public final static double yOffset = 13-6.01; // inches
+        public final static Distance zOffset = Units.Inches.of(12.224 + 3.75); // inches
+        public final static Distance yOffset = Units.Inches.of(13-6.01); // inches
     }
 
     public static class PhotonVision {

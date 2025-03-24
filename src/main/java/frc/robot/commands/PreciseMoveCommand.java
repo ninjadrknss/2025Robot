@@ -143,7 +143,7 @@ public class PreciseMoveCommand extends Command {
             currentPose.getRotation()
         );
 
-        swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
+        //swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
     }
 
     private boolean isClose(Pose2d current, Pose2d target, double tolerance) {

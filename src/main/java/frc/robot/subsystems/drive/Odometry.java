@@ -351,8 +351,7 @@ public class Odometry extends SubsystemBase {
     }
 
     public static Odometry getInstance() {
-        if (instance == null)
-            instance = new Odometry();
+        if (instance == null) instance = new Odometry();
         return instance;
     }
 
@@ -508,7 +507,7 @@ public class Odometry extends SubsystemBase {
             }*/
         } else {
             if (limelightPose != null ){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-                swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.15, .15, 9999999));
                 swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
             }
         }

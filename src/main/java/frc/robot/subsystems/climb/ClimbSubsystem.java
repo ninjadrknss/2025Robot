@@ -88,10 +88,10 @@ public class ClimbSubsystem extends SubsystemBase {
     }
 
     public void setRawCurrent(double rawInput) {
-        double output = Math.copySign(rawInput * rawInput, rawInput) * 100;
-        tempCurrentControl.withOutput(output);
-        SmartDashboard.putNumber("Climb/TorqueCurrent", output);
-        pivotMotor.setControl(tempCurrentControl);
+//        double output = Math.copySign(rawInput * rawInput, rawInput) * 100;
+//        tempCurrentControl.withOutput(output);
+//        SmartDashboard.putNumber("Climb/TorqueCurrent", output);
+//        pivotMotor.setControl(tempCurrentControl);
     }
 
     public void modifyPivotAngle(Angle delta) {
@@ -101,9 +101,9 @@ public class ClimbSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        pivotControl.withPosition(targetPivotAngle);
+//        pivotControl.withPosition(targetPivotAngle);
         // pivotMotor.setControl(pivotControl);
-        flapServo.set(targetFlapAngle.in(Units.Rotations));
+//        flapServo.set(targetFlapAngle.in(Units.Rotations));
 
         pivotAngleStatus.refresh(false);
 
