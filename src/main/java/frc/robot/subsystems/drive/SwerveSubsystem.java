@@ -28,6 +28,7 @@ import frc.robot.commands.MoveCommand;
 import frc.robot.subsystems.drive.generated.TunerConstants;
 import frc.robot.subsystems.drive.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.subsystems.simulation.MapleSimSwerveDrivetrain;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.002; // 2 ms or 50hz
@@ -258,24 +259,24 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     }
     
     private void startSimThread() {
-        // simDrivetrain = new MapleSimSwerveDrivetrain(
-        //     Units.Seconds.of(kSimLoopPeriod),
-        //     Units.Pounds.of(110),
-        //     Units.Inches.of(30),
-        //     Units.Inches.of(30),
-        //     DCMotor.getKrakenX60Foc(1),
-        //     DCMotor.getKrakenX60Foc(1),
-        //     1.2,
-        //     getModuleLocations(),
-        //     getPigeon2(),
-        //     getModules(),
-        //     TunerConstants.FrontLeft,
-        //     TunerConstants.FrontRight,
-        //     TunerConstants.BackLeft,
-        //     TunerConstants.BackRight
-        // );
+        simDrivetrain = new MapleSimSwerveDrivetrain(
+            Units.Seconds.of(kSimLoopPeriod),
+            Units.Pounds.of(110),
+            Units.Inches.of(30),
+            Units.Inches.of(30),
+            DCMotor.getKrakenX60Foc(1),
+            DCMotor.getKrakenX60Foc(1),
+            1.2,
+            getModuleLocations(),
+            getPigeon2(),
+            getModules(),
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
+            TunerConstants.BackRight
+        );
 
-        // m_simNotifier = new Notifier(simDrivetrain::update);
-        // m_simNotifier.startPeriodic(kSimLoopPeriod);
+        m_simNotifier = new Notifier(simDrivetrain::update);
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 }
