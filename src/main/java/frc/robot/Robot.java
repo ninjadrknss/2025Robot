@@ -114,6 +114,11 @@ public class Robot extends TimedRobot {
     }
 
     @Override
+    public void driverStationConnected() {
+        LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
+    }
+
+    @Override
     public void disabledInit() {
         // ElevatorWristSubsystem.getInstance().setCoastMode();
         SignalLogger.stop();
@@ -130,6 +135,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
         // autonomousCommand = autonSubsystem.getSelectedAuton();
         autonomousCommand = Commands.sequence(
         Commands.runOnce(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())),
@@ -147,6 +153,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 

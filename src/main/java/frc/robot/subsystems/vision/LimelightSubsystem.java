@@ -1,5 +1,6 @@
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.Unit;
@@ -8,6 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.LimelightHelpers;
 import frc.lib.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.drive.Odometry.RobotState;
+
+import java.util.Optional;
 
 public class LimelightSubsystem extends SubsystemBase {
     public enum LEDMode {
@@ -69,6 +72,13 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty()) LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{ 6,  7,  8,  9, 10, 11,
+                                                                                                                        17, 18, 19, 20, 21, 22});
+        else if (alliance.get().equals(DriverStation.Alliance.Blue)) LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{17, 18, 19, 20, 21, 22});
+        else if (alliance.get().equals(DriverStation.Alliance.Red)) LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{6, 7, 8, 9, 10, 11});
+    }
+
+    public void setAprilTagFilters() {
     }
 }
