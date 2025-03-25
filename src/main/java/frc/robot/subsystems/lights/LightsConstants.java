@@ -11,14 +11,14 @@ public class LightsConstants {
 
     public static final double blinkInterval = 0.2;
 
-    public static final double fadeDuration = 0.2;
+    public static final double fadeDuration = 0.5;
 
     public static final CANdleConfiguration caNdleConfiguration = new CANdleConfiguration();
-
     static {
         caNdleConfiguration.brightnessScalar = LightsConstants.brightness;
         caNdleConfiguration.stripType = CANdle.LEDStripType.GRB;
         caNdleConfiguration.v5Enabled = true;
+        caNdleConfiguration.vBatOutputMode = CANdle.VBatOutputMode.Off;
         caNdleConfiguration.disableWhenLOS = false;// TODO: why is this triggering?
     }
 }

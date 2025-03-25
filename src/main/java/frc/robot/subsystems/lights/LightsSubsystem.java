@@ -4,12 +4,9 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.RainbowAnimation;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
 
 /*
@@ -18,22 +15,21 @@ import frc.robot.Robot;
 
 public class LightsSubsystem extends SubsystemBase {
     private static LightsSubsystem instance = null;
+    private static final boolean doFadePercent = false;
 
     private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
+
+    private boolean fading = false;
+    private double fadeStartTime = 0.0;
+    private double fadePercent = 0.0;
+    private Color fadeStartColor = Colors.OFF;
+    private Color fadeEndColor = Colors.OFF;
 
     private final Timer blinkTimer = new Timer();
     private boolean blinking = false;
     private boolean blinkOff = false;
 
-    private boolean doFadePercent = true;
-    private boolean fading = false;
-    private double fadeStartTime = 0.0;
-    private double fadeDurationSec = 0.0;
-    private double fadePercent = 0.0;
-    private Color fadeStartColor = Colors.OFF;
-    private Color fadeEndColor = Colors.OFF;
-
-    private Color currentColor = Colors.OFF;
+    private int[] currentColor = new int[]{0, 0, 0};
 
     public static class Color {
         private final int R, G, B;
@@ -45,7 +41,6 @@ public class LightsSubsystem extends SubsystemBase {
         }
     }
 
-    @SuppressWarnings("unused")
     public static final class Colors {
         // -----------------------------------------------------
         // Basic Colors
@@ -71,6 +66,8 @@ public class LightsSubsystem extends SubsystemBase {
         /* P3 */ public static final Color AQUAMARINE = new Color(166, 244, 220);
         /* P4 */ public static final Color MAJORELLE_BLUE = new Color(114, 76, 249);
         /* P5 */ public static final Color ULTRAVIOLET = new Color(86, 69, 146);
+
+        public static final Color[] allColors = new Color[]{Colors.WHITE, Colors.RED, Colors.YELLOW, Colors.ORANGE, Colors.GREEN, Colors.CYAN, Colors.BLUE, Colors.PURPLE, Colors.MAGENTA, Colors.PINK, Colors.AQUAMARINE};
     }
 
     public static LightsSubsystem getInstance() {
@@ -83,8 +80,8 @@ public class LightsSubsystem extends SubsystemBase {
 
         requestColor(Colors.RED);
 
-        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
-        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
+//        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
+//        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
         blinkTimer.start();
     }
 
@@ -92,8 +89,7 @@ public class LightsSubsystem extends SubsystemBase {
         System.out.printf("Setting color (%d, %d, %d)%n", color.R, color.G, color.B);
         blinking = blink;
         blinkTimer.reset();
-        fadeBetweenColors(new Color(currentColor.R, currentColor.G, currentColor.B), color);
-        currentColor = color;
+        fadeBetweenColors(new Color(currentColor[0], currentColor[1], currentColor[0]), color);
     }
 
     public void requestColor(Color color) {
@@ -105,7 +101,6 @@ public class LightsSubsystem extends SubsystemBase {
 
         this.fadeStartColor = start;
         this.fadeEndColor = end;
-        this.fadeDurationSec = LightsConstants.fadeDuration;
         this.fadeStartTime = Timer.getFPGATimestamp();
         this.fading = true;
 
@@ -137,6 +132,10 @@ public class LightsSubsystem extends SubsystemBase {
 
         if (fading) updateFade();
         if (blinking) updateBlink();
+
+        if (Timer.getFPGATimestamp() - fadeStartTime > LightsConstants.fadeDuration * 5) {
+            requestColor(Colors.allColors[(int) (Math.random() * Colors.allColors.length)]); // TODO: remove Cycle through colors
+        }
     }
 
     public void setFadePercent(double percent) {
@@ -147,26 +146,23 @@ public class LightsSubsystem extends SubsystemBase {
         double currentTime = Timer.getFPGATimestamp();
         double elapsed = currentTime - fadeStartTime;
 
-        double fraction = doFadePercent ? MathUtil.clamp(fadePercent, 0, 1) : elapsed / fadeDurationSec;
+        double fraction = doFadePercent ? MathUtil.clamp(fadePercent, 0, 1) : elapsed / LightsConstants.fadeDuration;
         if (fraction >= 1.0) {
             fraction = 1.0;
             fading = false; // Fade is done
         }
 
-        int r = (int) (MathUtil.interpolate(fadeStartColor.R, fadeEndColor.R, fraction));
-        int g = (int) (MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction));
-        int b = (int) (MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction));
+        currentColor[0] = (int) (MathUtil.interpolate(fadeStartColor.R, fadeEndColor.R, fraction));
+        currentColor[1] = (int) (MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction));
+        currentColor[2] = (int) (MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction));
 
-        candle.setLEDs(r, g, b);
+        candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
     }
 
     private void updateBlink() {
         if (blinkTimer.hasElapsed(LightsConstants.blinkInterval)) {
-            candle.clearAnimation(0);
-            if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
-            else {
-                candle.setLEDs(currentColor.R/8, currentColor.G/8, currentColor.B/8);
-            }
+            if (blinkOff) candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
+            else candle.setLEDs(currentColor[0] / 8, currentColor[1] / 8, currentColor[2] / 8);
             blinkOff = !blinkOff;
             blinkTimer.reset();
         }
