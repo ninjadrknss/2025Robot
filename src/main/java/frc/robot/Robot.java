@@ -37,6 +37,9 @@ import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
 import frc.lib.TunableParameter;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.pathfinding.LocalADStar;
 
 
 public class Robot extends TimedRobot {
@@ -90,9 +93,8 @@ public class Robot extends TimedRobot {
         //AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
 
 //        SignalLogger.start(); // TODO: enable this for competition
-
+        Pathfinding.setPathfinder(new LocalADStar()); // can the LocalADStar be static? It likely takes a lot of resources even if its spun off into its own thread
         PathfindingCommand.warmupCommand().schedule();
-        FollowPathCommand.warmupCommand().schedule();
 
         // TODO: disable this for competitions
         scheduler.onCommandInitialize(command -> System.out.println("Initializing command: " + command.getName() + "@" + command.getSubsystem() + " w/" + command.getRequirements()));

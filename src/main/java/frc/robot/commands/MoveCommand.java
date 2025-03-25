@@ -10,6 +10,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PathFollowingController;
@@ -63,7 +64,8 @@ public class MoveCommand extends Command {
         this.swerveSubsystem = swerveSubsystem;
         this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyRobotSpeeds();
         this.preciseMoveCommand = new PreciseMoveCommand(targetPose);
-        Pathfinding.setPathfinder(new LocalADStar()); // can the LocalADStar be static? It likely takes a lot of resources even if its spun off into its own thread
+        // Pathfinding.setPathfinder(new LocalADStar()); // can the LocalADStar be static? It likely takes a lot of resources even if its spun off into its own thread
+        // PathfindingCommand.warmupCommand().schedule();
     }
 
     @Override

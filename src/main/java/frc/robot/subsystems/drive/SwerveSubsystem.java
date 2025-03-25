@@ -45,8 +45,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    private final SwerveRequest.ApplyRobotSpeeds poop3;
-
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -127,6 +125,11 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             .withSteerRequestType(SwerveModule.SteerRequestType.Position)
             .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
 
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds()
+        .withSteerRequestType(SwerveModule.SteerRequestType.Position)
+        .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+
+
     /* The SysId routine to test */
     private final SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
     
@@ -158,7 +161,6 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
             new PIDConstants(0.5, 0.0, 0.0),
             new PIDConstants(1, 0.0, 0.0)
         );
-        this.poop3= new SwerveRequest.ApplyRobotSpeeds();
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
         AutoBuilder.configure(this::getPose, null, this::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, this);
         if (Utils.isSimulation()) startSimThread();
@@ -167,7 +169,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     }
 
     private void drive(ChassisSpeeds robotSpeeds, DriveFeedforwards feedforward) {
-        this.setControl(poop3.withSpeeds(robotSpeeds));
+        this.setControl(m_pathApplyRobotSpeeds.withSpeeds(robotSpeeds));
     }
 
     /**
