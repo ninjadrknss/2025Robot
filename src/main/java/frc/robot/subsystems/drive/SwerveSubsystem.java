@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -19,11 +20,12 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -159,7 +161,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         this.poop3= new SwerveRequest.ApplyRobotSpeeds();
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
         AutoBuilder.configure(this::getPose, null, this::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, this);
-        // if (Utils.isSimulation()) startSimThread();
+        if (Utils.isSimulation()) startSimThread();
 
         System.out.println("Swerve Starting!");
     }
@@ -265,10 +267,10 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     @Override
     public void resetPose(Pose2d pose) {
-        // if (simDrivetrain != null) {
-        //     simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-        //     Timer.delay(0.05); // Wait for simulation to update
-        // }
+        if (simDrivetrain != null) {
+            simDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+            Timer.delay(0.05); // Wait for simulation to update
+        }
         super.resetPose(pose);
     }
     

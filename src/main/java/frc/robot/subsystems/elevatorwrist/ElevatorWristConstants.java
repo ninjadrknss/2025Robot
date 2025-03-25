@@ -14,8 +14,9 @@ import frc.robot.Robot;
 
 public class ElevatorWristConstants {
     // 36 teeth of pulley, 5mm spacing, with a 10:58 gear ratio
-    private static final double doubleRevolutionsPerInch = 36 * Units.Millimeter.of(5).in(Units.Inches) * 10 / 58; // I think
-    public static final Per<AngleUnit, DistanceUnit> revolutionsPerInch = Units.Revolutions.of(doubleRevolutionsPerInch).per(Units.Inch); // I think
+    public static final Per<AngleUnit, DistanceUnit> revolutionsPerInch = Units.Revolutions.of(
+            36.0 * Units.Millimeter.of(5.0).in(Units.Inches) * 10.0 / 58.0
+    ).per(Units.Inch); // I think
 
     public static final CTREConfig<CANcoder, CANcoderConfiguration> homeHallEffect = new CTREConfig<>(CANcoderConfiguration::new);
     static {

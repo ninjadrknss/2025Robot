@@ -183,7 +183,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {
-//        PhotonvisionSim.getInstance().update();
-//        SimulatedArena.getInstance().simulationPeriodic();
+       PhotonvisionSim.getInstance().update();
+       SimulatedArena.getInstance().simulationPeriodic();
     }
 }

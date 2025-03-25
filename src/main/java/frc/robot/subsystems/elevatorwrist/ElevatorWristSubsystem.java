@@ -67,23 +67,23 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     /* Motors and Controls */
-//    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
+    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
     private final MotionMagicTorqueCurrentFOC leaderControl = new MotionMagicTorqueCurrentFOC(0);
     private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
-//    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
-//    private final Follower followerControl = new Follower(leader.getDeviceID(), true);
-//    private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
-//    private final MotionMagicTorqueCurrentFOC wristControl = new MotionMagicTorqueCurrentFOC(ElevatorState.HOME.angle);
+    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
+    private final Follower followerControl = new Follower(leader.getDeviceID(), true);
+    private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
+    private final MotionMagicTorqueCurrentFOC wristControl = new MotionMagicTorqueCurrentFOC(ElevatorState.HOME.angle);
 
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
-//    private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
-//    private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
+    private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
+    private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
     private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
-    // private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
-    // private final StatusSignal<Angle> wristAngleStatus = wristEncoder.getPosition(); // TODO: Pull data from motor
-    //    private final CANcoder homeCANcoder = ElevatorWristConstants.homeHallEffect.createDevice(CANcoder::new);
+    private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
+    private final StatusSignal<Angle> wristAngleStatus = wrist.getPosition(); // TODO: Pull data from motor
+//    private final CANcoder homeCANcoder = ElevatorWristConstants.homeHallEffect.createDevice(CANcoder::new);
     private boolean elevatorStalled = false;
 
     /* State Machine */
@@ -111,32 +111,32 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //    private ElevatorWristSim sim = null;
     private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false); // TODO: remove
 
-//    private final SysIdRoutine elevatorIdRoutine = new SysIdRoutine(
-//            new SysIdRoutine.Config(
-//                    null,
-//                    Units.Volts.of(4),
-//                    null,
-//                    state -> SignalLogger.writeString("SysIdElevatorState", state.toString())
-//            ),
-//            new SysIdRoutine.Mechanism(
-//                    (volts) -> leader.setControl(new TorqueCurrentFOC(volts.in(Units.Volts))),
-//                    null,
-//                    this
-//            )
-//    );
-//    private final SysIdRoutine wristIdRoutine = new SysIdRoutine(
-//            new SysIdRoutine.Config(
-//                    Units.Volts.of(0.25).per(Units.Seconds),
-//                    Units.Volts.of(1),
-//                    null,
-//                    state -> SignalLogger.writeString("SysIdWristState", state.toString())
-//            ),
-//            new SysIdRoutine.Mechanism(
-//                    (volts) -> wrist.setControl(new TorqueCurrentFOC(volts.in(Units.Volts))),
-//                    null,
-//                    this
-//            )
-//    );
+    private final SysIdRoutine elevatorIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                    null,
+                    Units.Volts.of(4),
+                    null,
+                    state -> SignalLogger.writeString("SysIdElevatorState", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                    (volts) -> leader.setControl(new TorqueCurrentFOC(volts.in(Units.Volts))),
+                    null,
+                    this
+            )
+    );
+    private final SysIdRoutine wristIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                    Units.Volts.of(0.25).per(Units.Seconds),
+                    Units.Volts.of(1),
+                    null,
+                    state -> SignalLogger.writeString("SysIdWristState", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                    (volts) -> wrist.setControl(new TorqueCurrentFOC(volts.in(Units.Volts))),
+                    null,
+                    this
+            )
+    );
 
     private static ElevatorWristSubsystem instance;
     public static ElevatorWristSubsystem getInstance() {
@@ -147,54 +147,54 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private ElevatorWristSubsystem() {
 //        if (Utils.isSimulation()) sim = ElevatorWristSim.getInstance();
 
-        // leader.setControl(leaderControl);
+        leader.setControl(leaderControl);
 
-//        follower.setControl(followerControl);
+        follower.setControl(followerControl);
 
-        // wrist.setControl(wristControl);
+        wrist.setControl(wristControl);
 
-//        leader.setPosition(0);
+        leader.setPosition(0);
     }
 
-//    public Command elevatorQuasistaticId(boolean forward) {
-//        return elevatorIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-//    }
-//
-//    public Command elevatorDynamicId(boolean forward) {
-//        return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-//    }
-//
-//    public Command wristQuasistaticId(boolean forward) {
-//        return wristIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-//    }
-//
-//    public Command wristDynamicId(boolean forward) {
-//        return wristIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-//    }
+    public Command elevatorQuasistaticId(boolean forward) {
+        return elevatorIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
+
+    public Command elevatorDynamicId(boolean forward) {
+        return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
+
+    public Command wristQuasistaticId(boolean forward) {
+        return wristIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
+
+    public Command wristDynamicId(boolean forward) {
+        return wristIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
 
     private void setElevatorHeight(Distance height) {
 //        leaderControl.withPosition(height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch));
-        // if (!homing) leader.setControl(leaderControl);
+//        if (state != ElevatorState.HOME) leader.setControl(leaderControl);
     }
 
     private void setWristAngle(Angle angle) {
-        // wristControl.withPosition(angle.in(Revolutions));
-        // wrist.setControl(wristControl);
+//         wristControl.withPosition(angle);
+//         wrist.setControl(wristControl);
     }
     
-//    public void setBrakeMode() {
-//        leader.setNeutralMode(NeutralModeValue.Brake);
-//        follower.setNeutralMode(NeutralModeValue.Brake);
-//
-//        wrist.setNeutralMode(NeutralModeValue.Brake);
-//    }
-//
-//    public void setCoastMode() {
-//        leader.setNeutralMode(NeutralModeValue.Coast);
-//        follower.setNeutralMode(NeutralModeValue.Coast);
-//
-//        wrist.setNeutralMode(NeutralModeValue.Coast);
-//    }
+    public void setBrakeMode() {
+        leader.setNeutralMode(NeutralModeValue.Brake);
+        follower.setNeutralMode(NeutralModeValue.Brake);
+
+        wrist.setNeutralMode(NeutralModeValue.Brake);
+    }
+
+    public void setCoastMode() {
+        leader.setNeutralMode(NeutralModeValue.Coast);
+        follower.setNeutralMode(NeutralModeValue.Coast);
+
+        wrist.setNeutralMode(NeutralModeValue.Coast);
+    }
 
     @Override
     public void periodic() {
@@ -222,17 +222,17 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         }
         homingPeriodic(); // TODO: test homing
 
-//        elevatorPositionStatus.refresh(false);
-//        elevatorCurrentStatus.refresh(false);
-        // wristAngleStatus.refresh(false);
+        elevatorPositionStatus.refresh(false);
+        elevatorCurrentStatus.refresh(false);
+        wristAngleStatus.refresh(false);
 
-//        elevatorAtPosition = elevatorDebouncer.calculate(
-//                elevatorPositionStatus.getValue().isNear(
-//                state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
-//                , Units.Revolutions.of(0.1))
-//        ); // 0.1 revolutions tolerance
-        // wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
-//        elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
+        elevatorAtPosition = elevatorDebouncer.calculate(
+                elevatorPositionStatus.getValue().isNear(
+                state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
+                , Units.Revolutions.of(0.1))
+        ); // 0.1 revolutions tolerance
+         wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
+        elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
 
         telemetry();
@@ -289,8 +289,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     public boolean isTall() {
-        return false;
-//        return elevatorPositionStatus.getValue().gt(Units.Inches.of(6).timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)); // if the elevator is taller than 6 inches
+        return elevatorPositionStatus.getValue().gt(Units.Inches.of(6).timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)); // if the elevator is taller than 6 inches
     }
 
     public boolean homedOnce() {
@@ -371,11 +370,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putString("ElevatorWrist/Prev Elevator State", prevState != null ? prevState.toString() : "null");
         SmartDashboard.putNumber("ElevatorWrist/MovePercent", movePercent());
 
-//        SmartDashboard.putNumber("ElevatorWrist/Elevator Height", elevatorPositionStatus.getValueAsDouble());
-//        SmartDashboard.putNumber("ElevatorWrist/Elevator Current", elevatorCurrentStatus.getValueAsDouble());
+        SmartDashboard.putNumber("ElevatorWrist/Elevator Height", elevatorPositionStatus.getValueAsDouble());
+        SmartDashboard.putNumber("ElevatorWrist/Elevator Current", elevatorCurrentStatus.getValueAsDouble());
         SmartDashboard.putNumber("ElevatorWrist/Elevator Setpoint", state.height.in(Units.Inches) *
                 ElevatorWristConstants.revolutionsPerInch.in(PerUnit.combine(Units.Revolutions, Units.Inches)));
-        // SmartDashboard.putNumber("ElevatorWrist/Wrist Angle", wristAngleStatus.getValueAsDouble());
+        SmartDashboard.putNumber("ElevatorWrist/Wrist Angle", wristAngleStatus.getValueAsDouble());
         SmartDashboard.putNumber("ElevatorWrist/Wrist Setpoint", state.angle.in(Units.Revolutions));
 
         SmartDashboard.putBoolean("ElevatorWrist/Homed Once", homedOnce);

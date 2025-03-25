@@ -5,7 +5,6 @@ import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.*;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 
@@ -143,19 +142,20 @@ public class ControlBoard {
         controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        controller.leftBumper.whileTrue(new AssistCommand());
+//        controller.leftBumper.whileTrue(new AssistCommand());
 
         /* Intake Subsystem */
-        List<Pose2d> waypoints = new ArrayList<>();
-        waypoints.add(new Pose2d(0.5, 0, new Rotation2d(0)));
-        waypoints.add(new Pose2d(0.75, 0, new Rotation2d(0)));
-        //controller.leftTrigger.whileTrue();
-        //Command poopface = swerveSubsystem.goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints);
-        //controller.leftTrigger.whileTrue(SwerveSubsystem.getInstance().goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints));
         // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
-        controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
+//        List<Pose2d> waypoints = new ArrayList<>();
+//        waypoints.add(new Pose2d(0.5, 0, new Rotation2d(0)));
+//        waypoints.add(new Pose2d(0.75, 0, new Rotation2d(0)));
+        // controller.leftTrigger.whileTrue();
+        // Command testCommand = swerveSubsystem.goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints);
+        // controller.leftTrigger.whileTrue(SwerveSubsystem.getInstance().goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints));
+
+        // controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
@@ -166,10 +166,10 @@ public class ControlBoard {
         // controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         // controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
 
-        controller.dUp.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
-        controller.dRight.whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
-        controller.dDown.whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
-        controller.dLeft.whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
+        controller.dUp.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
+        controller.dRight.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
+        controller.dDown.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
+        controller.dLeft.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
 
        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
