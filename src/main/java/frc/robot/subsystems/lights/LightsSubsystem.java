@@ -1,10 +1,15 @@
 package frc.robot.subsystems.lights;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.RainbowAnimation;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
 
 /*
@@ -14,7 +19,7 @@ import frc.robot.Robot;
 public class LightsSubsystem extends SubsystemBase {
     private static LightsSubsystem instance = null;
 
-//    private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
+    private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
 
     private final Timer blinkTimer = new Timer();
     private boolean blinking = false;
@@ -74,12 +79,12 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     private LightsSubsystem() {
-//        candle.configAllSettings(LightsConstants.caNdleConfiguration);
+       candle.configAllSettings(LightsConstants.caNdleConfiguration);
 
         requestColor(Colors.RED);
 
-//        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
-//        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
+        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
+        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
         blinkTimer.start();
     }
 
@@ -104,13 +109,13 @@ public class LightsSubsystem extends SubsystemBase {
         this.fadeStartTime = Timer.getFPGATimestamp();
         this.fading = true;
 
-//        candle.setLEDs(start.R, start.G, start.B);
+       candle.setLEDs(start.R, start.G, start.B);
     }
 
     public void requestRainbow() {
         System.out.println("Rainbowify");
-//        candle.clearAnimation(0);
-//        candle.animate(new RainbowAnimation(0.50, 0.75, LightsConstants.numLEDs, false, 0));
+        candle.clearAnimation(0);
+        candle.animate(new RainbowAnimation(0.50, 0.75, LightsConstants.numLEDs, false, 0));
     }
 
     public void requestBlinking(boolean blink) {
@@ -125,8 +130,8 @@ public class LightsSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-//        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
-//        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
+        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
+        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
         SmartDashboard.putBoolean("LED/Blinking", blinking);
         SmartDashboard.putBoolean("LED/BlinkOff", blinkOff);
 
@@ -152,16 +157,16 @@ public class LightsSubsystem extends SubsystemBase {
         int g = (int) (MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction));
         int b = (int) (MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction));
 
-//        candle.setLEDs(r, g, b);
+        candle.setLEDs(r, g, b);
     }
 
     private void updateBlink() {
         if (blinkTimer.hasElapsed(LightsConstants.blinkInterval)) {
-//            candle.clearAnimation(0);
-//            if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
-//            else {
-//                candle.setLEDs(currentColor.R/8, currentColor.G/8, currentColor.B/8);
-//            }
+            candle.clearAnimation(0);
+            if (blinkOff) candle.setLEDs(currentColor.R, currentColor.G, currentColor.B);
+            else {
+                candle.setLEDs(currentColor.R/8, currentColor.G/8, currentColor.B/8);
+            }
             blinkOff = !blinkOff;
             blinkTimer.reset();
         }
