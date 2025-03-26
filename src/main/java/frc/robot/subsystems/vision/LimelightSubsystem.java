@@ -1,16 +1,16 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.Unit;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.LimelightHelpers;
 import frc.lib.LimelightHelpers.PoseEstimate;
 import frc.robot.subsystems.drive.Odometry.RobotState;
-
-import java.util.Optional;
 
 public class LimelightSubsystem extends SubsystemBase {
     public enum LEDMode {
@@ -37,6 +37,12 @@ public class LimelightSubsystem extends SubsystemBase {
     public boolean hasTarget() {
         return LimelightHelpers.getTV(this.name);
     }
+    //TODO: Maybe?
+    //MegaTag Standard Deviations [MT1x, MT1y, MT1z, MT1roll, MT1pitch, MT1Yaw, MT2x, MT2y, MT2z, MT2roll, MT2pitch, MT2yaw]
+    public double[] getSTD(){
+        //return NetworkTableInstance.getDefault().getTable(name).getEntry("stddevs").getDoubleArray(new double[12]);
+        return LimelightHelpers.getSTD(name);
+    }
 
     public PoseEstimate getPoseEstimate(RobotState previousRobotState) {
         Pose2d previousRobotPose = previousRobotState.getPose();
@@ -47,7 +53,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 previousRobotPose.getRotation().getDegrees(),
                 0, 0, 0, 0, 0
         );
-
+        
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.Limelight.name);
 
         if (mt2 == null) return null; // Pose not found

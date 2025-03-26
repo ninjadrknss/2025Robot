@@ -391,22 +391,6 @@ public class Odometry extends SubsystemBase {
         return closest;
     }
 
-    private void addVisionMeasurement() {
-        RobotState previousRobotState = getRobotState();
-        PoseEstimate limelightPose = limelight.getPoseEstimate(previousRobotState);
-//        EstimatedRobotPose photonVisionPose = photonvision.update(previousRobotState.pose);
-
-        if (limelightPose != null ){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-            swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
-        }
-
-//        if (photonVisionPose != null && photonVisionPose.estimatedPose.getTranslation().toTranslation2d().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-//            swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-//            swerve.addVisionMeasurement(photonVisionPose.estimatedPose.toPose2d(), photonVisionPose.timestampSeconds);
-//        }
-    }
-
     public RobotState getRobotState() {
         // Return the current Pose2d from the swerve, the *computed* velocity, and the measured angular velocity
         return new RobotState(
@@ -508,7 +492,7 @@ public class Odometry extends SubsystemBase {
             }*/
         } else {
             if (limelightPose != null ){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-                swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.15, .15, 9999999));
+                swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.1, .1, 9999999));//TODO: tune
                 swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
             }
         }

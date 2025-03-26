@@ -833,6 +833,7 @@ public class LimelightHelpers {
     public static NetworkTable getLimelightNTTable(String tableName) {
         return NetworkTableInstance.getDefault().getTable(sanitizeName(tableName));
     }
+    
 
     public static void Flush() {
         NetworkTableInstance.getDefault().flush();
@@ -1295,8 +1296,10 @@ public class LimelightHelpers {
         return toPose2D(result);
 
     }
-   
 
+    public static double[] getSTD(String limelightName) {
+        return getLimelightNTTableEntry(limelightName, "std").getDoubleArray(new double[12]);
+    }
 
     /////
     /////
