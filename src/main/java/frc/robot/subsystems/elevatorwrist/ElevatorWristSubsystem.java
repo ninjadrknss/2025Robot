@@ -242,7 +242,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     private void homeElevator() {
         // Force the elevator to move down until the home switch or current limit is reached is triggered
-        homeControl.withOutput(-1.0); // kG ~ 0.5
+//        homeControl.withOutput(-1.0); // kG ~ 0.5
 //        leader.setControl(homeControl);
     }
 

@@ -13,12 +13,12 @@ public class LightsConstants {
 
     public static final double fadeDuration = 0.5;
 
-    public static final CANdleConfiguration caNdleConfiguration = new CANdleConfiguration();
+    public static final CANdleConfiguration CANdleConfiguration = new CANdleConfiguration();
     static {
-        caNdleConfiguration.brightnessScalar = LightsConstants.brightness;
-        caNdleConfiguration.stripType = CANdle.LEDStripType.GRB;
-        caNdleConfiguration.v5Enabled = true;
-        caNdleConfiguration.vBatOutputMode = CANdle.VBatOutputMode.Off;
-        caNdleConfiguration.disableWhenLOS = false;// TODO: why is this triggering?
+        CANdleConfiguration.brightnessScalar = LightsConstants.brightness;
+        CANdleConfiguration.stripType = CANdle.LEDStripType.GRB;
+        CANdleConfiguration.v5Enabled = true;
+        CANdleConfiguration.vBatOutputMode = CANdle.VBatOutputMode.Off;
+        CANdleConfiguration.disableWhenLOS = false;// TODO: why is this triggering?
     }
 }

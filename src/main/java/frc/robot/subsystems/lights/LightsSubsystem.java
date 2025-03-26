@@ -76,7 +76,7 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     private LightsSubsystem() {
-       candle.configAllSettings(LightsConstants.caNdleConfiguration);
+       candle.configAllSettings(LightsConstants.CANdleConfiguration);
 
         requestColor(Colors.RED);
 
