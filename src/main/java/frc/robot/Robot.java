@@ -35,11 +35,13 @@ import frc.robot.subsystems.auton.AutonSubsystem;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
+import frc.robot.util.FieldConstants;
 import frc.lib.TunableParameter;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.pathfinding.LocalADStar;
+import frc.robot.commands.AssistCommand;
 
 
 public class Robot extends TimedRobot {
@@ -54,7 +56,7 @@ public class Robot extends TimedRobot {
     private final ControlBoard controlBoard;
     private final CommandScheduler scheduler;
     private final AutonSubsystem autonSubsystem;
-    private final Field2d m_field = new Field2d();
+    //private final Field2d m_field = new Field2d();
 
     //temp here bc i dont think i can put it into swervesubsystems because of the way odometry is set up with swerve as a subsystem
     private final Odometry odometry;
@@ -65,11 +67,14 @@ public class Robot extends TimedRobot {
         autonSubsystem = AutonSubsystem.getInstance();
         odometry = Odometry.getInstance();
 
-        SmartDashboard.putData("Field", m_field);
-        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-            // Do whatever you want with the pose here
-            m_field.setRobotPose(pose);
-        });
+        // SmartDashboard.putData("Field", m_field);
+        // PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+        //     // Do whatever you want with the pose here
+        //     m_field.setRobotPose(pose);
+        // });
+
+
+
         // // Logging callback for target robot pose
         // PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
         //     // Do whatever you want with the pose here
@@ -159,7 +164,7 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         //TODO: please dont forget about this: 
-        //new AssistCommand(null, FieldConstants.GameElement.Branch.LEFT).schedule();
+        //new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT).schedule();
     }
 
     @Override

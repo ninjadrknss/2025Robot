@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,6 +47,8 @@ public class Odometry extends SubsystemBase {
     // --- ADD THESE FIELDS FOR VELOCITY CALC ---
     private Pose2d previousPose = new Pose2d();
     private double previousTime = 0.0;
+
+    private final Field2d m_field = new Field2d();
 
     Pose3d simulationPose = new Pose3d();
     private static Pose2d globalPose = new Pose2d(0, 0, new Rotation2d(0));
@@ -168,7 +171,7 @@ public class Odometry extends SubsystemBase {
             double bestCost = Double.MAX_VALUE;
 
             for (GameElement element : GameElement.values()) {
-                if (element.isBlue() != ALLIANCE_IS_BLUE || element.shouldIgnore()) {
+                if (element.isBlue() == ALLIANCE_IS_BLUE || element.shouldIgnore()) {
                     continue;
                 }
                 Pose2d elementPose = GameElement.getPoseWithOffset(element, 1.0);
@@ -247,7 +250,7 @@ public class Odometry extends SubsystemBase {
             double radiusSq = FORCE_SELECTION_RADIUS * FORCE_SELECTION_RADIUS;
 
             for (GameElement element : GameElement.values()) {
-                if (element.isBlue() != ALLIANCE_IS_BLUE || element.shouldIgnore()) {
+                if (element.isBlue() == ALLIANCE_IS_BLUE || element.shouldIgnore()) {
                     continue;
                 }
                 Pose2d elementPose = GameElement.getPoseWithOffset(element, 1.0);
@@ -347,6 +350,7 @@ public class Odometry extends SubsystemBase {
         controlBoard = ControlBoard.getInstance();
 
         SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
+        SmartDashboard.putData("Field", m_field);
 
     }
 
@@ -460,9 +464,6 @@ public class Odometry extends SubsystemBase {
         swerve.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
     }
 
-    public void displayValues() {
-    }
-
     public Pose2d predictFuturePose(double secondsAhead) {
         Pose2d currentPose = getPose();
         double currentX = currentPose.getX();
@@ -483,7 +484,7 @@ public class Odometry extends SubsystemBase {
     @Override
     public void periodic() {
         globalPose = swerve.getPose();
-
+        m_field.setRobotPose(globalPose);
         publisher.set(getPose3d());
         //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
         //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
@@ -533,7 +534,8 @@ public class Odometry extends SubsystemBase {
         TargetPredictor.PredictionResult prediction = TargetPredictor.predictTargetElement(getRobotState(), controlBoard);
 
         controlBoard.desiredGoal = prediction.getTarget();
+
         controlBoard.goalConfidence = prediction.getConfidence();
-        displayValues();
+        SmartDashboard.putString("Odometry/Current Goal", controlBoard.desiredGoal.name());
     }
 }

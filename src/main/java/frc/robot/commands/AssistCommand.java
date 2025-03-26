@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.ControlBoard;
@@ -39,19 +40,21 @@ public class AssistCommand extends Command {
         addRequirements(this.swerve);
     }
 
+    public AssistCommand(GameElement gameElement, Branch selectedBranch) {
+        this(true, true);
+        this.gameElement = gameElement;
+        this.selectedBranch = selectedBranch;
+    }
+
     @Override
     public void initialize() {
-        gameElement = GameElement.REEF_BLUE_1;
+        SmartDashboard.putBoolean("Assist Command Active", true);
+        if (gameElement == null) gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
-        //elementPose = gameElement.getRightBranch();
-        selectedBranch = Branch.CENTER;//ControlBoard.getInstance().selectedBranch;
-
         if (gameElement.hasBranches() && selectedBranch == null) {
-            selectedBranch = closestBranch(swerve.getPose(), gameElement);
-        } 
-
-        if (gameElement.hasBranches() && selectedBranch != Branch.CENTER) {
-            elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
+            selectedBranch = ControlBoard.getInstance().selectedBranch;
+            if (selectedBranch != Branch.CENTER)
+                elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
         }
 
         Rotation2d targetRotation = gameElement.getLocation()
@@ -71,7 +74,6 @@ public class AssistCommand extends Command {
 
         desiredPosePublisher.set(targetPose);
         goToPositionCommand.initialize();
-        //superstructure.requestChuteIntake();
     }
 
     private Branch closestBranch(Pose2d currentPose, GameElement gameElement) {
@@ -95,6 +97,6 @@ public class AssistCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         ControlBoard.getInstance().isAssisting = false;
-        System.out.println("Assist Command Ended");
+        SmartDashboard.putBoolean("Assist Command Active", false);
     }
 }

@@ -142,7 +142,7 @@ public class ControlBoard {
         controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        controller.leftBumper.whileTrue(new AssistCommand());
+        controller.leftBumper.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
 
         /* Intake Subsystem */
         // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position

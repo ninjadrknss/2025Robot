@@ -53,11 +53,11 @@ public class LimelightSubsystem extends SubsystemBase {
         if (mt2 == null) return null; // Pose not found
         //if (!(Math.abs(rotationRate) < 360) || mt2.tagCount <= 0) return null;
 
-        SmartDashboard.putNumber("Limelight X", mt2.pose.getX());
-        SmartDashboard.putNumber("Limelight Y", mt2.pose.getY());
-        SmartDashboard.putNumber("Limelight Rotation", mt2.pose.getRotation().getDegrees());
-        SmartDashboard.putNumber("Limelight latency", mt2.latency);
-        SmartDashboard.putNumber("Limelight tag count", mt2.tagCount);
+        SmartDashboard.putNumber("Limelight/Limelight X", mt2.pose.getX());
+        SmartDashboard.putNumber("Limelight/Limelight Y", mt2.pose.getY());
+        SmartDashboard.putNumber("Limelight/Limelight Rotation", mt2.pose.getRotation().getDegrees());
+        SmartDashboard.putNumber("Limelight/Limelight latency", mt2.latency);
+        SmartDashboard.putNumber("Limelight/Limelight tag count", mt2.tagCount);
         return mt2;
     }
 
