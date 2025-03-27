@@ -38,7 +38,7 @@ public class AutonSubsystem {
             false,
             swerveSubsystem
         );
-
+        autoChooser.addRoutine("PaigusPath", () -> getAuton("PaigusPath"));
         autoChooser.addRoutine("TestAuton2", () -> getAuton("test2"));
         autoChooser.addRoutine("Untitled", () -> getAuton("Untitled"));
         autoChooser.addRoutine("pdaddy", () -> getAuton("pdaddy"));
@@ -64,14 +64,14 @@ public class AutonSubsystem {
             if (trajectory.getFinalPose().equals(Optional.empty())) break;
             if (index == 0) commandList.add(trajectory.resetOdometry());
             commandList.add(trajectory.cmd());
-            commandList.add(new AssistCommand(false, true));
-            commandList.add(new WaitCommand(1));
+            
+            //commandList.add(new AssistCommand(false, true));
+            //commandList.add(new WaitCommand(1));
             index++;
         }
 
         // Register the full sequence of commands to run when routine is active
         routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
-
         return routine;
     }
 

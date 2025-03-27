@@ -143,10 +143,10 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
-        // autonomousCommand = autonSubsystem.getSelectedAuton();
-        autonomousCommand = Commands.sequence(
-        Commands.runOnce(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())),
-        SwerveSubsystem.getInstance().applyRequest(() -> swerveRequest));
+        autonomousCommand = autonSubsystem.getSelectedAuton();
+        // autonomousCommand = Commands.sequence(
+        // Commands.runOnce(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())),
+        // SwerveSubsystem.getInstance().applyRequest(() -> swerveRequest));
 
         if (autonomousCommand != null) autonomousCommand.schedule();
     }
