@@ -164,7 +164,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
         //super(drivetrainConstants, 250, VecBuilder.fill(0.1, 0.1, 0), VecBuilder.fill(0.1, 0.1, 999999), MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
         super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
          PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(10, 0.0, 0.0),
+            new PIDConstants(7.51, 0.0, 0.0),
             new PIDConstants(1, 0.0, 0.0)
         );
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
