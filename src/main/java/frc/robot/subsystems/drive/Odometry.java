@@ -495,7 +495,8 @@ public class Odometry extends SubsystemBase {
 
         if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 1){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             //TODO: tune
-            swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
+            // swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
+            swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
         }
 
         double currentTime = Timer.getFPGATimestamp();
