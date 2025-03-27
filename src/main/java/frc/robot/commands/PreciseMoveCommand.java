@@ -26,10 +26,10 @@ public class PreciseMoveCommand extends Command {
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
     private final PIDController xController = new PIDController(
-        5, 0.0, 0
+        10, 0.0, 0
     );
     private final PIDController yController = new PIDController(
-        5, 0.0, 0
+        10, 0.0, 0
     );
     private final ProfiledPIDController thetaController;
 

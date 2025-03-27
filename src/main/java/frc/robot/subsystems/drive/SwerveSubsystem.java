@@ -117,9 +117,9 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     );
 
     /* Autonomous Controllers */
-    private final PIDController m_pathXController = new PIDController(1, 0.0, 0.0);
-    private final PIDController m_pathYController = new PIDController(1, 0.0, 0.0);
-    private final PIDController m_pathThetaController = new PIDController(30, 0.0, 0.0);
+    private final PIDController m_pathXController = new PIDController(1.5, 0.0, 0.0);
+    private final PIDController m_pathYController = new PIDController(1.5, 0.0, 0.0);
+    private final PIDController m_pathThetaController = new PIDController(10, 0.0, 0.0);
 
     private final SwerveRequest.ApplyFieldSpeeds m_pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds()
             .withSteerRequestType(SwerveModule.SteerRequestType.Position)
@@ -158,7 +158,7 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
     public SwerveSubsystem(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
          PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(0.5, 0.0, 0.0),
+            new PIDConstants(1.5, 0.0, 0.0),
             new PIDConstants(1, 0.0, 0.0)
         );
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh

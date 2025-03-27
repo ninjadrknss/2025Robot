@@ -351,7 +351,7 @@ public class Odometry extends SubsystemBase {
 
         SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
         SmartDashboard.putData("Field", m_field);
-
+        swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.001, .001, 9999999));
     }
 
     public static Odometry getInstance() {
@@ -492,7 +492,7 @@ public class Odometry extends SubsystemBase {
             }*/
         } else {
             if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 1){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-                //swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.001, .001, 9999999));//TODO: tune
+                //TODO: tune
                 swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
             }
         }

@@ -22,6 +22,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.drive.Odometry;
@@ -70,6 +71,7 @@ public class MoveCommand extends Command {
 
     @Override
     public void initialize() {
+        SmartDashboard.putBoolean("PP Move Command Active", true);
         // Record the initial pose and time for the continuous timeout feature.
         Pose2d currentPose = swerveSubsystem.getPose();
         lastMovedPose = currentPose;
@@ -94,17 +96,9 @@ public class MoveCommand extends Command {
 
         path.preventFlipping = true;
 
-        PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(0.25, 0.0, 0.0),
-            new PIDConstants(1, 0.0, 0.0)
-        );
         //AutoBuilder.configure(swerveSubsystem::getPose, null, swerveSubsystem::getChassisSpeeds, this::drive, controller, SwerveConstants.robotConfig, () -> false, swerveSubsystem);
         pathCommand = AutoBuilder.pathfindThenFollowPath(path, constraints);
         pathCommand.initialize();
-    }
-
-    private void drive(ChassisSpeeds robotSpeeds, DriveFeedforwards feedforward) {
-        swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(robotSpeeds));
     }
 
     private double distance(Pose2d current, Pose2d target) {
@@ -136,6 +130,7 @@ public class MoveCommand extends Command {
             if (!isPreciseMove) {
                 isPreciseMove = true;
                 preciseMoveCommand.initialize();
+                SmartDashboard.putBoolean("PP Move Command Active", false);
             }
             preciseMoveCommand.execute();
         }
