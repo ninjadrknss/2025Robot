@@ -49,13 +49,13 @@ public class AssistCommand extends Command {
     @Override
     public void initialize() {
         SmartDashboard.putBoolean("Assist Command Active", true);
-        // if (gameElement == null) gameElement = ControlBoard.getInstance().desiredGoal;
-         Pose2d elementPose = gameElement.getCenter();
-        // if (gameElement.hasBranches() && selectedBranch == null) {
-        //     selectedBranch = ControlBoard.getInstance().selectedBranch;
-        //     if (selectedBranch != Branch.CENTER)
-        //         elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
-        // }
+        if (gameElement == null) gameElement = ControlBoard.getInstance().desiredGoal;
+        Pose2d elementPose = gameElement.getCenter();
+        if (gameElement.hasBranches()) {
+            selectedBranch = ControlBoard.getInstance().selectedBranch;
+            if (selectedBranch != Branch.CENTER)
+                elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
+        }
 
         Rotation2d targetRotation = gameElement.getLocation()
             .getRotation()
@@ -65,8 +65,8 @@ public class AssistCommand extends Command {
         
         List<Pose2d> waypoints = new ArrayList<>();
 
-        if (firstWaypoint) waypoints.add(new Pose2d(GameElement.getPoseWithOffset(elementPose, 1.0).getX(), GameElement.getPoseWithOffset(elementPose, 1.0).getY(), targetRotation));
-        if (secondWaypoint) waypoints.add(new Pose2d(GameElement.getPoseWithOffset(elementPose, 0.65).getX(), GameElement.getPoseWithOffset(elementPose, 0.6).getY(), targetRotation));
+        if (firstWaypoint) waypoints.add(new Pose2d(GameElement.getPoseWithOffset(elementPose, 1.2).getX(), GameElement.getPoseWithOffset(elementPose, 1.0).getY(), targetRotation));
+        if (secondWaypoint) waypoints.add(new Pose2d(GameElement.getPoseWithOffset(elementPose, 0.85).getX(), GameElement.getPoseWithOffset(elementPose, 0.6).getY(), targetRotation));
 
         Pose2d targetPose = new Pose2d(offsetPose1.getX(), offsetPose1.getY(), targetRotation);
         

@@ -129,10 +129,10 @@ public class MoveCommand extends Command {
         } else if ((pathCommand == null || pathCommand.isFinished()) && preciseMoveCommand != null && !preciseMoveCommand.isFinished()) {
             if (!isPreciseMove) {
                 isPreciseMove = true;
-                preciseMoveCommand.initialize();
+                preciseMoveCommand.schedule();
+                System.out.println("im dumb");
                 SmartDashboard.putBoolean("PP Move Command Active", false);
             }
-            preciseMoveCommand.execute();
         }
     }
 

@@ -26,10 +26,10 @@ public class PreciseMoveCommand extends Command {
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
     private final PIDController xController = new PIDController(
-        5, 0.0, 0
+        15, 0.0, 0
     );
     private final PIDController yController = new PIDController(
-        5, 0.0, 0
+        15, 0.0, 0
     );
     private final ProfiledPIDController thetaController;
 
@@ -46,7 +46,7 @@ public class PreciseMoveCommand extends Command {
         this.targetPose = targetPose;
         this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyRobotSpeeds();
         thetaController = new ProfiledPIDController(
-            1, 0.05, 0, SwerveConstants.AutoConstants.kThetaControllerConstraints
+            2, 0.05, 0, SwerveConstants.AutoConstants.kThetaControllerConstraints
         );
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         thetaController.setTolerance(Math.toRadians(2), Math.toRadians(1));
@@ -82,6 +82,7 @@ public class PreciseMoveCommand extends Command {
 
     @Override
     public void execute() {
+        System.out.println("tangius");
         Pose2d currentPose = swerveSubsystem.getPose();
         Pose2d goal = targetPose;
 
@@ -143,7 +144,7 @@ public class PreciseMoveCommand extends Command {
             currentPose.getRotation()
         );
 
-        //swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
+        swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
     }
 
     private boolean isClose(Pose2d current, Pose2d target, double tolerance) {
@@ -162,7 +163,7 @@ public class PreciseMoveCommand extends Command {
     public boolean isFinished() {
         Pose2d currentPose = odometry.getPose();
         // Finish if near target position + orientation
-        return isClose(targetPose, currentPose, 0.05)
+        return isClose(targetPose, currentPose, 0.02)
             && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 2;
     }
 
