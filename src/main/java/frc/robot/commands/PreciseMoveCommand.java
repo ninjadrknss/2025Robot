@@ -26,15 +26,15 @@ public class PreciseMoveCommand extends Command {
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
     private final PIDController xController = new PIDController(
-        10, 0.0, 0
+        5, 0.0, 0
     );
     private final PIDController yController = new PIDController(
-        10, 0.0, 0
+        5, 0.0, 0
     );
     private final ProfiledPIDController thetaController;
 
     // Max velocity and acceleration
-	private static final double MAX_VELOCITY = 5;//SwerveConstants.AutoConstants.kMaxSpeedMetersPerSecond;
+	private static final double MAX_VELOCITY = 2;//SwerveConstants.AutoConstants.kMaxSpeedMetersPerSecond;
     private static final double MAX_ACCELERATION = 3; // meters per second^2
 
     // These track the commanded velocity from the previous loop, so we can ramp up/down.

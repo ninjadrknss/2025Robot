@@ -127,7 +127,8 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
 
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds()
         .withSteerRequestType(SwerveModule.SteerRequestType.Position)
-        .withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
+        .withDriveRequestType(SwerveModule.DriveRequestType.Velocity
+        );
 
 
     /* The SysId routine to test */
@@ -152,13 +153,14 @@ public class SwerveSubsystem extends TunerSwerveDrivetrain implements Subsystem 
      * the devices themselves. If they need the devices, they can access them through
      * getters in the classes.
      *
-     * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
+     * @param drivetrainConstants   Drivetrai
+     * n-wide constants for the swerve drive
      * @param modules               Constants for each specific module
      */
     public SwerveSubsystem(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
          PathFollowingController controller = new PPHolonomicDriveController(
-            new PIDConstants(1.5, 0.0, 0.0),
+            new PIDConstants(10, 0.0, 0.0),
             new PIDConstants(1, 0.0, 0.0)
         );
         CommandScheduler.getInstance().registerSubsystem(this); // Since it doesnt extend SubsystemBase ahhhhhh
