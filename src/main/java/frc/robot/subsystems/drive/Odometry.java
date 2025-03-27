@@ -491,8 +491,8 @@ public class Odometry extends SubsystemBase {
                 swerve.resetPose(photonVisionPose.estimatedPose.toPose2d());
             }*/
         } else {
-            if (limelightPose != null ){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
-                swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.1, .1, 9999999));//TODO: tune
+            if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 1){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+                //swerve.setVisionMeasurementStdDevs(VecBuilder.fill(.001, .001, 9999999));//TODO: tune
                 swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
             }
         }

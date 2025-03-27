@@ -155,7 +155,7 @@ public class ControlBoard {
         // Command testCommand = swerveSubsystem.goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints);
         // controller.leftTrigger.whileTrue(SwerveSubsystem.getInstance().goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints));
 
-        // controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
+        controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
@@ -166,13 +166,13 @@ public class ControlBoard {
         // controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         // controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
 
-        controller.dUp.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
-        controller.dRight.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
-        controller.dDown.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
-        controller.dLeft.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
+        // controller.dUp.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
+        // controller.dRight.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
+        // controller.dDown.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
+        // controller.dLeft.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
 
-       controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-       controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+    //    controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+    //    controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
