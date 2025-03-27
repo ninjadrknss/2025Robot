@@ -3,13 +3,8 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANrange;
-import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -19,21 +14,17 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /* Motors */
     private final TalonFX intakeMotor = IntakeConstants.intakeMotorConfig.createDevice(TalonFX::new);
-    private final VoltageOut intakeControl = new VoltageOut(0); // TODO: Tempted to use dutyCycle, but that will not adapt to forces as much
+    private final VoltageOut intakeControl = new VoltageOut(0);
 
     /* Sensors */
-    private final DigitalInput coralBeamBreak = new DigitalInput(IntakeConstants.beamBreakPort);
-    // private final CANrange algaeDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
+//     private final CANrange coralDistanceSensor = IntakeConstants.distanceSensorConfig.createDevice(CANrange::new);
 
     /* Statuses */
-    private boolean coralBeamBroken = false;
-    private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.1);
-
-    private boolean algaeDetected = false;
-    // private final StatusSignal<Distance> algaeDistanceSignal = algaeDistanceSensor.getDistance();
+    private boolean coralDetected = false;
+//    private final StatusSignal<Distance> coralDistanceSignal = coralDistanceSensor.getDistance();
 
     private boolean stalled = false;
-    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
+//    private final StatusSignal<Current> currentSignal = intakeMotor.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
 
     /* State Machine Logic */
@@ -77,39 +68,36 @@ public class IntakeSubsystem extends SubsystemBase {
             unsetAllRequests();
 
             switch (state) {
-                case IDLE -> setIntakeMotor(2);
+                case IDLE -> {
+                    if(coralDetected) setIntakeMotor(2);
+                    else setIntakeMotor(0);
+                }
                 case INTAKING -> setIntakeMotor(IntakeConstants.intakeSpeed);
                 case SPITTING -> setIntakeMotor(-IntakeConstants.spitSpeed);
             }
             LightsSubsystem.getInstance().requestBlinking(state != IntakeState.IDLE);
         }
 
-        // if (state == IntakeState.INTAKING && (coralBeamBroken || algaeDetected)) {
+        // if (state == IntakeState.INTAKING && (coralBeamBroken || coralDetected)) {
         //     setIntakeMotor(0);
         //     state = IntakeState.IDLE;
 
         //     System.out.println("IntakeSubsystem: Stopping intake due to: " + (coralBeamBroken ? "coral beam broken" : "algae detected"));
         // }
 
-        coralBeamBroken = coralBeamBreakDebouncer.calculate(!coralBeamBreak.get());
-        // algaeDistanceSignal.refresh(false);
-        // algaeDetected = algaeDistanceSignal.getValueAsDouble() < IntakeConstants.algaeDistanceThreshold;
-        currentSignal.refresh(false);
-        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
+//         coralDistanceSignal.refresh(false);
+//         coralDetected = coralDistanceSignal.getValueAsDouble() < IntakeConstants.coralDistanceThreshold;
+//        currentSignal.refresh(false);
+//        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
 
-        SmartDashboard.putBoolean("Intake/Coral Beam Broken", coralBeamBroken);
-        SmartDashboard.putBoolean("Intake/Algae Detected", algaeDetected);
+        SmartDashboard.putBoolean("Intake/Coral Detected", coralDetected);
         SmartDashboard.putBoolean("Intake/Stalled", stalled);
-//         SmartDashboard.putNumber("Intake/Algae Distance", algaeDistanceSignal.getValueAsDouble());
-        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
+//        SmartDashboard.putNumber("Intake/Coral Distance", coralDistanceSignal.getValueAsDouble());
+//        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }
 
-    public boolean coralBeamBroken() {
-        return coralBeamBroken;
-    }
-
-    public boolean algaeDetected() {
-        return algaeDetected;
+    public boolean coralDetected() {
+        return coralDetected;
     }
 
     private void unsetAllRequests() {
@@ -133,7 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
         requestedSpit = true;
     }
 
-    public boolean isDone(){
+    public boolean isDone() {
         return state == IntakeState.IDLE || state == IntakeState.SPITTING;
     }
 }

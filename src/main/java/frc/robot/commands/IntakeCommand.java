@@ -25,7 +25,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return coralBeamBreakDebouncer.calculate(intakeSubsystem.algaeDetected()); // Maybe
+        return coralBeamBreakDebouncer.calculate(intakeSubsystem.coralDetected()); // Maybe
 //        return false;
     }
 
