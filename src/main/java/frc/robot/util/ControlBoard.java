@@ -142,29 +142,24 @@ public class ControlBoard {
         controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        controller.leftBumper.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
+        // controller.leftBumper.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
 
         /* Intake Subsystem */
         // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
-
-//        List<Pose2d> waypoints = new ArrayList<>();
-//        waypoints.add(new Pose2d(0.5, 0, new Rotation2d(0)));
-//        waypoints.add(new Pose2d(0.75, 0, new Rotation2d(0)));
-        // controller.leftTrigger.whileTrue();
-        // Command testCommand = swerveSubsystem.goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints);
-        // controller.leftTrigger.whileTrue(SwerveSubsystem.getInstance().goToPositionCommand(new Pose2d (1, 0, new Rotation2d(0)), waypoints));
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
         // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
 
         /* Climb Subsystem */
-        // controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot, climbSubsystem));
-        // controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot, climbSubsystem));
+        // controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
+        // controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
         // controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
-        // controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        // controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.triangleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
+        controller.circleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
 
         // controller.dUp.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
         // controller.dRight.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
@@ -192,11 +187,15 @@ public class ControlBoard {
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
 
-        ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-        climbSubsystem.setDefaultCommand(new RunCommand(
-                () -> climbSubsystem.setRawCurrent(controller.leftVerticalJoystick.getAsDouble()),
-                climbSubsystem
-        ));
+        // ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+        // climbSubsystem.setDefaultCommand(new RunCommand(
+        //         () -> climbSubsystem.setRawCurrent(controller.leftVerticalJoystick.getAsDouble()),
+        //         climbSubsystem
+        // ));
+    }
+
+    public double getLeftVertical() {
+        return operator.leftVerticalJoystick.getAsDouble();
     }
 
 

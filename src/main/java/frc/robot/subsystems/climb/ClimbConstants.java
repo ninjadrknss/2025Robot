@@ -12,7 +12,8 @@ import frc.lib.CTREConfig;
 import frc.robot.Robot;
 
 public class ClimbConstants {
-    public static final int servoPort = 8;
+    public static final int flapServoPort = 8;
+    public static final int rachetServoPort = 7;
 
     public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
     static {
@@ -72,6 +73,9 @@ public class ClimbConstants {
     public static final Angle pivotStoreAngle = Units.Degrees.of(10);
     public static final Angle pivotDeployAngle = Units.Degrees.of(145);
     public static final Angle pivotClimbAngle = Units.Degrees.of(30);
+
+    public static final Angle rachetActive = Units.Degrees.of(120);
+    public static final Angle rachetInActive = Units.Degrees.of(160);
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);
 }
