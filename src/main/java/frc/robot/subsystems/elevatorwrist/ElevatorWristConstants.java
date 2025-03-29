@@ -105,7 +105,7 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-        wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0));
+        wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0)); //might just have to tune fully
         wristConfig.Slot1.kG = -21.5; // increase kG when holding coral
 
         wristConfig.MotionMagic.MotionMagicCruiseVelocity = 10; // TODO: Tune
@@ -127,6 +127,7 @@ public class ElevatorWristConstants {
 
         wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
         wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+        wristConfig.TorqueCurrent.TorqueNeutralDeadband = 2;
 
         wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

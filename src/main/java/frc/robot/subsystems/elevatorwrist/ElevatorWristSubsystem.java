@@ -69,18 +69,18 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     /* Motors and Controls */
-    // private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
-    // private final MotionMagicTorqueCurrentFOC leaderControl = new MotionMagicTorqueCurrentFOC(0);
-    // private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
-    // private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
-    // private final Follower followerControl = new Follower(leader.getDeviceID(), true);
+    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
+    private final MotionMagicTorqueCurrentFOC leaderControl = new MotionMagicTorqueCurrentFOC(0);
+    private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
+    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
+    private final Follower followerControl = new Follower(leader.getDeviceID(), true);
     private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
     private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(ElevatorState.HOME.angle);
 
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
-    // private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
-    // private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
+    private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
+    private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
     private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
     private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
@@ -114,19 +114,19 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //    private ElevatorWristSim sim = null;
     private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false); // TODO: remove
 
-    // private final SysIdRoutine elevatorIdRoutine = new SysIdRoutine(
-    //         new SysIdRoutine.Config(
-    //                 null,
-    //                 Units.Volts.of(4),
-    //                 null,
-    //                 state -> SignalLogger.writeString("SysIdElevatorState", state.toString())
-    //         ),
-    //         new SysIdRoutine.Mechanism(
-    //                 (volts) -> leader.setControl(new TorqueCurrentFOC(volts.in(Units.Volts))),
-    //                 null,
-    //                 this
-    //         )
-    // );
+    private final SysIdRoutine elevatorIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                    Units.Volts.of(2).per(Units.Seconds),
+                    Units.Volts.of(4),
+                    null,
+                    state -> SignalLogger.writeString("SysIdElevatorState", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                    (volts) -> leader.setControl(new TorqueCurrentFOC(4 * volts.in(Units.Volts))),
+                    null,
+                    this
+            )
+    );
     // private final SysIdRoutine wristIdRoutine = new SysIdRoutine(
     //         new SysIdRoutine.Config(
     //                 Units.Volts.of(5).per(Units.Seconds),
@@ -159,13 +159,13 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         // leader.setPosition(0);
     }
 
-    // public Command elevatorQuasistaticId(boolean forward) {
-    //     return elevatorIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-    // }
+    public Command elevatorQuasistaticId(boolean forward) {
+        return elevatorIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
 
-    // public Command elevatorDynamicId(boolean forward) {
-    //     return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-    // }
+    public Command elevatorDynamicId(boolean forward) {
+        return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+    }
 
     // public Command wristQuasistaticId(boolean forward) {
     //     return wristIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);

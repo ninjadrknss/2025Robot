@@ -6,7 +6,6 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.lights.LightsSubsystem;
@@ -92,7 +91,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         SmartDashboard.putBoolean("Intake/Coral Detected", coralDetected);
         // SmartDashboard.putBoolean("Intake/Stalled", stalled);
-//        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }
 
     public boolean coralDetected() {
@@ -118,10 +117,6 @@ public class IntakeSubsystem extends SubsystemBase {
     public void requestSpit() {
         unsetAllRequests();
         requestedSpit = true;
-    }
-
-    public boolean isDone() {
-        return state == IntakeState.IDLE || state == IntakeState.SPITTING;
     }
 }
 

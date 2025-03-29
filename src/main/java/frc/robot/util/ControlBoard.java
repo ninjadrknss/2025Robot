@@ -140,17 +140,17 @@ public class ControlBoard {
 
     private void configureDriverBindings(PS5Controller controller) {
         /* Precise Control */
-        controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
+        // controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
         // controller.leftBumper.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
 
         /* Intake Subsystem */
-        controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
-        controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
+        // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
-        controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
-        controller.triangleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH)).withName("L2 Score"));
+        // controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
+        // controller.triangleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH)).withName("L2 Score"));
         controller.circleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH)).withName("Chute Intake"));
 
         /* Climb Subsystem */
@@ -162,13 +162,13 @@ public class ControlBoard {
         // controller.triangleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
         // controller.circleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
 
-        // controller.dUp.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
-        // controller.dRight.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
-        // controller.dDown.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
-        // controller.dLeft.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
+        controller.dUp.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
+        controller.dRight.whileTrue(elevatorWristSubsystem.elevatorDynamicId(false));
+        controller.dDown.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(true));
+        controller.dLeft.whileTrue(elevatorWristSubsystem.elevatorQuasistaticId(false));
 
-        // controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-        // controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+        controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+        controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {

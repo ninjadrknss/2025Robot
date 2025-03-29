@@ -12,9 +12,7 @@ import frc.robot.Robot;
 public class IntakeConstants {
     public static final double intakeSpeed = 12;
     public static final double spitSpeed = 4; // Negated in request
-    public static final int beamBreakPort = 9;
-    public static final int coralDistanceThreshold = 0;
-    public static final int stalledCurrentThreshold = 30;
+//    public static final int stalledCurrentThreshold = 30;
 
     public static final CTREConfig<TalonFX, TalonFXConfiguration> intakeMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
     static {
@@ -58,9 +56,8 @@ public class IntakeConstants {
 
         distanceSensorConfig.ProximityParams.ProximityThreshold = 0.15;
         distanceSensorConfig.ProximityParams.ProximityHysteresis = 0.02;
-        distanceSensorConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 200; // in meters
 
-        distanceSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRange100Hz; // TODO: change to 100hz mode?
-        distanceSensorConfig.ToFParams.UpdateFrequency = 50; // TODO: tune (in Hz)
+        distanceSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRange100Hz;
+        distanceSensorConfig.ToFParams.UpdateFrequency = 50; // in Hz
     }
 }
