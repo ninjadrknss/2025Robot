@@ -14,6 +14,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,11 +24,11 @@ public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem instance;
 
     // Motor, sensor, and servo devices.
-    // private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
-    private final MotionMagicTorqueCurrentFOC pivotControl = new MotionMagicTorqueCurrentFOC(0);
+     private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
+//    private final MotionMagicTorqueCurrentFOC pivotControl = new MotionMagicTorqueCurrentFOC(0);
     // private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
     private final Servo flapServo = new Servo(ClimbConstants.flapServoPort);
-    private final Servo rachetServo = new Servo(ClimbConstants.rachetServoPort);
+    private final PWM rachetServo = new PWM(ClimbConstants.rachetServoPort);
 
     // private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
     private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
@@ -107,7 +108,7 @@ public class ClimbSubsystem extends SubsystemBase {
        double output = Math.copySign(rawInput * rawInput, rawInput) * 12;
        tempCurrentControl.withOutput(output);
        SmartDashboard.putNumber("Climb/VoltageOut", output);
-    //    pivotMotor.setControl(tempCurrentControl);
+       pivotMotor.setControl(tempCurrentControl);
     }
 
     public void modifyPivotAngle(Angle delta) {
@@ -125,7 +126,7 @@ public class ClimbSubsystem extends SubsystemBase {
 
         // pivotAngleStatus.refresh(false);
 
-        rachetServo.set((rachetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive).in(Revolutions));
+        rachetServo.setSpeed(rachetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive);
 
         // pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
 

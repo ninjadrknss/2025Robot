@@ -74,8 +74,8 @@ public class ClimbConstants {
     public static final Angle pivotDeployAngle = Units.Degrees.of(145);
     public static final Angle pivotClimbAngle = Units.Degrees.of(30);
 
-    public static final Angle rachetActive = Units.Degrees.of(120);
-    public static final Angle rachetInActive = Units.Degrees.of(160);
+    public static final double rachetActive = 1;
+    public static final double rachetInActive = -1;
 
     public static final Angle pivotSetpointTolerance = Units.Degrees.of(2);
 }

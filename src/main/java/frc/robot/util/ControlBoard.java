@@ -149,18 +149,18 @@ public class ControlBoard {
         // controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
-        // controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
-        controller.triangleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH)).withName("L2 Score"));
-        controller.circleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH)).withName("Chute Intake"));
+         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
+//        controller.triangleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH)).withName("L2 Score"));
+//        controller.circleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH)).withName("Chute Intake"));
 
         /* Climb Subsystem */
-        // controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
-        // controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
-        // controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
-        // controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        // controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        // controller.triangleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
-        // controller.circleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+//         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
+//         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
+         controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
+         controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+         controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+         controller.triangleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
+         controller.circleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
 
 //        controller.dUp.whileTrue(elevatorWristSubsystem.elevatorDynamicId(true));
 //        controller.dRight.whileTrue(elevatorWristSubsystem.elevatorDynamicId(false));
@@ -201,10 +201,10 @@ public class ControlBoard {
         double scale = preciseControl || tippyMode ? 0.25 : 1.0;
         double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
 
-        // double x = driver.leftVerticalJoystick.getAsDouble();
-        // double y = driver.leftHorizontalJoystick.getAsDouble();
-        // double rot = driver.rightHorizontalJoystick.getAsDouble();
-        double x = 0, y = 0, rot = 0;
+         double x = driver.leftVerticalJoystick.getAsDouble();
+         double y = driver.leftHorizontalJoystick.getAsDouble();
+         double rot = driver.rightHorizontalJoystick.getAsDouble();
+//        double x = 0, y = 0, rot = 0;
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
                 .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                 .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));
