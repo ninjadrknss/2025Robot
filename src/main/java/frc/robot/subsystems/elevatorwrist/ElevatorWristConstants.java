@@ -106,7 +106,8 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
         wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0)); //might just have to tune fully
-        wristConfig.Slot1.kG = -21.5; // increase kG when holding coral
+        wristConfig.Slot1.kG = -30; // increase kG when holding coral
+        wristConfig.Slot1.kD = 21; // increase kD when holding coral
 
         wristConfig.MotionMagic.MotionMagicCruiseVelocity = 10; // TODO: Tune
         wristConfig.MotionMagic.MotionMagicAcceleration = 10; // TODO: Tune
