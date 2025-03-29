@@ -11,7 +11,7 @@ public class IntakeCommand extends Command {
     private final Superstructure superstructure = Superstructure.getInstance();
     private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
-    private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kRising);
+    private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.25, Debouncer.DebounceType.kRising);
 
     public IntakeCommand() {
         addRequirements(ElevatorWristSubsystem.getInstance());

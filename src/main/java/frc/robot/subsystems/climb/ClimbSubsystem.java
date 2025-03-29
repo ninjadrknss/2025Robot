@@ -23,13 +23,13 @@ public class ClimbSubsystem extends SubsystemBase {
     private static ClimbSubsystem instance;
 
     // Motor, sensor, and servo devices.
-    private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
+    // private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
     private final MotionMagicTorqueCurrentFOC pivotControl = new MotionMagicTorqueCurrentFOC(0);
-    private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
+    // private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
     private final Servo flapServo = new Servo(ClimbConstants.flapServoPort);
     private final Servo rachetServo = new Servo(ClimbConstants.rachetServoPort);
 
-    private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
+    // private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
     private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
     private boolean pivotAtPosition = false;
 
@@ -57,7 +57,7 @@ public class ClimbSubsystem extends SubsystemBase {
     }
     
     private ClimbSubsystem() {
-        pivotMotor.setControl(pivotControl);
+        // pivotMotor.setControl(pivotControl);
     }
 
     public void requestStorePivot() {
@@ -107,7 +107,7 @@ public class ClimbSubsystem extends SubsystemBase {
        double output = Math.copySign(rawInput * rawInput, rawInput) * 12;
        tempCurrentControl.withOutput(output);
        SmartDashboard.putNumber("Climb/VoltageOut", output);
-       pivotMotor.setControl(tempCurrentControl);
+    //    pivotMotor.setControl(tempCurrentControl);
     }
 
     public void modifyPivotAngle(Angle delta) {
@@ -123,14 +123,14 @@ public class ClimbSubsystem extends SubsystemBase {
         setRawCurrent(ControlBoard.getInstance().getLeftVertical());
         flapServo.set(targetFlapAngle.in(Units.Rotations));
 
-        pivotAngleStatus.refresh(false);
+        // pivotAngleStatus.refresh(false);
 
         rachetServo.set((rachetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive).in(Revolutions));
 
-        pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
+        // pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
 
         SmartDashboard.putString("Climb/Current State", currentState.name());
-        SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
+        // SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
     }
 
     public boolean pivotAtPosition() {

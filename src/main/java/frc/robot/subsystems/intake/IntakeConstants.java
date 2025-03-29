@@ -11,7 +11,7 @@ import frc.robot.Robot;
 
 public class IntakeConstants {
     public static final double intakeSpeed = 12;
-    public static final double spitSpeed = 2; // Negated in request
+    public static final double spitSpeed = 4; // Negated in request
     public static final int beamBreakPort = 9;
     public static final int coralDistanceThreshold = 0;
     public static final int stalledCurrentThreshold = 30;
@@ -43,24 +43,24 @@ public class IntakeConstants {
         intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive intake
     }
 
-    public static final CTREConfig<CANrange, CANrangeConfiguration> distanceSensorConfig = new CTREConfig<>(CANrangeConfiguration::new);
+    public static final CTREConfig<CANrange, CANrangeConfiguration> coralSensorConfig = new CTREConfig<>(CANrangeConfiguration::new);
     static {
-        distanceSensorConfig.withName("Algae Distance Sensor")
+        coralSensorConfig.withName("Algae Distance Sensor")
                 .withCanID(52)
                 .withBus(Robot.elevatorbus);
 
-        CANrangeConfiguration distanceSensorConfig = new CANrangeConfiguration();
+        CANrangeConfiguration distanceSensorConfig = coralSensorConfig.config;
 
         distanceSensorConfig.FovParams.FOVCenterX = 0;
         distanceSensorConfig.FovParams.FOVCenterY = 0;
-        distanceSensorConfig.FovParams.FOVRangeX = 27; // TODO: tune (in degrees)
-        distanceSensorConfig.FovParams.FOVRangeY = 27; // TODO: tune (in degrees)
+        distanceSensorConfig.FovParams.FOVRangeX = 8;
+        distanceSensorConfig.FovParams.FOVRangeY = 8;
 
-        distanceSensorConfig.ProximityParams.ProximityThreshold = 0.15; // TODO: tune (in m)
-        distanceSensorConfig.ProximityParams.ProximityHysteresis = 0.05; // TODO: tune (in m)
-        distanceSensorConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 2500; // TODO: tune
+        distanceSensorConfig.ProximityParams.ProximityThreshold = 0.15;
+        distanceSensorConfig.ProximityParams.ProximityHysteresis = 0.02;
+        distanceSensorConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 200; // in meters
 
-        distanceSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRangeUserFreq; // TODO: change to 100hz mode?
+        distanceSensorConfig.ToFParams.UpdateMode = UpdateModeValue.ShortRange100Hz; // TODO: change to 100hz mode?
         distanceSensorConfig.ToFParams.UpdateFrequency = 50; // TODO: tune (in Hz)
     }
 }

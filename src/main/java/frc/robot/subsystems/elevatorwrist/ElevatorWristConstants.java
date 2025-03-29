@@ -99,9 +99,9 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
         // wristConfig.Slot0.kV = 0.5 / 10;
         // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
-        wristConfig.Slot0.kP = 50; // Increase until wrist oscillates
+        wristConfig.Slot0.kP = 55; // Increase until wrist oscillates
         wristConfig.Slot0.kI = 0; // Don't touch
-        wristConfig.Slot0.kD = 15; // Increase to reduce overshoot but prob dont touch
+        wristConfig.Slot0.kD = 16.7; // Increase to reduce overshoot
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
@@ -117,10 +117,10 @@ public class ElevatorWristConstants {
         wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         wristConfig.Feedback.FeedbackRotorOffset = 0;
 
-        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0; // TODO: Change
-        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0; // TODO: Change
+        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.57; // TODO: Change
+        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.05; // TODO: Change
 
         wristConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
         wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -129,6 +129,6 @@ public class ElevatorWristConstants {
         wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
 
         wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     }
 }

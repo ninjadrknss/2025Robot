@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
@@ -35,8 +36,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         // angle is zero when the wrist is plumb to the ground
         HOME(0, 0, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
         // idle position 90 deg
-        IDLE(0, 180, LightsSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 180, LightsSubsystem.Colors.GREEN),
+        IDLE(0, 90, LightsSubsystem.Colors.WHITE),
+        CHUTE_INTAKE(0, 210, LightsSubsystem.Colors.GREEN),
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
         L2_SCORE(4, 0, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
@@ -180,7 +181,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     private void setWristAngle(Angle angle) {
-        wristControl.withPosition(angle);
+        wristControl.withPosition(angle).withSlot(IntakeSubsystem.getInstance().coralDetected() ? 1 : 0);
+        System.out.println(wristControl.Slot);
         wrist.setControl(wristControl);
     }
     
@@ -216,14 +218,12 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             }
             if ((wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition) && // scuffed logic to make sure the wrist doesn't move before the elevator
                     !state.angle.isEquivalent(requestedAngle)) { // buffer requests to hopefully reduce overhead
-                // requestedAngle = state.angle;
-                // setWristAngle(state.angle);
+                requestedAngle = state.angle;
+                setWristAngle(state.angle);
             }
 
             if(state != nextState) lightSubsystem.requestColor(state.color);
         }
-        requestedAngle = state.angle;
-        setWristAngle(state.angle);
         homingPeriodic(); // TODO: test homing
 
         // elevatorPositionStatus.refresh(false);
