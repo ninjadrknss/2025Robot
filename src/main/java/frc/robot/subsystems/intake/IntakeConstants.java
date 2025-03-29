@@ -40,7 +40,7 @@ public class IntakeConstants {
         intakeConfig.TorqueCurrent.PeakForwardTorqueCurrent = 40;
         intakeConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
 
-        intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // TODO: CHECK
+        intakeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive intake
     }
 
     public static final CTREConfig<CANrange, CANrangeConfiguration> distanceSensorConfig = new CTREConfig<>(CANrangeConfiguration::new);

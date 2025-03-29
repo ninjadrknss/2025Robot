@@ -1,6 +1,9 @@
 package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -80,8 +83,8 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         CANcoderConfiguration wristConfig = wristEncoderConfig.config;
-        wristConfig.MagnetSensor.MagnetOffset = -0.54345703125; // in revs
-        wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        wristConfig.MagnetSensor.MagnetOffset = -0.348876953125 + 0.25; // in revs
+        wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         wristConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
     }
 
@@ -92,18 +95,21 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kG = 43; // Increase until wrist holds steady
-        wristConfig.Slot0.kS = 2.0; // Increase to overcome static friction
-        wristConfig.Slot0.kV = 0; // Voltage required to maintain speed
-        wristConfig.Slot0.kP = 60; // Increase until wrist oscillates
+        wristConfig.Slot0.kG = -(21.5 + 13.5) / 2; // Increase until wrist holds steady
+        wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
+        // wristConfig.Slot0.kV = 0.5 / 10;
+        // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
+        wristConfig.Slot0.kP = 50; // Increase until wrist oscillates
         wristConfig.Slot0.kI = 0; // Don't touch
-        wristConfig.Slot0.kD = 17; // Increase to reduce overshoot but prob dont touch
+        wristConfig.Slot0.kD = 15; // Increase to reduce overshoot but prob dont touch
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-        wristConfig.MotionMagic.MotionMagicCruiseVelocity = 4000; // TODO: Tune
-        wristConfig.MotionMagic.MotionMagicAcceleration = 4000; // TODO: Tune
-        wristConfig.MotionMagic.MotionMagicJerk = 4000; // TODO: Tune
+        wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0));
+        wristConfig.Slot1.kG = -21.5; // increase kG when holding coral
+
+        wristConfig.MotionMagic.MotionMagicCruiseVelocity = 10; // TODO: Tune
+        wristConfig.MotionMagic.MotionMagicAcceleration = 10; // TODO: Tune
 
         wristConfig.Feedback.RotorToSensorRatio = 10;
         wristConfig.Feedback.SensorToMechanismRatio = 1;
@@ -122,7 +128,7 @@ public class ElevatorWristConstants {
         wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
         wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
 
-        wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     }
 }

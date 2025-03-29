@@ -26,8 +26,8 @@ public class Superstructure extends SubsystemBase {
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
 
     /* State Flags */
-    boolean requestHome = true;
-    boolean requestIdle = false;
+    boolean requestHome = false;
+    boolean requestIdle = true;
     boolean requestChuteIntake = false;
 //    boolean requestL1Score = false;
     boolean requestL2Score = false;
@@ -37,9 +37,9 @@ public class Superstructure extends SubsystemBase {
 
     /* Other Variables */
     private double mStateStartTime = 0.0;
-    private SuperstructureState systemState = SuperstructureState.PRE_HOME;
+    private SuperstructureState systemState = SuperstructureState.IDLE;
 
-    boolean homedOnce = false;
+    boolean homedOnce = true;
     private double lastFPGATimestamp = 0.0;
 
     private Superstructure() {

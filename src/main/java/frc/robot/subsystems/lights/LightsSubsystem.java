@@ -78,7 +78,7 @@ public class LightsSubsystem extends SubsystemBase {
     private LightsSubsystem() {
        candle.configAllSettings(LightsConstants.CANdleConfiguration);
 
-        requestColor(Colors.RED);
+        requestColor(Colors.TEAM_751);
 
 //        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
 //        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
@@ -132,10 +132,6 @@ public class LightsSubsystem extends SubsystemBase {
 
         if (fading) updateFade();
         if (blinking) updateBlink();
-
-        if (Timer.getFPGATimestamp() - fadeStartTime > LightsConstants.fadeDuration * 5) {
-            requestColor(Colors.allColors[(int) (Math.random() * Colors.allColors.length)]); // TODO: remove Cycle through colors
-        }
     }
 
     public void setFadePercent(double percent) {

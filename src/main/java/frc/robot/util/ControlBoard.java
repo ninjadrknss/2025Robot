@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem.WristOrder;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
@@ -149,25 +150,25 @@ public class ControlBoard {
         // controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
-        // controller.triangleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestL2Score));
-        // controller.circleButton.whileTrue(new InstantCommand(elevatorWristSubsystem::requestIdle));
+        controller.triangleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH)).withName("L2 Score"));
+        controller.circleButton.whileTrue(new InstantCommand(() -> elevatorWristSubsystem.requestIdle(WristOrder.MOVE_BOTH)).withName("Idle"));
 
         /* Climb Subsystem */
         // controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestDeployPivot));
         // controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestStorePivot));
         // controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
-        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        controller.triangleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
-        controller.circleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+        // controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        // controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        // controller.triangleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
+        // controller.circleButton.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
 
         // controller.dUp.whileTrue(elevatorWristSubsystem.wristDynamicId(true));
         // controller.dRight.whileTrue(elevatorWristSubsystem.wristDynamicId(false));
         // controller.dDown.whileTrue(elevatorWristSubsystem.wristQuasistaticId(true));
         // controller.dLeft.whileTrue(elevatorWristSubsystem.wristQuasistaticId(false));
 
-    //    controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-    //    controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+        // controller.triangleButton.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+        // controller.crossButton.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
@@ -186,12 +187,6 @@ public class ControlBoard {
 
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
-
-        // ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-        // climbSubsystem.setDefaultCommand(new RunCommand(
-        //         () -> climbSubsystem.setRawCurrent(controller.leftVerticalJoystick.getAsDouble()),
-        //         climbSubsystem
-        // ));
     }
 
     public double getLeftVertical() {
