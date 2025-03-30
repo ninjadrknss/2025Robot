@@ -12,6 +12,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.AssistCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.SpitCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.FieldConstants.GameElement;
@@ -82,17 +85,41 @@ public class AutonSubsystem {
         List<Command> commandList = new ArrayList<>();
         
         commandList.add(new AssistCommand(GameElement.REEF_RED_6, GameElement.Branch.LEFT));
-        commandList.add(new WaitCommand(1));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(1)
+        ));
+
         commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_1, null));
-        commandList.add(new WaitCommand(1));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(1)
+        ));
+
         commandList.add(new AssistCommand(GameElement.REEF_RED_3, GameElement.Branch.RIGHT));
-        commandList.add(new WaitCommand(1));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(1)
+        ));
+
         commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_2, null));
-        commandList.add(new WaitCommand(1));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(1)
+        ));
+
         commandList.add(new AssistCommand(GameElement.REEF_RED_2, GameElement.Branch.LEFT));
-        commandList.add(new WaitCommand(1));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(1)
+        ));
+
         commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_2, null));
-        commandList.add(new WaitCommand(1));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(1)
+        ));
+
         commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.LEFT));
 
         // Register the full sequence of commands to run when routine is active

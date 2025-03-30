@@ -9,7 +9,7 @@ public class IdleCommand extends Command {
     private final Superstructure superstructure = Superstructure.getInstance();
 
     public IdleCommand() {
-        addRequirements(ElevatorWristSubsystem.getInstance());
+        addRequirements(superstructure);
     }
 
     @Override

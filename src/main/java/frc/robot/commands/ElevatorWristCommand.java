@@ -13,14 +13,13 @@ public class ElevatorWristCommand extends Command {
 
     private ScoreLevel scoreLevel;
 
-    public ElevatorWristCommand() {
-        this.reinitialize = true;
-        addRequirements(ElevatorWristSubsystem.getInstance());
-    }
-
     public ElevatorWristCommand(boolean reinitialize) {
         this.reinitialize = reinitialize;
-        addRequirements(ElevatorWristSubsystem.getInstance());
+        addRequirements(superstructure);
+    }
+
+    public ElevatorWristCommand() {
+        this(true);
     }
 
     @Override

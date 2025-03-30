@@ -14,7 +14,7 @@ public class IntakeCommand extends Command {
     private final Debouncer coralBeamBreakDebouncer = new Debouncer(0.25, Debouncer.DebounceType.kRising);
 
     public IntakeCommand() {
-        addRequirements(ElevatorWristSubsystem.getInstance());
+        addRequirements(superstructure, intakeSubsystem);
     }
 
     @Override

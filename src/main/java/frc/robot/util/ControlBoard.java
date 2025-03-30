@@ -19,8 +19,6 @@ import frc.lib.PS5Controller;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
-import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem.WristOrder;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.simulation.MapSimSwerveTelemetry;
 
 import frc.robot.util.FieldConstants.GameElement;
@@ -66,7 +64,7 @@ public class ControlBoard {
 
     /* Commands */
     private final IdleCommand idleCommand;
-    private final ScoreCommand scoreCommand;
+    private final SpitCommand spitCommand;
     private final IntakeCommand intakeCommand;
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
@@ -86,7 +84,7 @@ public class ControlBoard {
 
         idleCommand = new IdleCommand();
         intakeCommand = new IntakeCommand();
-        scoreCommand = new ScoreCommand();
+        spitCommand = new SpitCommand();
         tryInit();
     }
 
@@ -138,7 +136,7 @@ public class ControlBoard {
 
         /* Intake Subsystem */
         controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
-        controller.leftBumper.whileTrue(scoreCommand); // Run intakeSubsystem spit, assume position handled already by operator
+        controller.leftBumper.whileTrue(spitCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         controller.triangleButton.whileTrue(new InstantCommand(superstructure::requestL2Score).withName("L2 Score"));
