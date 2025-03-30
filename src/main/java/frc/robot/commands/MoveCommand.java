@@ -75,13 +75,10 @@ public class MoveCommand extends Command {
 
         if (pathCommand != null && !pathCommand.isFinished()) {
             pathCommand.execute();
-            System.out.println("Path command running...");
         } else if ((pathCommand == null || pathCommand.isFinished()) && !preciseMoveCommand.isFinished()) {
             if (!isPreciseMove) {
                 isPreciseMove = true;
                 preciseMoveCommand.initialize();
-                SmartDashboard.putBoolean("PP Move Command Active", false);
-                System.out.println("Precise move initialized.");
             } else {
                 preciseMoveCommand.execute();
                 System.out.println("Precise move running...");
