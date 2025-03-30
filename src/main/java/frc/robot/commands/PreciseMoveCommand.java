@@ -12,11 +12,7 @@ import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.drive.Odometry;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import java.util.List;
-import java.util.ArrayList;
-
 public class PreciseMoveCommand extends Command {
-    //TODO: obstacle avoidance
     private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
     private final Odometry odometry = Odometry.getInstance();
 
@@ -25,22 +21,21 @@ public class PreciseMoveCommand extends Command {
     private final Timer timer = new Timer();
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
-    private final PIDController xController = new PIDController(
-        15, 0.0, 0
-    );
-    private final PIDController yController = new PIDController(
-        15, 0.0, 0
-    );
+    private final PIDController xController = new PIDController(3, 0.0, 0);
+    private final PIDController yController = new PIDController(3, 0.0, 0);
     private final ProfiledPIDController thetaController;
 
-    // Max velocity and acceleration
-	private static final double MAX_VELOCITY = 2;//SwerveConstants.AutoConstants.kMaxSpeedMetersPerSecond;
-    private static final double MAX_ACCELERATION = 3; // meters per second^2
+    private static final double MAX_VELOCITY = 2;
+    private static final double MAX_ACCELERATION = 3;
 
-    // These track the commanded velocity from the previous loop, so we can ramp up/down.
     private double prevVx = 0;
     private double prevVy = 0;
     private double prevOmega = 0;
+
+    private final Timer stuckTimer = new Timer();
+    private Pose2d lastPose = new Pose2d();
+    private static final double STUCK_TIMEOUT_SECONDS = 0.5;
+    private static final double STUCK_POSITION_THRESHOLD = 0.03; // meters
 
     public PreciseMoveCommand(Pose2d targetPose) {
         this.targetPose = targetPose;
@@ -58,39 +53,37 @@ public class PreciseMoveCommand extends Command {
     public void initialize() {
         Pose2d currentPose = odometry.getPose();
 
-        // If we're effectively at the target, don't bother moving.
-        if (isClose(currentPose, targetPose, 0.05)
-            && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
-            System.out.println("Already at target position.");
-            end(true);
-            return;
-        }
+        // if (isClose(currentPose, targetPose, 0.05)
+        //     && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 3) {
+        //     System.out.println("Already at target position.");
+        //     end(true);
+        //     return;
+        // }
 
         System.out.println("Starting MoveCommand to: " + targetPose);
-        // xController.reset(currentPose.getX());
-        // yController.reset(currentPose.getY());
         thetaController.reset(currentPose.getRotation().getRadians());
 
-        // Initialize previous velocities to the robot's current chassis speeds
         prevVx = odometry.getVelocityX();
         prevVy = odometry.getVelocityY();
         prevOmega = odometry.getFieldYawRate();
 
         timer.reset();
         timer.start();
+
+        lastPose = currentPose;
+        stuckTimer.reset();
+        stuckTimer.start();
     }
 
     @Override
     public void execute() {
-        System.out.println("tangius");
+        //System.out.println("tangius");
         Pose2d currentPose = swerveSubsystem.getPose();
         Pose2d goal = targetPose;
 
-        // Feedforward attempts to drive towards the goal
-        double feedforwardVx = (goal.getX() - currentPose.getX() )*0.5;
-        double feedforwardVy = (goal.getY() - currentPose.getY() )*0.5;
+        double feedforwardVx = (goal.getX() - currentPose.getX()) * 0.5;
+        double feedforwardVy = (goal.getY() - currentPose.getY()) * 0.5;
 
-        // PID feedback for position + heading
         double feedbackVx = xController.calculate(currentPose.getX(), goal.getX());
         double feedbackVy = yController.calculate(currentPose.getY(), goal.getY());
         double feedbackOmega = thetaController.calculate(
@@ -98,53 +91,44 @@ public class PreciseMoveCommand extends Command {
             goal.getRotation().getRadians()
         );
 
-        // ------------------------ ADDED ROTATIONAL FEEDFORWARD ------------------------
-        // This small feedforward ensures we start turning in the "intended" direction
-        // rather than reversing if the PID decides the other way is shorter.
         double headingDiff = goal.getRotation().minus(currentPose.getRotation()).getRadians();
-        // Normalize headingDiff to [-pi, pi]:
         headingDiff = Math.atan2(Math.sin(headingDiff), Math.cos(headingDiff));
 
-        // Only apply feedforward if the difference in angle is more than a small threshold.
         double feedforwardOmega = 0.0;
-        if (Math.abs(headingDiff) > Math.toRadians(5)) { // example threshold ~5 degrees
-            // Scale this constant as needed for your robot (0.2 is just an example).
+        if (Math.abs(headingDiff) > Math.toRadians(5)) {
             feedforwardOmega = 0.1 * Math.signum(headingDiff);
         }
 
-        // Combine feedforward and feedback
         double vx = feedforwardVx + feedbackVx;
         double vy = feedforwardVy + feedbackVy;
         double rawOmega = feedbackOmega + feedforwardOmega;
-        // ------------------------------------------------------------------------------
 
-        // Apply acceleration limit
-        double dt = timer.get(); // Time since last update
+        double dt = timer.get();
         double vxLimited = applyAccelerationLimit(prevVx, vx, dt);
         double vyLimited = applyAccelerationLimit(prevVy, vy, dt);
         double omegaLimited = applyAccelerationLimit(prevOmega, rawOmega, dt);
 
-        // Apply velocity limit
         vxLimited = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, vxLimited));
         vyLimited = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, vyLimited));
-        omegaLimited = Math.max(-SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
-                Math.min(SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond, omegaLimited));
+        omegaLimited = Math.max(
+            -SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+            Math.min(SwerveConstants.AutoConstants.kMaxAngularSpeedRadiansPerSecond, omegaLimited)
+        );
 
-        // Store for next iteration
         prevVx = vxLimited;
         prevVy = vyLimited;
         prevOmega = omegaLimited;
-        timer.reset(); // Reset for next cycle measurement
+        timer.reset();
 
-        // Convert to field-relative speeds
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            vxLimited, 
-            vyLimited, 
-            omegaLimited, 
+            vxLimited,
+            vyLimited,
+            omegaLimited,
             currentPose.getRotation()
         );
 
         swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(speeds));
+
     }
 
     private boolean isClose(Pose2d current, Pose2d target, double tolerance) {
@@ -162,7 +146,22 @@ public class PreciseMoveCommand extends Command {
     @Override
     public boolean isFinished() {
         Pose2d currentPose = odometry.getPose();
-        // Finish if near target position + orientation
+
+        double positionDelta = Math.hypot(
+            currentPose.getX() - lastPose.getX(),
+            currentPose.getY() - lastPose.getY()
+        );
+
+        if (positionDelta > STUCK_POSITION_THRESHOLD) {
+            stuckTimer.reset();
+            stuckTimer.start();
+            lastPose = currentPose;
+            System.out.println("Robot moved. Resetting stuck timer.");
+        } else if (stuckTimer.get() > STUCK_TIMEOUT_SECONDS) {
+            System.out.println("Robot seems stuck. Ending command.");
+            return true;
+        }
+
         return isClose(targetPose, currentPose, 0.02)
             && Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getDegrees()) < 2;
     }
@@ -170,6 +169,8 @@ public class PreciseMoveCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         timer.stop();
+        stuckTimer.stop();
         swerveSubsystem.setControl(m_pathApplyFieldSpeeds.withSpeeds(new ChassisSpeeds(0.0, 0.0, 0.0)));
+        System.out.println("Ending tangius");
     }
 }

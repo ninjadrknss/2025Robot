@@ -495,8 +495,8 @@ public class Odometry extends SubsystemBase {
 
         if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 1){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             //TODO: tune
-            //swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
-            swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds, VecBuilder.fill(0.1, 0.1, 9999999));
+            swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
+            //swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds, VecBuilder.fill(0.1, 0.1, 9999999));
             // swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds);
             //swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
         }

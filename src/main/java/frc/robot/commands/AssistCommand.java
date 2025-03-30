@@ -49,6 +49,7 @@ public class AssistCommand extends Command {
     @Override
     public void initialize() {
         SmartDashboard.putBoolean("Assist Command Active", true);
+        System.out.println("Assist Command Active");
         if (gameElement == null) gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
         if (gameElement.hasBranches()) {
@@ -61,7 +62,7 @@ public class AssistCommand extends Command {
             .getRotation()
             .minus(Rotation2d.fromDegrees(180));
 
-        Pose2d offsetPose1 = GameElement.getPoseWithOffset(elementPose, 0.55);
+        Pose2d offsetPose1 = GameElement.getPoseWithOffset(elementPose, 0.45);
         
         List<Pose2d> waypoints = new ArrayList<>();
 
@@ -74,12 +75,6 @@ public class AssistCommand extends Command {
 
         desiredPosePublisher.set(targetPose);
         goToPositionCommand.initialize();
-    }
-
-    private Branch closestBranch(Pose2d currentPose, GameElement gameElement) {
-        double leftDistance = currentPose.getTranslation().getDistance(gameElement.getLeftBranch().getTranslation());
-        double rightDistance = currentPose.getTranslation().getDistance(gameElement.getRightBranch().getTranslation());
-        return leftDistance < rightDistance ? Branch.LEFT : Branch.RIGHT;
     }
 
     @Override

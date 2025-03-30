@@ -1,12 +1,12 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public class FieldConstants {
     public static final double EPSILON = 1e-6;
@@ -21,9 +21,9 @@ public class FieldConstants {
     public enum GameElement {
         // Reefs (6 parts per reef)
         REEF_RED_1(new Branches(
-                offsetByAngle(new Pose2d(14.1528, 4.0386, Rotation2d.fromDegrees(0)), CORAL_OFFSET, -90), // left branch
-                new Pose2d(14.1528, 4.0386, Rotation2d.fromDegrees(0)), // "mid"
-                offsetByAngle(new Pose2d(14.1528, 4.0386, Rotation2d.fromDegrees(0)), CORAL_OFFSET, +90)), // right branch
+                offsetByAngle(new Pose2d(13.8784, 4.0386, Rotation2d.fromDegrees(0)), CORAL_OFFSET, -90), // left branch
+                new Pose2d(13.8784, 4.0386, Rotation2d.fromDegrees(0)), // "mid"
+                offsetByAngle(new Pose2d(13.8784, 4.0386, Rotation2d.fromDegrees(0)), CORAL_OFFSET, +90)), // right branch
                 false),
 
         REEF_RED_2(new Branches(

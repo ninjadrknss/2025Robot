@@ -84,8 +84,15 @@ public class AutonSubsystem {
         commandList.add(new AssistCommand(GameElement.REEF_RED_6, GameElement.Branch.LEFT));
         commandList.add(new WaitCommand(1));
         commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_1, null));
-        commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.RIGHT));
+        commandList.add(new WaitCommand(1));
+        commandList.add(new AssistCommand(GameElement.REEF_RED_3, GameElement.Branch.RIGHT));
+        commandList.add(new WaitCommand(1));
         commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_2, null));
+        commandList.add(new WaitCommand(1));
+        commandList.add(new AssistCommand(GameElement.REEF_RED_2, GameElement.Branch.LEFT));
+        commandList.add(new WaitCommand(1));
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_2, null));
+        commandList.add(new WaitCommand(1));
         commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.LEFT));
 
         // Register the full sequence of commands to run when routine is active

@@ -97,7 +97,6 @@ public class ControlBoard {
 
             SwerveSubsystem drive = SwerveSubsystem.getInstance();
             drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
-
             if (Utils.isSimulation())
                 drive.registerTelemetry(new MapSimSwerveTelemetry(SwerveConstants.maxSpeed)::telemeterize);
             System.out.println("Driver Initialized");
