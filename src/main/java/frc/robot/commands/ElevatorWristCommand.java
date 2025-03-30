@@ -30,7 +30,7 @@ public class ElevatorWristCommand extends Command {
 //            case L1 -> superstructure.requestL1Score();
             case L2 -> superstructure.requestL2Score();
             case L3 -> superstructure.requestL3Score();
-//            case L4 -> elevatorWristSubsystem.requestL4Score();
+            case L4 -> superstructure.requestL4Score();
         }
     }
 

@@ -104,13 +104,6 @@ public class ClimbSubsystem extends SubsystemBase {
         rachetActive = false;
     }
 
-    public void setRawCurrent(double rawInput) {
-       double output = Math.copySign(rawInput * rawInput, rawInput) * 12;
-       tempCurrentControl.withOutput(output);
-       SmartDashboard.putNumber("Climb/VoltageOut", output);
-       pivotMotor.setControl(tempCurrentControl);
-    }
-
     public void modifyPivotAngle(Angle delta) {
         targetPivotAngle = targetPivotAngle.plus(delta);
         currentState = ClimbState.CONTROL;
@@ -121,7 +114,11 @@ public class ClimbSubsystem extends SubsystemBase {
 //        pivotControl.withPosition(targetPivotAngle);
         // pivotMotor.setControl(pivotControl);
 
-        setRawCurrent(ControlBoard.getInstance().getLeftVertical());
+        double rawInput = ControlBoard.getInstance().getLeftVertical();
+        double output = Math.copySign(rawInput * rawInput, rawInput) * 12;
+
+        tempCurrentControl.withOutput(output);
+        pivotMotor.setControl(tempCurrentControl);
         flapServo.set(targetFlapAngle.in(Units.Rotations));
 
         // pivotAngleStatus.refresh(false);
@@ -131,6 +128,7 @@ public class ClimbSubsystem extends SubsystemBase {
         // pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
 
         SmartDashboard.putString("Climb/Current State", currentState.name());
+        SmartDashboard.putNumber("Climb/VoltageOut", output);
         // SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
     }
 

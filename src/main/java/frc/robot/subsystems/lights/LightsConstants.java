@@ -11,7 +11,7 @@ public class LightsConstants {
 
     public static final double blinkInterval = 0.2;
 
-    public static final double fadeDuration = 0.5;
+    public static final double fadeDuration = 2.0;
 
     public static final CANdleConfiguration CANdleConfiguration = new CANdleConfiguration();
     static {

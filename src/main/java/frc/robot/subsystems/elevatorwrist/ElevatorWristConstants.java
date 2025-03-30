@@ -94,7 +94,7 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kG = -19; // Increase until wrist holds steady
+        wristConfig.Slot0.kG = (21.5 + 13.5) / 2; // Increase until wrist holds steady
         wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
         // wristConfig.Slot0.kV = 0.5 / 10;
         // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
@@ -127,7 +127,6 @@ public class ElevatorWristConstants {
 
         wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
         wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
-        wristConfig.TorqueCurrent.TorqueNeutralDeadband = 2;
 
         wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;

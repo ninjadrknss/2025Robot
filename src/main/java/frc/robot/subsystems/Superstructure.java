@@ -18,7 +18,7 @@ public class Superstructure extends SubsystemBase {
 //        L1_SCORE,
         L2_SCORE,
         L3_SCORE,
-//        L4_SCORE,
+        L4_SCORE,
         CLIMB
     }
 
@@ -32,7 +32,7 @@ public class Superstructure extends SubsystemBase {
 //    boolean requestL1Score = false;
     boolean requestL2Score = false;
     boolean requestL3Score = false;
-//    boolean requestL4Score = false;
+    boolean requestL4Score = false;
     boolean requestClimb = false;
 
     /* Other Variables */
@@ -75,6 +75,9 @@ public class Superstructure extends SubsystemBase {
                 } else if (requestL3Score) {
                     elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
                     nextState = SuperstructureState.L3_SCORE;
+                } else if (requestL4Score) {
+                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
                     elevatorWristSubsystem.requestClimb(WristOrder.MOVE_BOTH);
                     nextState = SuperstructureState.CLIMB;
@@ -93,6 +96,9 @@ public class Superstructure extends SubsystemBase {
                 } else if (requestL3Score) {
                     elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
                     nextState = SuperstructureState.L3_SCORE;
+                } else if (requestL4Score) {
+                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
                     elevatorWristSubsystem.requestClimb(WristOrder.MOVE_BOTH);
                     nextState = SuperstructureState.CLIMB;
@@ -106,6 +112,9 @@ public class Superstructure extends SubsystemBase {
                 } else if (requestL3Score) {
                     elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_BOTH);
                     nextState = SuperstructureState.L3_SCORE;
+                } else if (requestL4Score) {
+                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
                     elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
                     nextState = SuperstructureState.CLIMB;
@@ -120,6 +129,26 @@ public class Superstructure extends SubsystemBase {
                 } else if (requestL2Score) {
                     elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH);
                     nextState = SuperstructureState.L2_SCORE;
+                } else if (requestL4Score) {
+                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.L4_SCORE;
+                } else if (requestClimb) {
+                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
+                    nextState = SuperstructureState.CLIMB;
+                }
+            }
+
+            case L4_SCORE -> {
+                if (requestIdle) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                } else if (requestChuteIntake) {
+                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                } else if (requestL2Score) {
+                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.L2_SCORE;
+                } else if (requestL3Score) {
+                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_BOTH);
+                    nextState = SuperstructureState.L3_SCORE;
                 } else if (requestClimb) {
                     elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
                     nextState = SuperstructureState.CLIMB;
@@ -139,6 +168,9 @@ public class Superstructure extends SubsystemBase {
                 } else if (requestL3Score) {
                     elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
                     nextState = SuperstructureState.L3_SCORE;
+                } else if (requestL4Score) {
+                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_FIRST);
+                    nextState = SuperstructureState.L4_SCORE;
                 }
             }
             default -> throw new IllegalArgumentException("Guess I missed a state");
@@ -157,7 +189,7 @@ public class Superstructure extends SubsystemBase {
 //        requestL1Score = false;
         requestL2Score = false;
         requestL3Score = false;
-//        requestL4Score = false;
+        requestL4Score = false;
         requestClimb = false;
     }
 
@@ -191,10 +223,10 @@ public class Superstructure extends SubsystemBase {
         requestL3Score = true;
     }
 
-//    public void requestL4Score() {
-//        unsetAllRequests();
-//        requestL4Score = true;
-//    }
+    public void requestL4Score() {
+        unsetAllRequests();
+        requestL4Score = true;
+    }
 
     public void requestClimb() {
         unsetAllRequests();

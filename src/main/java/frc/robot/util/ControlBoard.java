@@ -177,7 +177,7 @@ public class ControlBoard {
 
         // Select Score Level (TriangleButton, XButton)
         controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
-            if(scoreLevel != ScoreLevel.L3) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
+            if(scoreLevel != ScoreLevel.L4) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
         }).withName("Score Level Up"));
         controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
             if(scoreLevel != ScoreLevel.L2) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
@@ -199,10 +199,9 @@ public class ControlBoard {
         double scale = preciseControl || tippyMode ? 0.25 : 1.0;
         double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
 
-//         double x = driver.leftVerticalJoystick.getAsDouble();
-//         double y = driver.leftHorizontalJoystick.getAsDouble();
-//         double rot = driver.rightHorizontalJoystick.getAsDouble();
-        double x = 0, y = 0, rot = 0;
+        double x = driver.leftVerticalJoystick.getAsDouble();
+        double y = driver.leftHorizontalJoystick.getAsDouble();
+        double rot = driver.rightHorizontalJoystick.getAsDouble();
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
                 .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                 .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));

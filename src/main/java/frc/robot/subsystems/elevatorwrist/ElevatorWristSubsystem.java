@@ -38,7 +38,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
         L2_SCORE(30, 180, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
-        //        L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
+        L4_SCORE(0, 0, LightsSubsystem.Colors.ORANGE),
         CLIMB(0, 0, LightsSubsystem.Colors.PURPLE); // just get intake out of the way
 
         /**
@@ -99,7 +99,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     //    private boolean requestL1Score = false;
     private boolean requestL2Score = false;
     private boolean requestL3Score = false;
-    //    private boolean requestL4Score = false;
+    private boolean requestL4Score = false;
     private boolean requestClimb = false;
 
     /* Other Variables */
@@ -108,10 +108,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean wristAtPosition = false;
     private final LightsSubsystem lightSubsystem = LightsSubsystem.getInstance();
 
-
 //    private ElevatorWristSim sim = null;
-    private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false); // TODO: remove
-
 //    private final SysIdRoutine elevatorIdRoutine = new SysIdRoutine(
 //            new SysIdRoutine.Config(
 //                    Units.Volts.of(0.25).per(Units.Seconds),
@@ -125,19 +122,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //                    this
 //            )
 //    );
-    // private final SysIdRoutine wristIdRoutine = new SysIdRoutine(
-    //         new SysIdRoutine.Config(
-    //                 Units.Volts.of(5).per(Units.Seconds),
-    //                 Units.Volts.of(10),
-    //                 null,
-    //                 state -> SignalLogger.writeString("SysIdWristState", state.toString())
-    //         ),
-    //         new SysIdRoutine.Mechanism(
-    //                 (volts) -> wrist.setControl(new TorqueCurrentFOC(volts.in(Units.Volts))),
-    //                 null,
-    //                 this
-    //         )
-    // );
 
     private static ElevatorWristSubsystem instance;
     public static ElevatorWristSubsystem getInstance() {
@@ -165,14 +149,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
 //    }
 
-    // public Command wristQuasistaticId(boolean forward) {
-    //     return wristIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-    // }
-
-    // public Command wristDynamicId(boolean forward) {
-    //     return wristIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-    // }
-
     private void setElevatorHeight(Distance height) {
         leaderControl.withPosition(height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch));
         if (state != ElevatorState.HOME) leader.setControl(leaderControl);
@@ -183,19 +159,19 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         wrist.setControl(wristControl);
     }
     
-    // public void setBrakeMode() {
-    //     leader.setNeutralMode(NeutralModeValue.Brake);
-    //     follower.setNeutralMode(NeutralModeValue.Brake);
+    public void setBrakeMode() {
+        leader.setNeutralMode(NeutralModeValue.Brake);
+        follower.setNeutralMode(NeutralModeValue.Brake);
 
-    //     wrist.setNeutralMode(NeutralModeValue.Brake);
-    // }
+        wrist.setNeutralMode(NeutralModeValue.Brake);
+    }
 
-    // public void setCoastMode() {
-    //     leader.setNeutralMode(NeutralModeValue.Coast);
-    //     follower.setNeutralMode(NeutralModeValue.Coast);
+    public void setCoastMode() {
+        leader.setNeutralMode(NeutralModeValue.Coast);
+        follower.setNeutralMode(NeutralModeValue.Coast);
 
-    //     wrist.setNeutralMode(NeutralModeValue.Coast);
-    // }
+        wrist.setNeutralMode(NeutralModeValue.Coast);
+    }
 
     @Override
     public void periodic() {
@@ -234,8 +210,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
              , Units.Revolutions.of(0.1))
         ); // 0.1 revolutions tolerance
         wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.05)); // 0.02 revolutions tolerance
-        // elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
-
+        elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
         telemetry();
 
@@ -244,14 +219,15 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     private void homeElevator() {
         // Force the elevator to move down until the home switch or current limit is reached is triggered
-//        homeControl.withOutput(-1.0); // kG ~ 0.5
-//        leader.setControl(homeControl);
+        homeControl.withOutput(-1.0); // kG ~ 0.35
+        leader.setControl(homeControl);
     }
 
     private void homingPeriodic() {
+        setWristAngle(ElevatorState.CLIMB.angle);
         if (getHomeCANcoder() || state == ElevatorState.HOME && elevatorStalled) {
             homedOnce = true;
-//            leader.setPosition(0);
+            leader.setPosition(0);
             if (state == ElevatorState.HOME) {
                 requestIdle(WristOrder.MOVE_BOTH);
                 System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
@@ -268,7 +244,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        else if (requestL1Score) nextState = ElevatorState.L1_SCORE;
         else if (requestL2Score) nextState = ElevatorState.L2_SCORE;
         else if (requestL3Score) nextState = ElevatorState.L3_SCORE;
-//        else if (requestL4Score) nextState = ElevatorState.L4_SCORE;
+        else if (requestL4Score) nextState = ElevatorState.L4_SCORE;
         else if (requestClimb) nextState = ElevatorState.CLIMB;
 
         if (nextState != state) prevState = state;
@@ -309,7 +285,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //        requestL1Score = false;
         requestL2Score = false;
         requestL3Score = false;
-//        requestL4Score = false;
+        requestL4Score = false;
         requestClimb = false;
     }
 
@@ -331,7 +307,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         wristOrder = order;
     }
 
-    //    public void requestL1Score(WristOrder order) {
+//    public void requestL1Score(WristOrder order) {
 //        unsetAllRequests();
 //        requestL1Score = true;
 //        wristOrder = order;
@@ -349,11 +325,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         wristOrder = order;
     }
 
-//    public void requestL4Score(WristOrder order) {
-//        unsetAllRequests();
-//        requestL4Score = true;
-//        wristOrder = order;
-//    }
+    public void requestL4Score(WristOrder order) {
+        unsetAllRequests();
+        requestL4Score = true;
+        wristOrder = order;
+    }
 
     public void requestClimb(WristOrder order) {
         unsetAllRequests();
