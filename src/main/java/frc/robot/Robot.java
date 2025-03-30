@@ -8,37 +8,25 @@ package frc.robot;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.climb.ClimbSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 
 import org.ironmaple.simulation.SimulatedArena;
 
 import com.ctre.phoenix6.CANBus;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.util.PathPlannerLogging;
 
 import frc.robot.subsystems.drive.Odometry;
-import frc.robot.subsystems.drive.SwerveConstants;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.auton.AutonSubsystem;
-import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.Constants;
 import frc.robot.util.ControlBoard;
-import frc.robot.util.FieldConstants;
 import frc.lib.TunableParameter;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import frc.robot.commands.AssistCommand;
@@ -123,12 +111,15 @@ public class Robot extends TimedRobot {
     @Override
     public void driverStationConnected() {
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
+        LightsSubsystem.getInstance().requestAllianceColors();
+        ControlBoard.getInstance().tryInit();
     }
 
     @Override
     public void disabledInit() {
         // ElevatorWristSubsystem.getInstance().setCoastMode();
         SignalLogger.stop();
+        LightsSubsystem.getInstance().requestAllianceColors();
     }
 
     @Override
@@ -149,6 +140,7 @@ public class Robot extends TimedRobot {
         // SwerveSubsystem.getInstance().applyRequest(() -> swerveRequest));
 
         if (autonomousCommand != null) autonomousCommand.schedule();
+        LightsSubsystem.getInstance().requestRainbow();
     }
 
     @Override

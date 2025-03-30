@@ -7,7 +7,7 @@ public class LightsConstants {
     public static final int CANdleID = 5;
 
     public static final int numLEDs = 59 + 8;
-    public static final double brightness = 0.50;
+    public static final double brightness = 0.50; // TODO: change to desired brightness
 
     public static final double blinkInterval = 0.2;
 
@@ -15,7 +15,7 @@ public class LightsConstants {
 
     public static final CANdleConfiguration CANdleConfiguration = new CANdleConfiguration();
     static {
-        CANdleConfiguration.brightnessScalar = LightsConstants.brightness;
+        CANdleConfiguration.brightnessScalar = brightness;
         CANdleConfiguration.stripType = CANdle.LEDStripType.GRB;
         CANdleConfiguration.v5Enabled = true;
         CANdleConfiguration.vBatOutputMode = CANdle.VBatOutputMode.Off;

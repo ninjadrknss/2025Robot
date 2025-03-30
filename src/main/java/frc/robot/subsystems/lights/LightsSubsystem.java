@@ -4,6 +4,7 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.RainbowAnimation;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -78,7 +79,8 @@ public class LightsSubsystem extends SubsystemBase {
     private LightsSubsystem() {
        candle.configAllSettings(LightsConstants.CANdleConfiguration);
 
-        requestColor(Colors.TEAM_751);
+        requestColor(Colors.RED);
+        requestBlinking(true);
 
 //        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
 //        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
@@ -162,5 +164,12 @@ public class LightsSubsystem extends SubsystemBase {
             blinkOff = !blinkOff;
             blinkTimer.reset();
         }
+    }
+
+    public void requestAllianceColors() {
+        requestBlinking(false);
+
+        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red) requestColor(Colors.RED);
+        else requestColor(Colors.BLUE);
     }
 }

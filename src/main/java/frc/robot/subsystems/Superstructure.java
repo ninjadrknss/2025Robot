@@ -4,8 +4,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.subsystems.climb.ClimbSubsystem;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem.WristOrder;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.lights.LightsSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class Superstructure extends SubsystemBase {
@@ -24,6 +28,10 @@ public class Superstructure extends SubsystemBase {
 
     /* Subsystems */
     private final ElevatorWristSubsystem elevatorWristSubsystem = ElevatorWristSubsystem.getInstance();
+    private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
+    private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+    private final SwerveSubsystem swerveSubsystem = SwerveSubsystem.getInstance();
+    private final LightsSubsystem lightsSubsystem = LightsSubsystem.getInstance();
 
     /* State Flags */
     boolean requestHome = false;
@@ -42,9 +50,7 @@ public class Superstructure extends SubsystemBase {
     boolean homedOnce = true;
     private double lastFPGATimestamp = 0.0;
 
-    private Superstructure() {
-
-    }
+    private Superstructure() {}
 
     public static Superstructure getInstance() {
         if (instance == null) instance = new Superstructure();

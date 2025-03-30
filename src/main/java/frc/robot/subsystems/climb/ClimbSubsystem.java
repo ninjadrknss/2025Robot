@@ -1,14 +1,7 @@
 package frc.robot.subsystems.climb;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Revolutions;
-
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.math.filter.Debouncer;
@@ -114,7 +107,7 @@ public class ClimbSubsystem extends SubsystemBase {
 //        pivotControl.withPosition(targetPivotAngle);
         // pivotMotor.setControl(pivotControl);
 
-        double rawInput = ControlBoard.getInstance().getLeftVertical();
+        double rawInput = ControlBoard.getInstance().getOperatorLeftVertical();
         double output = Math.copySign(rawInput * rawInput, rawInput) * 12;
 
         tempCurrentControl.withOutput(output);

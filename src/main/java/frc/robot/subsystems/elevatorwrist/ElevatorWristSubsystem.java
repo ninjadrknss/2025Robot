@@ -18,9 +18,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -38,8 +36,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
         L2_SCORE(30, 180, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
-        L4_SCORE(0, 0, LightsSubsystem.Colors.ORANGE),
-        CLIMB(0, 0, LightsSubsystem.Colors.PURPLE); // just get intake out of the way
+        L4_SCORE(0, 0, LightsSubsystem.Colors.PURPLE),
+        CLIMB(0, 0, LightsSubsystem.Colors.PINK); // just get intake out of the way
 
         /**
          * The height of the elevator in inches.
@@ -123,6 +121,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 //            )
 //    );
 
+//    public Command elevatorQuasistaticId(boolean forward) {
+//        return elevatorIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+//    }
+//
+//    public Command elevatorDynamicId(boolean forward) {
+//        return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
+//    }
+
     private static ElevatorWristSubsystem instance;
     public static ElevatorWristSubsystem getInstance() {
         if (instance == null) instance = new ElevatorWristSubsystem();
@@ -140,14 +146,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
         leader.setPosition(0);
     }
-
-//    public Command elevatorQuasistaticId(boolean forward) {
-//        return elevatorIdRoutine.quasistatic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-//    }
-//
-//    public Command elevatorDynamicId(boolean forward) {
-//        return elevatorIdRoutine.dynamic(forward ? SysIdRoutine.Direction.kForward : SysIdRoutine.Direction.kReverse);
-//    }
 
     private void setElevatorHeight(Distance height) {
         leaderControl.withPosition(height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch));
