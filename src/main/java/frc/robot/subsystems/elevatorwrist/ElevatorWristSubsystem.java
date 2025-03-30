@@ -4,11 +4,7 @@ package frc.robot.subsystems.elevatorwrist;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
 
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -22,6 +18,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,9 +34,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         HOME(0, 0, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
         // idle position 90 deg
         IDLE(0, 90, LightsSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 210, LightsSubsystem.Colors.GREEN),
+        CHUTE_INTAKE(0, 0, LightsSubsystem.Colors.GREEN),
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(4, 0, LightsSubsystem.Colors.CYAN),
+        L2_SCORE(30, 180, LightsSubsystem.Colors.CYAN),
         L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
         //        L4_SCORE(0, 0, LightsSubsystem.Colors.PERSIAN_BLUE),
         CLIMB(0, 0, LightsSubsystem.Colors.PURPLE); // just get intake out of the way
@@ -70,7 +67,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     /* Motors and Controls */
     private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
-    private final PositionTorqueCurrentFOC leaderControl = new PositionTorqueCurrentFOC(0);
+    private final MotionMagicVoltage leaderControl = new MotionMagicVoltage(0);
     private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
     private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
     private final Follower followerControl = new Follower(leader.getDeviceID(), true);
@@ -82,7 +79,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
     private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
-    private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+    private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
     private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
     private final StatusSignal<Angle> wristAngleStatus = wrist.getPosition(); // TODO: Pull data from motor
 //    private final CANcoder homeCANcoder = ElevatorWristConstants.homeHallEffect.createDevice(CANcoder::new);
@@ -111,18 +108,19 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean wristAtPosition = false;
     private final LightsSubsystem lightSubsystem = LightsSubsystem.getInstance();
 
+
 //    private ElevatorWristSim sim = null;
     private final VoltageOut tempVoltageControl = new VoltageOut(0).withEnableFOC(false); // TODO: remove
 
 //    private final SysIdRoutine elevatorIdRoutine = new SysIdRoutine(
 //            new SysIdRoutine.Config(
-//                    Units.Volts.of(1.5).per(Units.Seconds),
-//                    Units.Volts.of(8),
+//                    Units.Volts.of(0.25).per(Units.Seconds),
+//                    Units.Volts.of(2),
 //                    null,
 //                    state -> SignalLogger.writeString("SysIdElevatorState", state.toString())
 //            ),
 //            new SysIdRoutine.Mechanism(
-//                    (volts) -> leader.setControl(new TorqueCurrentFOC(4 * volts.in(Units.Volts))),
+//                    (volts) -> leader.setControl(new VoltageOut(volts)),
 //                    null,
 //                    this
 //            )
@@ -177,11 +175,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     private void setElevatorHeight(Distance height) {
         leaderControl.withPosition(height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch));
-//        if (state != ElevatorState.HOME) leader.setControl(leaderControl);
+        if (state != ElevatorState.HOME) leader.setControl(leaderControl);
     }
 
     private void setWristAngle(Angle angle) {
-        wristControl.withPosition(ElevatorState.CHUTE_INTAKE.angle).withSlot(IntakeSubsystem.getInstance().coralDetected() ? 1 : 0);
+        wristControl.withPosition(angle).withSlot(IntakeSubsystem.getInstance().coralDetected() ? 1 : 0);
         wrist.setControl(wristControl);
     }
     
@@ -204,24 +202,25 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         ElevatorState nextState = getNextState();
 
         if (state != ElevatorState.HOME) {
-            state = nextState;
-            unsetAllRequests();
+            if (state != nextState) {
+                lightSubsystem.requestColor(nextState.color);
+                elevatorAtPosition = elevatorDebouncer.calculate(false);
+                wristAtPosition = wristDebouncer.calculate(false);
+                state = nextState;
+                unsetAllRequests();
+            }
 
             if (state == ElevatorState.HOME) homeElevator(); // special case for homing
             else {
-                if ((wristOrder != WristOrder.MOVE_FIRST || wristAtPosition) && // scuffed logic to make sure the elevator doesn't move before the wrist
-                        !state.height.isEquivalent(requestedHeight)) { // buffer requests to hopefully reduce overhead
+                if ((wristOrder != WristOrder.MOVE_FIRST || wristAtPosition)) { // scuffed logic to make sure the elevator doesn't move before the wrist
                     requestedHeight = state.height;
                     setElevatorHeight(state.height);
                 }
             }
-            if ((wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition) && // scuffed logic to make sure the wrist doesn't move before the elevator
-                    !state.angle.isEquivalent(requestedAngle)) { // buffer requests to hopefully reduce overhead
+            if ((wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition)) { // scuffed logic to make sure the wrist doesn't move before the elevator
                 requestedAngle = state.angle;
                 setWristAngle(state.angle);
             }
-
-            if(state != nextState) lightSubsystem.requestColor(state.color);
         }
         homingPeriodic(); // TODO: test homing
 
@@ -234,7 +233,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
              state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
              , Units.Revolutions.of(0.1))
         ); // 0.1 revolutions tolerance
-        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
+        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.05)); // 0.02 revolutions tolerance
         // elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
 
@@ -258,12 +257,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                 System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
             }
         }
-    }
-
-    public void setRawVoltage(double rawInput) {
-        tempVoltageControl.withOutput(rawInput * 2.5 + 0.38);
-        //System.out.println("lets goo" + rawInput + 0.38);
-//        leader.setControl(tempVoltageControl);
     }
 
     private ElevatorState getNextState() {
@@ -292,8 +285,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     public boolean isTall() {
-        return false;
-        // return elevatorPositionStatus.getValue().gt(Units.Inches.of(6).timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)); // if the elevator is taller than 6 inches
+        return elevatorPositionStatus.getValue().gt(Units.Inches.of(6).timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)); // if the elevator is taller than 6 inches
     }
 
     public boolean homedOnce() {

@@ -34,17 +34,17 @@ public class ElevatorWristConstants {
                 .withCanID(31)
                 .withBus(Robot.elevatorbus);
         TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
-        leaderConfig.Slot0.kG = (29.5 + 4.5) / 2; // Increase until elevator holds steady
-        leaderConfig.Slot0.kS = (29.5 - 4.5) / 2; // Increase until just before motor starts moving
-        leaderConfig.Slot0.kV = 0; // Voltage required to maintain speed
-        leaderConfig.Slot0.kP = 0; // Increase until elevator oscillates
+        leaderConfig.Slot0.kG = (0.45 + 0.25) / 2; // Increase until elevator holds steady
+        leaderConfig.Slot0.kS = (0.45 - 0.25) / 2; // Increase until just before motor starts moving
+        leaderConfig.Slot0.kV = 0.24547; // Voltage required to maintain speed
+        leaderConfig.Slot0.kP = 3; // Increase until elevator oscillates
         leaderConfig.Slot0.kI = 0; // Don't touch
         leaderConfig.Slot0.kD = 0; // Don't touch
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-        leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+        leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
-        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 40; // TODO: Tune
-        leaderConfig.MotionMagic.MotionMagicAcceleration = 1; // TODO: Tune
+        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 35;
+        leaderConfig.MotionMagic.MotionMagicAcceleration = 65;
 
         leaderConfig.Feedback.RotorToSensorRatio = 1;
         leaderConfig.Feedback.SensorToMechanismRatio = 1;
@@ -58,8 +58,8 @@ public class ElevatorWristConstants {
         leaderConfig.CurrentLimits.StatorCurrentLimit = 80;
         leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 30; // TODO; Change
-        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = -30; // TODO: change
+        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
+        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
 
         leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -94,7 +94,7 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kG = -(21.5 + 13.5) / 2; // Increase until wrist holds steady
+        wristConfig.Slot0.kG = -19; // Increase until wrist holds steady
         wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
         // wristConfig.Slot0.kV = 0.5 / 10;
         // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
