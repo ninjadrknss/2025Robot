@@ -37,14 +37,14 @@ public class ElevatorWristConstants {
         leaderConfig.Slot0.kG = (0.45 + 0.25) / 2; // Increase until elevator holds steady
         leaderConfig.Slot0.kS = (0.45 - 0.25) / 2; // Increase until just before motor starts moving
         leaderConfig.Slot0.kV = 0.24547; // Voltage required to maintain speed
-        leaderConfig.Slot0.kP = 3; // Increase until elevator oscillates
+        leaderConfig.Slot0.kP = 3; // Increase to get measured velocity to match target velocity
         leaderConfig.Slot0.kI = 0; // Don't touch
         leaderConfig.Slot0.kD = 0; // Don't touch
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
-        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 35;
-        leaderConfig.MotionMagic.MotionMagicAcceleration = 65;
+        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 35; // push until motor is commanding 12 volts
+        leaderConfig.MotionMagic.MotionMagicAcceleration = 65; // push until motor is commanding current limit
 
         leaderConfig.Feedback.RotorToSensorRatio = 1;
         leaderConfig.Feedback.SensorToMechanismRatio = 1;
@@ -55,14 +55,11 @@ public class ElevatorWristConstants {
         leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
         leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9999; // TODO: Change
 
-        leaderConfig.CurrentLimits.StatorCurrentLimit = 80;
+        leaderConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: probably should try to reduce current limit
         leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        leaderConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60;
-        leaderConfig.TorqueCurrent.PeakReverseTorqueCurrent = -60;
-
         leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     }
 
     public static final CTREConfig<TalonFX, TalonFXConfiguration> leftElevatorMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
@@ -72,7 +69,7 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration followerConfig = leftElevatorMotorConfig.config;
-        followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     }
 
     public static final CTREConfig<CANcoder, CANcoderConfiguration> wristEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
@@ -104,12 +101,9 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-        wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0)); //might just have to tune fully
+        wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0));
         wristConfig.Slot1.kG = -30; // increase kG when holding coral
         wristConfig.Slot1.kD = 21; // increase kD when holding coral
-
-        wristConfig.MotionMagic.MotionMagicCruiseVelocity = 10; // TODO: Tune
-        wristConfig.MotionMagic.MotionMagicAcceleration = 10; // TODO: Tune
 
         wristConfig.Feedback.RotorToSensorRatio = 10;
         wristConfig.Feedback.SensorToMechanismRatio = 1;
@@ -118,9 +112,9 @@ public class ElevatorWristConstants {
         wristConfig.Feedback.FeedbackRotorOffset = 0;
 
         wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.57; // TODO: Change
+        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.57;
         wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.05; // TODO: Change
+        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.05;
 
         wristConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
         wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;

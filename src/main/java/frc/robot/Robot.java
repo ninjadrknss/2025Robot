@@ -8,6 +8,7 @@ package frc.robot;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -117,7 +118,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        // ElevatorWristSubsystem.getInstance().setCoastMode();
+//        ElevatorWristSubsystem.getInstance().setCoastMode();
         SignalLogger.stop();
         LightsSubsystem.getInstance().requestAllianceColors();
     }
@@ -127,7 +128,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledExit() {
-        // ElevatorWristSubsystem.getInstance().setBrakeMode();
+//         ElevatorWristSubsystem.getInstance().setBrakeMode();
     }
     SwerveRequest swerveRequest = new SwerveRequest.FieldCentric().withVelocityX(-2).withVelocityY(0);
 
