@@ -181,7 +181,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
             if (state == ElevatorState.HOME) homeElevator(); // special case for homing
             else {
-                if ((wristOrder != WristOrder.MOVE_FIRST || wristAtPosition)) { // scuffed logic to make sure the elevator doesn't move before the wrist
+                if ((wristOrder != WristOrder.MOVE_FIRST || wristAngleStatus.getValue().gt(Units.Revolutions.of(0.35)))) { // scuffed logic to make sure the elevator doesn't move before the wrist
                     setElevatorHeight(state.height);
                 }
             }
@@ -198,9 +198,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         elevatorAtPosition = elevatorDebouncer.calculate(
              elevatorPositionStatus.getValue().isNear(
              state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
-             , Units.Revolutions.of(0.1))
-        ); // 0.1 revolutions tolerance
-        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.05)); // 0.02 revolutions tolerance
+             , Units.Revolutions.of(0.2))
+        ); // 0.2 revolutions tolerance
+        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
         elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
         telemetry();

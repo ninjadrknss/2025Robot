@@ -34,7 +34,7 @@ public class Superstructure extends SubsystemBase {
     private final LightsSubsystem lightsSubsystem = LightsSubsystem.getInstance();
 
     /* State Flags */
-    boolean requestHome = false;
+    boolean requestHome = false; // TODO: this should be true, requestIdle should be false
     boolean requestIdle = true;
     boolean requestChuteIntake = false;
 //    boolean requestL1Score = false;
@@ -45,9 +45,9 @@ public class Superstructure extends SubsystemBase {
 
     /* Other Variables */
     private double mStateStartTime = 0.0;
-    private SuperstructureState systemState = SuperstructureState.IDLE;
+    private SuperstructureState systemState = SuperstructureState.IDLE; // TODO: this should be PRE_HOME
 
-    boolean homedOnce = true;
+    boolean homedOnce = true; // TODO: this should be false
     private double lastFPGATimestamp = 0.0;
 
     private Superstructure() {}
@@ -60,10 +60,11 @@ public class Superstructure extends SubsystemBase {
     @Override
     public void periodic() {
         double time = RobotController.getFPGATime() / 1.0E6;
-        Logger.recordOutput("Superstructure/loopCycleTime", time - lastFPGATimestamp);
-
+        SmartDashboard.putNumber("Superstructure/loopCycleTime", time - lastFPGATimestamp);
         lastFPGATimestamp = time;
+
         SmartDashboard.putString("Superstructure/Superstructure State", systemState.toString());
+        SmartDashboard.putBoolean("Superstructure/Homed Once", homedOnce);
 
         SuperstructureState nextState = systemState;
         switch (systemState) {
