@@ -129,19 +129,19 @@ public class ControlBoard {
 
     private void configureDriverBindings(PS5Controller controller) {
         /* Precise Control */
-         controller.leftBumper.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
+         controller.rightBumper.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        // controller.leftTrigger.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
+        // controller.rightTrigger.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
 
         /* Intake Subsystem */
-        controller.rightTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
-        controller.rightBumper.whileTrue(spitCommand); // Run intakeSubsystem spit, assume position handled already by operator
+        controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
+        controller.leftBumper.whileTrue(spitCommand); // Run intakeSubsystem spit, assume position handled already by operator
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         controller.triangleButton.whileTrue(new InstantCommand(superstructure::requestL2Score).withName("L2 Score"));
-        controller.crossButton.whileTrue(new InstantCommand(superstructure::requestL3Score).withName("L3 Score"));
-        controller.circleButton.whileTrue(new InstantCommand(superstructure::requestL4Score).withName("L4 Score"));
+        controller.circleButton.whileTrue(new InstantCommand(superstructure::requestL3Score).withName("L3 Score"));
+        controller.crossButton.whileTrue(new InstantCommand(superstructure::requestL4Score).withName("L4 Score"));
 
         /* Climb Subsystem */
         controller.touchpadButton.whileTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
@@ -186,9 +186,9 @@ public class ControlBoard {
         double scale = preciseControl || tippyMode ? 0.25 : 1.0;
         double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
 
-        double x = driver.leftVerticalJoystick.getAsDouble();
-        double y = driver.leftHorizontalJoystick.getAsDouble();
-        double rot = driver.rightHorizontalJoystick.getAsDouble();
+        double x = driver.leftVerticalJoystick.getAsDouble() * 0.3;
+        double y = driver.leftHorizontalJoystick.getAsDouble() * 0.3;
+        double rot = driver.rightHorizontalJoystick.getAsDouble() * 0.5;
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
                            .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                            .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));

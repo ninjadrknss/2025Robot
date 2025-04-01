@@ -37,14 +37,15 @@ public class ElevatorWristConstants {
         leaderConfig.Slot0.kG = (0.45 + 0.25) / 2; // Increase until elevator holds steady
         leaderConfig.Slot0.kS = (0.45 - 0.25) / 2; // Increase until just before motor starts moving
         leaderConfig.Slot0.kV = 0.24547; // Voltage required to maintain speed
-        leaderConfig.Slot0.kP = 3; // Increase to get measured velocity to match target velocity
+        leaderConfig.Slot0.kP = 5; // Increase to get measured velocity to match target velocity
         leaderConfig.Slot0.kI = 0; // Don't touch
         leaderConfig.Slot0.kD = 0; // Don't touch
         leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
-        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 35; // push until motor is commanding 12 volts
-        leaderConfig.MotionMagic.MotionMagicAcceleration = 65; // push until motor is commanding current limit
+        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 100; // push until motor is commanding 12 volts
+        leaderConfig.MotionMagic.MotionMagicAcceleration = 200; // push until motor is commanding current limit
+        leaderConfig.MotionMagic.MotionMagicJerk = 360;
 
         leaderConfig.Feedback.RotorToSensorRatio = 1;
         leaderConfig.Feedback.SensorToMechanismRatio = 1;
@@ -91,7 +92,7 @@ public class ElevatorWristConstants {
                 .withBus(Robot.elevatorbus);
 
         TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kG = (21.5 + 13.5) / 2; // Increase until wrist holds steady
+        wristConfig.Slot0.kG = -(21.5 + 13.5) / 2; // Increase until wrist holds steady
         wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
         // wristConfig.Slot0.kV = 0.5 / 10;
         // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
@@ -102,7 +103,7 @@ public class ElevatorWristConstants {
         wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
         wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0));
-        wristConfig.Slot1.kG = -30; // increase kG when holding coral
+        wristConfig.Slot1.kG = -25; // increase kG when holding coral
         wristConfig.Slot1.kD = 21; // increase kD when holding coral
 
         wristConfig.Feedback.RotorToSensorRatio = 10;

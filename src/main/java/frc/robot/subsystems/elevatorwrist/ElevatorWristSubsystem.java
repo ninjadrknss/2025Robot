@@ -27,15 +27,15 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     public enum ElevatorState {
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
-        HOME(0, 0, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
+        HOME(0, 90, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
         // idle position 90 deg
         IDLE(0, 90, LightsSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 0, LightsSubsystem.Colors.GREEN),
+        CHUTE_INTAKE(0, 210, LightsSubsystem.Colors.GREEN),
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(30, 180, LightsSubsystem.Colors.CYAN),
-        L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
-        L4_SCORE(0, 0, LightsSubsystem.Colors.PURPLE),
-        CLIMB(0, 0, LightsSubsystem.Colors.PINK); // just get intake out of the way
+        L2_SCORE(9, 135, LightsSubsystem.Colors.CYAN),
+        L3_SCORE(19, 135, LightsSubsystem.Colors.AQUAMARINE),
+        L4_SCORE(32, 150, LightsSubsystem.Colors.PURPLE),
+        CLIMB(0, 120, LightsSubsystem.Colors.PINK); // just get intake out of the way
 
         /**
          * The height of the elevator in inches.
@@ -96,7 +96,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean requestClimb = false;
 
     /* Other Variables */
-    private boolean homedOnce = false;
+    private boolean homedOnce = true;
     private boolean elevatorAtPosition = false;
     private boolean wristAtPosition = false;
     private final LightsSubsystem lightSubsystem = LightsSubsystem.getInstance();
@@ -181,11 +181,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
             if (state == ElevatorState.HOME) homeElevator(); // special case for homing
             else {
-                if ((wristOrder != WristOrder.MOVE_FIRST || wristAngleStatus.getValue().gt(Units.Revolutions.of(0.35)))) { // scuffed logic to make sure the elevator doesn't move before the wrist
+                if (wristOrder != WristOrder.MOVE_FIRST || wristAtPosition) { // scuffed logic to make sure the elevator doesn't move before the wrist
                     setElevatorHeight(state.height);
                 }
             }
-            if ((wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition)) { // scuffed logic to make sure the wrist doesn't move before the elevator
+            if (wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition) { // scuffed logic to make sure the wrist doesn't move before the elevator
                 setWristAngle(state.angle);
             }
         }
@@ -200,7 +200,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
              state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
              , Units.Revolutions.of(0.2))
         ); // 0.2 revolutions tolerance
-        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.02)); // 0.02 revolutions tolerance
+        wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.05)); // 0.02 revolutions tolerance
         elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
         telemetry();
@@ -223,12 +223,13 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     private void homingPeriodic() {
-        setWristAngle(ElevatorState.CLIMB.angle);
+        if (state == ElevatorState.HOME) setWristAngle(ElevatorState.CLIMB.angle);
         if (getHomeCANcoder() || state == ElevatorState.HOME && elevatorStalled) {
             homedOnce = true;
             leaderMotor.setPosition(0);
             if (state == ElevatorState.HOME) {
-                requestIdle(WristOrder.MOVE_BOTH);
+                state = ElevatorState.IDLE;
+                setWristAngle(ElevatorState.IDLE.angle);
                 System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
             }
         }
