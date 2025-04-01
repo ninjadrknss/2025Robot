@@ -21,8 +21,8 @@ public class PreciseMoveCommand extends Command {
     private final Timer timer = new Timer();
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyFieldSpeeds;
 
-    private final PIDController xController = new PIDController(3, 0.0, 0);
-    private final PIDController yController = new PIDController(3, 0.0, 0);
+    private final PIDController xController = new PIDController(4, 0.0, 0.5);
+    private final PIDController yController = new PIDController(4, 0.0, 0.5);
     private final ProfiledPIDController thetaController;
 
     private static final double MAX_VELOCITY = 2;
@@ -41,7 +41,7 @@ public class PreciseMoveCommand extends Command {
         this.targetPose = targetPose;
         this.m_pathApplyFieldSpeeds = new SwerveRequest.ApplyRobotSpeeds();
         thetaController = new ProfiledPIDController(
-            2, 0.05, 0, SwerveConstants.AutoConstants.kThetaControllerConstraints
+            5, 0.05, 0, SwerveConstants.AutoConstants.kThetaControllerConstraints
         );
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         thetaController.setTolerance(Math.toRadians(2), Math.toRadians(1));

@@ -148,7 +148,14 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void autonomousExit() {}
+    public void autonomousExit() {
+
+        //schedule and quickly cancel new AssistCommand() to stop auton
+        new AssistCommand().schedule(); 
+        // cancel
+        
+
+    }
 
     @Override
     public void teleopInit() {

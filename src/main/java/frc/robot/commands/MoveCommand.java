@@ -58,8 +58,8 @@ public class MoveCommand extends Command {
         path = new PathPlannerPath(
             waypoints,
             constraints,
-            new IdealStartingState(2, targetPose.getRotation()),
-            new GoalEndState(1.0, targetPose.getRotation())
+            new IdealStartingState(1, targetPose.getRotation()),
+            new GoalEndState(0.5, targetPose.getRotation())
         );
 
         path.preventFlipping = true;
