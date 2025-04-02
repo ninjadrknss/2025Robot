@@ -111,6 +111,7 @@ public class ControlBoard {
         SmartDashboard.putBoolean("ControlBoard/preciseControl", preciseControl);
         SmartDashboard.putString("ControlBoard/Current Goal", desiredGoal.name());
         SmartDashboard.putString("ControlBoard/Current Level", scoreLevel.name());
+        SmartDashboard.putNumber("ControlBoard/Score Level", scoreLevel.ordinal() + 2);
         SmartDashboard.putString("ControlBoard/Current Branch", selectedBranch.name());
     }
 
@@ -161,15 +162,14 @@ public class ControlBoard {
         controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
 
         // Select Score Level (TriangleButton, XButton)
-        controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
-            if(scoreLevel != ScoreLevel.L4) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
-        }).withName("Score Level Up"));
-        controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
-            if(scoreLevel != ScoreLevel.L2) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
-        }).withName("Score Level Down"));
+        controller.squareButton.whileTrue(new InstantCommand(superstructure::requestHome).withName("Home Elevator Command"));
+        controller.triangleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L2).withName("L2 Score Select"));
+        controller.circleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3).withName("L3 Score Select"));
+        controller.crossButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4).withName("L4 Score Select"));
 
-        controller.circleButton.onTrue(new InstantCommand(superstructure::requestHome).withName("Home Elevator Command"));
-        controller.squareButton.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+        controller.dLeft.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
 
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
