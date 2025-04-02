@@ -27,7 +27,7 @@ public class ClimbSubsystem extends SubsystemBase {
     private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
     private boolean pivotAtPosition = false;
 
-    private final VoltageOut tempCurrentControl = new VoltageOut(0);
+    private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(true);
 
     // Define the states of the climber.
     public enum ClimbState {
@@ -108,10 +108,10 @@ public class ClimbSubsystem extends SubsystemBase {
         // pivotMotor.setControl(pivotControl);
 
         double rawInput = ControlBoard.getInstance().getOperatorLeftVertical();
-        double output = Math.copySign(rawInput * rawInput, rawInput) * 12;
+        double output = Math.copySign(rawInput * rawInput, rawInput) * 12.5;
 
-        tempCurrentControl.withOutput(output);
-        pivotMotor.setControl(tempCurrentControl);
+        voltageControl.withOutput(output);
+        pivotMotor.setControl(voltageControl);
         flapServo.set(targetFlapAngle.in(Units.Rotations));
 
         // pivotAngleStatus.refresh(false);
