@@ -340,7 +340,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private void telemetry() {
         SmartDashboard.putString("ElevatorWrist/Elevator State", state.toString());
         SmartDashboard.putString("ElevatorWrist/Prev Elevator State", prevState != null ? prevState.toString() : "null");
-        SmartDashboard.putNumber("ElevatorWrist/MovePercent", movePercent());
+//        SmartDashboard.putNumber("ElevatorWrist/MovePercent", movePercent());
 
         SmartDashboard.putNumber("ElevatorWrist/Elevator Height", elevatorPositionStatus.getValueAsDouble());
         SmartDashboard.putNumber("ElevatorWrist/Elevator Current", elevatorCurrentStatus.getValueAsDouble());
@@ -350,8 +350,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("ElevatorWrist/Wrist Setpoint", state.angle.in(Units.Revolutions));
 
         SmartDashboard.putBoolean("ElevatorWrist/Homed Once", homedOnce);
-        SmartDashboard.putBoolean("ElevatorWrist/Homing", state == ElevatorState.HOME);
-        SmartDashboard.putBoolean("ElevatorWrist/Home Switch", getHomeCANcoder());
+//        SmartDashboard.putBoolean("ElevatorWrist/Homing", state == ElevatorState.HOME);
+//        SmartDashboard.putBoolean("ElevatorWrist/Home Switch", getHomeCANcoder());
         SmartDashboard.putBoolean("ElevatorWrist/Elevator At Position", elevatorAtPosition);
         SmartDashboard.putBoolean("ElevatorWrist/Wrist At Position", wristAtPosition);
         SmartDashboard.putBoolean("ElevatorWrist/Both At Position", elevatorAtPosition && wristAtPosition);

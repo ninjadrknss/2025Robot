@@ -43,7 +43,7 @@ public class ClimbSubsystem extends SubsystemBase {
     private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
     private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
 
-    private boolean rachetActive = false;
+    private boolean ratchetActive = false;
 
     public static ClimbSubsystem getInstance() {
         if (instance == null) instance = new ClimbSubsystem();
@@ -89,12 +89,12 @@ public class ClimbSubsystem extends SubsystemBase {
         requestDeployFlap();
     }
 
-    public void requestRachetActive() {
-        rachetActive = true;
+    public void requestRatchetActive() {
+        ratchetActive = true;
     }
 
-    public void requestRachetInActive() {
-        rachetActive = false;
+    public void requestRatchetInActive() {
+        ratchetActive = false;
     }
 
     public void modifyPivotAngle(Angle delta) {
@@ -116,11 +116,13 @@ public class ClimbSubsystem extends SubsystemBase {
 
         // pivotAngleStatus.refresh(false);
 
-        rachetServo.setSpeed(rachetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive);
+        rachetServo.setSpeed(ratchetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive);
 
         // pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
 
         SmartDashboard.putString("Climb/Current State", currentState.name());
+        SmartDashboard.putBoolean("Climb/Ratchet Active", ratchetActive);
+        SmartDashboard.putBoolean("Climb/Flap Active", targetFlapAngle.isNear(ClimbConstants.flapDeployAngle, 0.05));
         SmartDashboard.putNumber("Climb/VoltageOut", output);
         // SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
     }

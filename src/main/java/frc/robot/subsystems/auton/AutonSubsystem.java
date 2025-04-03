@@ -8,9 +8,11 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.AssistCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ScoreCommand;
@@ -76,6 +78,19 @@ public class AutonSubsystem {
         }
 
         // Register the full sequence of commands to run when routine is active
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine;
+    }
+
+    private AutoRoutine getMoveAuton() {
+        AutoRoutine routine = autoFactory.newRoutine("MoveAuton");
+        List<Command> commandList = new ArrayList<>();
+
+        SwerveRequest swerveRequest = new SwerveRequest.FieldCentric().withVelocityX(-2).withVelocityY(0);
+
+        commandList.add(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
+        commandList.add(SwerveSubsystem.getInstance().applyRequest(() -> swerveRequest));
+
         routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
         return routine;
     }

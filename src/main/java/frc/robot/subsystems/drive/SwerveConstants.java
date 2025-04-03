@@ -12,7 +12,7 @@ import com.pathplanner.lib.config.RobotConfig;
 
 public class SwerveConstants {
     public static final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(Units.MetersPerSecond);
-    public static final double maxAngularSpeed = Units.RotationsPerSecond.of(0.9).in(Units.RadiansPerSecond);
+    public static final double maxAngularSpeed = Units.RotationsPerSecond.of(1.1).in(Units.RadiansPerSecond);
 
     public static class AutoConstants {
         public static double kMaxSpeedMetersPerSecond = 7; // 3

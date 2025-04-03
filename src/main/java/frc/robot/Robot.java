@@ -130,16 +130,11 @@ public class Robot extends TimedRobot {
     public void disabledExit() {
 //         ElevatorWristSubsystem.getInstance().setBrakeMode();
     }
-    SwerveRequest swerveRequest = new SwerveRequest.FieldCentric().withVelocityX(-2).withVelocityY(0);
 
     @Override
     public void autonomousInit() {
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
         autonomousCommand = autonSubsystem.getSelectedAuton();
-        // autonomousCommand = Commands.sequence(
-        // Commands.runOnce(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())),
-        // SwerveSubsystem.getInstance().applyRequest(() -> swerveRequest));
-
         if (autonomousCommand != null) autonomousCommand.schedule();
         LightsSubsystem.getInstance().requestRainbow();
     }

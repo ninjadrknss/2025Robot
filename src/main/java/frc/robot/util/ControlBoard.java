@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -148,8 +147,8 @@ public class ControlBoard {
         controller.touchpadButton.whileTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
         controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
         controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
 
 //        controller.rightBumper.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
 //        controller.rightTrigger.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
@@ -167,8 +166,8 @@ public class ControlBoard {
         controller.circleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3).withName("L3 Score Select"));
         controller.crossButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4).withName("L4 Score Select"));
 
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
         controller.dLeft.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
 
         // Elevator Go To Selected Position (RightTrigger)
@@ -186,9 +185,9 @@ public class ControlBoard {
         double scale = preciseControl || tippyMode ? 0.25 : 1.0;
         double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
 
-        double x = driver.leftVerticalJoystick.getAsDouble() * 0.3;
-        double y = driver.leftHorizontalJoystick.getAsDouble() * 0.3;
-        double rot = driver.rightHorizontalJoystick.getAsDouble() * 0.5;
+        double x = driver.leftVerticalJoystick.getAsDouble();
+        double y = driver.leftHorizontalJoystick.getAsDouble();
+        double rot = driver.rightHorizontalJoystick.getAsDouble();
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
                            .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                            .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));
