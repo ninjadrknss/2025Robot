@@ -107,6 +107,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putBoolean("Limelight Has Target", LimelightSubsystem.getInstance().hasTarget());
 //        printWatchdogEpochs(); // TODO: PRINT ALL THE EPOCHS ON EVERY LOOP
         // ControlBoard.getInstance().tryInit();
+        controlBoard.displayUI();
     }
 
     @Override
@@ -166,7 +167,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        controlBoard.displayUI();
     }
 
     @Override
