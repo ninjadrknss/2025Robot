@@ -132,7 +132,7 @@ public class ControlBoard {
          controller.rightBumper.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        // controller.rightTrigger.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
+//         controller.rightTrigger.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
 
         /* Intake Subsystem */
         controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
@@ -145,8 +145,8 @@ public class ControlBoard {
 
         /* Climb Subsystem */
         controller.touchpadButton.whileTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
-        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
 
