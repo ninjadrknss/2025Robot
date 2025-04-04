@@ -52,17 +52,18 @@ public class AssistCommand extends Command {
     public void initialize() {
         SmartDashboard.putBoolean("Assist Command Active", true);
         System.out.println("Assist Command Active");
-        if (dynamic == true) gameElement = ControlBoard.getInstance().desiredGoal;
+        if (dynamic) gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
+
         if (gameElement.hasBranches()) {
-            if (dynamic == true) selectedBranch = ControlBoard.getInstance().selectedBranch;
+            if (dynamic) selectedBranch = ControlBoard.getInstance().selectedBranch;
             if (selectedBranch != Branch.CENTER)
                 elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
         }
 
         Rotation2d targetRotation = gameElement.getLocation()
             .getRotation()
-            .minus(Rotation2d.fromDegrees(180));
+            .minus(Rotation2d.k180deg);
 
         Pose2d offsetPose1 = GameElement.getPoseWithOffset(elementPose, 0.45);
         

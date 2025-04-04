@@ -51,20 +51,20 @@ public class ControlBoard {
     private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 
     /* State Variables */
-    public GameElement desiredGoal;
-    public GameElement previousConfirmedGoal;
-    public boolean preciseControl;
+    public GameElement desiredGoal = GameElement.PROCESSOR_BLUE;
+    public GameElement previousConfirmedGoal = null;
+    public boolean preciseControl = false;
     public double goalConfidence;
     public Branch selectedBranch = Branch.LEFT;
     public ScoreLevel scoreLevel = ScoreLevel.L3;
     public boolean isAssisting = false;
 
-    public GameElement prevDesiredGoal;
+    public GameElement prevDesiredGoal = null;
 
     /* Commands */
-    private final IdleCommand idleCommand;
-    private final SpitCommand spitCommand;
-    private final IntakeCommand intakeCommand;
+    private final IdleCommand idleCommand = new IdleCommand();
+    private final SpitCommand spitCommand = new SpitCommand();
+    private final IntakeCommand intakeCommand = new IntakeCommand();
 
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
             .withDeadband(SwerveConstants.maxSpeed * 0.05) // Add a 5% deadband
@@ -76,21 +76,13 @@ public class ControlBoard {
     private ControlBoard() {
         DriverStation.silenceJoystickConnectionWarning(true);
 
-        desiredGoal = GameElement.PROCESSOR_BLUE;
-        prevDesiredGoal = null;
-        previousConfirmedGoal = null;
-        preciseControl = false;
-
-        idleCommand = new IdleCommand();
-        intakeCommand = new IntakeCommand();
-        spitCommand = new SpitCommand();
         tryInit();
     }
 
     public void tryInit() {
         if (driver == null) {
             driver = new PS5Controller(ControllerPreset.DRIVER.port());
-            configureBindings(ControllerPreset.DRIVER, driver); // TODO: remove
+            configureBindings(ControllerPreset.DRIVER, driver);
 
             SwerveSubsystem drive = SwerveSubsystem.getInstance();
             drive.setDefaultCommand(drive.applyRequest(this::getDriverRequest));
