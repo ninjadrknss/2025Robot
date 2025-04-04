@@ -80,13 +80,23 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty()) LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{ 6,  7,  8,  9, 10, 11,
-                                                                                                                        17, 18, 19, 20, 21, 22});
-        else if (alliance.get().equals(DriverStation.Alliance.Blue)) LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{17, 18, 19, 20, 21, 22});
-        else if (alliance.get().equals(DriverStation.Alliance.Red)) LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{6, 7, 8, 9, 10, 11});
+
     }
 
     public void setAprilTagFilters() {
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty()) {
+            LimelightHelpers.setPipelineIndex(VisionConstants.Limelight.name, 0);
+            LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{ 6,  7,  8,  9, 10, 11,
+                    17, 18, 19, 20, 21, 22});
+        }
+        else if (alliance.get().equals(DriverStation.Alliance.Blue)) {
+            LimelightHelpers.setPipelineIndex(VisionConstants.Limelight.name, 1);
+            LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{17, 18, 19, 20, 21, 22});
+        }
+        else if (alliance.get().equals(DriverStation.Alliance.Red)) {
+            LimelightHelpers.setPipelineIndex(VisionConstants.Limelight.name, 0);
+            LimelightHelpers.SetFiducialIDFiltersOverride(VisionConstants.Limelight.name, new int[]{6, 7, 8, 9, 10, 11});
+        }
     }
 }

@@ -90,6 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
 //        stalled = currentFilter.calculate(currentSignal.getValue().in(Units.Amps)) > IntakeConstants.stalledCurrentThreshold; // might be another way to detect game pieces
 
         SmartDashboard.putBoolean("Intake/Coral Detected", coralDetected);
+        SmartDashboard.putString("Intake/Intake State", state.toString());
         // SmartDashboard.putBoolean("Intake/Stalled", stalled);
         SmartDashboard.putNumber("Intake/Intake Speed", intakeMotor.getVelocity().getValueAsDouble());
     }

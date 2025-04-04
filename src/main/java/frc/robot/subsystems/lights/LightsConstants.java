@@ -7,8 +7,8 @@ public class LightsConstants {
     public static final int CANdleID = 5;
     private static final int CANdleOnboardLEDs = 8;
 
-    public static final int numLEDs = 59 + CANdleOnboardLEDs;
-    public static final double brightness = 0.60; // TODO: change to desired brightness
+    public static final int numLEDs = 63 + CANdleOnboardLEDs;
+    public static final double brightness = 1.0; // TODO: change to desired brightness
 
     public static final double blinkInterval = 0.2;
 

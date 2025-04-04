@@ -95,7 +95,7 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     public void requestColor(Color color) {
-        requestColor(color, false);
+        requestColor(color, blinking);
     }
 
     private void fadeBetweenColors(Color start, Color end) {
@@ -118,7 +118,10 @@ public class LightsSubsystem extends SubsystemBase {
     public void requestBlinking(boolean blink) {
         blinking = blink;
         System.out.println("Blink: " + blink);
-        if (blinking) blinkTimer.reset();
+        if (blinking) {
+            blinkTimer.reset();
+            blinkTimer.start();
+        }
     }
 
     public void requestToggleBlinking() {
