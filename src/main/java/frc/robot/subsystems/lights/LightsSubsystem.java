@@ -6,7 +6,6 @@ import com.ctre.phoenix.led.RainbowAnimation;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -30,10 +29,15 @@ public class LightsSubsystem extends SubsystemBase {
     private boolean blinking = false;
     private boolean blinkOff = false;
 
+    private boolean isRainbow = false;
+
     private int[] currentColor = new int[]{0, 0, 0};
 
+    private enum LEDState { STATIC, FADING, BLINKING, FADING_BLINKING, RAINBOW }
+    private LEDState currentState = LEDState.STATIC;
+
     public static class Color {
-        private final int R, G, B;
+        public final int R, G, B;
 
         public Color(int r, int g, int b) {
             R = r;
@@ -43,9 +47,6 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     public static final class Colors {
-        // -----------------------------------------------------
-        // Basic Colors
-        // -----------------------------------------------------
         public static final Color OFF = new Color(0, 0, 0);
         public static final Color WHITE = new Color(255, 255, 255);
         public static final Color RED = new Color(255, 0, 0);
@@ -58,15 +59,12 @@ public class LightsSubsystem extends SubsystemBase {
         public static final Color MAGENTA = new Color(255, 0, 255);
         public static final Color PINK = new Color(255, 192, 203);
 
-        // -----------------------------------------------------
-        // Palette Colors
-        // -----------------------------------------------------
-        /* 751 */ public static final Color TEAM_751 = new Color(48, 131, 255);
-        /* P1 */ public static final Color PICTION_BLUE = new Color(0, 171, 231);
-        /* P2 */ public static final Color PERSIAN_BLUE = new Color(37, 65, 178);
-        /* P3 */ public static final Color AQUAMARINE = new Color(166, 244, 220);
-        /* P4 */ public static final Color MAJORELLE_BLUE = new Color(114, 76, 249);
-        /* P5 */ public static final Color ULTRAVIOLET = new Color(86, 69, 146);
+        public static final Color TEAM_751 = new Color(48, 131, 255);
+        public static final Color PICTION_BLUE = new Color(0, 171, 231);
+        public static final Color PERSIAN_BLUE = new Color(37, 65, 178);
+        public static final Color AQUAMARINE = new Color(166, 244, 220);
+        public static final Color MAJORELLE_BLUE = new Color(114, 76, 249);
+        public static final Color ULTRAVIOLET = new Color(86, 69, 146);
 
         public static final Color[] allColors = new Color[]{Colors.WHITE, Colors.RED, Colors.YELLOW, Colors.ORANGE, Colors.GREEN, Colors.CYAN, Colors.BLUE, Colors.PURPLE, Colors.MAGENTA, Colors.PINK, Colors.AQUAMARINE};
     }
@@ -77,21 +75,21 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     private LightsSubsystem() {
-       candle.configAllSettings(LightsConstants.CANdleConfiguration);
-
-        requestColor(Colors.RED);
-        requestBlinking(true);
-
-//        new Trigger(DriverStation::isDSAttached).onTrue(new InstantCommand(this::requestRainbow).ignoringDisable(true)); // TODO: see if this works
-//        new Trigger(DriverStation::isDSAttached).onFalse(new InstantCommand(() -> requestColor(Colors.RED)).ignoringDisable(true));
+        candle.configAllSettings(LightsConstants.CANdleConfiguration);
         blinkTimer.start();
+        requestColor(Colors.RED, true);
     }
 
     public void requestColor(Color color, boolean blink) {
-        System.out.printf("Setting color (%d, %d, %d)%n", color.R, color.G, color.B);
+        if (isRainbow) {
+            candle.clearAnimation(0);
+            isRainbow = false;
+        }
         blinking = blink;
         blinkTimer.reset();
-        fadeBetweenColors(new Color(currentColor[0], currentColor[1], currentColor[0]), color);
+        fadeBetweenColors(new Color(currentColor[0], currentColor[1], currentColor[2]), color);
+
+        currentState = blinking ? LEDState.FADING_BLINKING : LEDState.FADING;
     }
 
     public void requestColor(Color color) {
@@ -99,29 +97,25 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     private void fadeBetweenColors(Color start, Color end) {
-//        candle.clearAnimation(0);
+        fadeStartColor = start;
+        fadeEndColor = end;
+        fadeStartTime = Timer.getFPGATimestamp();
+        fading = true;
 
-        this.fadeStartColor = start;
-        this.fadeEndColor = end;
-        this.fadeStartTime = Timer.getFPGATimestamp();
-        this.fading = true;
-
-       candle.setLEDs(start.R, start.G, start.B);
+        candle.setLEDs(start.R, start.G, start.B);
     }
 
     public void requestRainbow() {
-        System.out.println("Rainbowify");
         candle.clearAnimation(0);
         candle.animate(new RainbowAnimation(0.50, 0.75, LightsConstants.numLEDs, false, 0));
+        isRainbow = true;
+        currentState = LEDState.RAINBOW;
     }
 
     public void requestBlinking(boolean blink) {
         blinking = blink;
-        System.out.println("Blink: " + blink);
-        if (blinking) {
-            blinkTimer.reset();
-            blinkTimer.start();
-        }
+        blinkTimer.reset();
+        currentState = blinking ? (fading ? LEDState.FADING_BLINKING : LEDState.BLINKING) : (fading ? LEDState.FADING : LEDState.STATIC);
     }
 
     public void requestToggleBlinking() {
@@ -130,49 +124,36 @@ public class LightsSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-//        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
-//        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
-//        SmartDashboard.putBoolean("LED/Blinking", blinking);
-//        SmartDashboard.putBoolean("LED/BlinkOff", blinkOff);
-
         if (fading) updateFade();
-        if (blinking) updateBlink();
-    }
-
-    public void setFadePercent(double percent) {
-        fadePercent = percent;
+        if (blinking && currentState != LEDState.RAINBOW) updateBlink();
     }
 
     private void updateFade() {
-        double currentTime = Timer.getFPGATimestamp();
-        double elapsed = currentTime - fadeStartTime;
-
+        double elapsed = Timer.getFPGATimestamp() - fadeStartTime;
         double fraction = doFadePercent ? MathUtil.clamp(fadePercent, 0, 1) : elapsed / LightsConstants.fadeDuration;
-        if (fraction >= 1.0) {
-            fraction = 1.0;
-            fading = false; // Fade is done
-        }
+        fraction = Math.min(fraction, 1.0);
 
-        currentColor[0] = (int) (MathUtil.interpolate(fadeStartColor.R, fadeEndColor.R, fraction));
-        currentColor[1] = (int) (MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction));
-        currentColor[2] = (int) (MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction));
+        currentColor[0] = (int) MathUtil.interpolate(fadeStartColor.R, fadeEndColor.R, fraction);
+        currentColor[1] = (int) MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction);
+        currentColor[2] = (int) MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction);
 
         candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
+
+        if (fraction >= 1.0) fading = false;
     }
 
     private void updateBlink() {
         if (blinkTimer.hasElapsed(LightsConstants.blinkInterval)) {
-            if (blinkOff) candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
-            else candle.setLEDs(currentColor[0] / 8, currentColor[1] / 8, currentColor[2] / 8);
             blinkOff = !blinkOff;
             blinkTimer.reset();
+
+            if (blinkOff) candle.setLEDs(currentColor[0] / 8, currentColor[1] / 8, currentColor[2] / 8);
+            else candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
         }
     }
 
     public void requestAllianceColors() {
         requestBlinking(false);
-
-        if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red) requestColor(Colors.RED);
-        else requestColor(Colors.BLUE);
+        requestColor(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red ? Colors.RED : Colors.BLUE);
     }
 }
