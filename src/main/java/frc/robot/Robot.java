@@ -20,6 +20,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import frc.robot.subsystems.drive.Odometry;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -80,6 +81,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+        odometry.updateAllienceColor((DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue));
         for (int port = 5800; port <= 5809; port++) {
             PortForwarder.add(port, "limelight.local", port);
         }
@@ -158,6 +160,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        odometry.updateAllienceColor((DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue));
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
         if (autonomousCommand != null) autonomousCommand.cancel();
 

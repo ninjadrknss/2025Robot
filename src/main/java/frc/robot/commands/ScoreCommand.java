@@ -51,7 +51,7 @@ public class ScoreCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return atPosition && !coralDetected;
+        return atPositionDebouncer.calculate(superstructure.isAtPosition()) && !coralDebouncer.calculate(IntakeSubsystem.getInstance().coralDetected());
     }
 
     @Override
