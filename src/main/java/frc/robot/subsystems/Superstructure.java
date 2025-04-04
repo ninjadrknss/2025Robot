@@ -35,7 +35,7 @@ public class Superstructure extends SubsystemBase {
 
     /* State Flags */
     boolean requestHome = false;
-    boolean requestIdle = true;
+    boolean requestIdle = false;
     boolean requestChuteIntake = false;
 //    boolean requestL1Score = false;
     boolean requestL2Score = false;
@@ -45,10 +45,12 @@ public class Superstructure extends SubsystemBase {
 
     /* Other Variables */
     private double mStateStartTime = 0.0;
-    private SuperstructureState systemState = SuperstructureState.IDLE;
+    private SuperstructureState systemState = SuperstructureState.PRE_HOME;
 
-    boolean homedOnce = true;
+    boolean homedOnce = true; // TODO: this should be false
     private double lastFPGATimestamp = 0.0;
+
+    private WristOrder wristOrder = null;
 
     private Superstructure() {}
 
@@ -60,10 +62,11 @@ public class Superstructure extends SubsystemBase {
     @Override
     public void periodic() {
         double time = RobotController.getFPGATime() / 1.0E6;
-        Logger.recordOutput("Superstructure/loopCycleTime", time - lastFPGATimestamp);
-
+        SmartDashboard.putNumber("Superstructure/loopCycleTime", time - lastFPGATimestamp);
         lastFPGATimestamp = time;
+
         SmartDashboard.putString("Superstructure/Superstructure State", systemState.toString());
+        SmartDashboard.putBoolean("Superstructure/Homed Once", homedOnce);
 
         SuperstructureState nextState = systemState;
         switch (systemState) {
@@ -72,110 +75,123 @@ public class Superstructure extends SubsystemBase {
                 if (elevatorWristSubsystem.homedOnce()) {
                     homedOnce = true;
                     nextState = SuperstructureState.IDLE;
+                    wristOrder = WristOrder.MOVE_BOTH;
                 }
             }
             case IDLE -> {
+                elevatorWristSubsystem.requestIdle(wristOrder);
                 if (requestL2Score) {
-                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestL3Score) {
-                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestL4Score) {
-                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.CLIMB;
                 } else if (requestChuteIntake) {
-                    elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.CHUTE_INTAKE;
                 }
             }
             case CHUTE_INTAKE -> {
+                elevatorWristSubsystem.requestChuteIntake(wristOrder);
                 if (requestIdle) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.IDLE;
                 } else if (requestL2Score) {
-                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_FIRST;
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestL3Score) {
-                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_FIRST;
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestL4Score) {
-                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_FIRST;
                     nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.CLIMB;
                 }
             }
             case L2_SCORE -> {
+                elevatorWristSubsystem.requestL2Score(wristOrder);
                 if (requestIdle) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                    wristOrder = WristOrder.MOVE_LAST;
+                    nextState = SuperstructureState.IDLE;
                 } else if (requestChuteIntake) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                    wristOrder = WristOrder.MOVE_LAST;
+                    nextState = SuperstructureState.CHUTE_INTAKE;
                 } else if (requestL3Score) {
-                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestL4Score) {
-                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.CLIMB;
                 }
             }
 
             case L3_SCORE -> {
+                elevatorWristSubsystem.requestL3Score(wristOrder);
                 if (requestIdle) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                    wristOrder = WristOrder.MOVE_LAST;
+                    nextState = SuperstructureState.IDLE;
                 } else if (requestChuteIntake) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                    wristOrder = WristOrder.MOVE_LAST;
+                    nextState = SuperstructureState.CHUTE_INTAKE;
                 } else if (requestL2Score) {
-                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestL4Score) {
-                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.CLIMB;
                 }
             }
 
             case L4_SCORE -> {
+                elevatorWristSubsystem.requestL4Score(wristOrder);
                 if (requestIdle) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                    wristOrder = WristOrder.MOVE_LAST;
+                    nextState = SuperstructureState.IDLE;
                 } else if (requestChuteIntake) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_LAST);
+                    wristOrder = WristOrder.MOVE_LAST;
+                    nextState = SuperstructureState.CHUTE_INTAKE;
                 } else if (requestL2Score) {
-                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestL3Score) {
-                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestClimb) {
-                    elevatorWristSubsystem.requestClimb(WristOrder.MOVE_LAST); // TODO: might just be move_both
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.CLIMB;
                 }
             }
 
             case CLIMB -> {
+                elevatorWristSubsystem.requestClimb(wristOrder);
                 if (requestIdle) {
-                    elevatorWristSubsystem.requestIdle(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.IDLE;
                 } else if (requestChuteIntake) {
-                    elevatorWristSubsystem.requestChuteIntake(WristOrder.MOVE_BOTH);
+                    wristOrder = WristOrder.MOVE_BOTH;
                     nextState = SuperstructureState.CHUTE_INTAKE;
                 } else if (requestL2Score) {
-                    elevatorWristSubsystem.requestL2Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_FIRST;
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestL3Score) {
-                    elevatorWristSubsystem.requestL3Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_FIRST;
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestL4Score) {
-                    elevatorWristSubsystem.requestL4Score(WristOrder.MOVE_FIRST);
+                    wristOrder = WristOrder.MOVE_FIRST;
                     nextState = SuperstructureState.L4_SCORE;
                 }
             }

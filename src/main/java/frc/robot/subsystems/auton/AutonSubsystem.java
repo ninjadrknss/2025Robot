@@ -8,13 +8,13 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import frc.robot.subsystems.drive.Odometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.AssistCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ScoreCommand;
-import frc.robot.commands.SpitCommand;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.util.FieldConstants.GameElement;
@@ -47,6 +47,7 @@ public class AutonSubsystem {
         autoChooser.addRoutine("Untitled", () -> getAuton("Untitled"));
         autoChooser.addRoutine("pdaddy", () -> getAuton("pdaddy"));
         autoChooser.addRoutine("hardcode auton", () -> getBadAuton());
+        autoChooser.addRoutine("BlueRight", () -> getBlueRight());
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
@@ -79,6 +80,43 @@ public class AutonSubsystem {
         routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
         return routine;
     }
+
+    private AutoRoutine getBlueRight(){
+        AutoRoutine routine = autoFactory.newRoutine("blueright");
+        List<Command> commandList = new ArrayList<>();
+        
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_2, GameElement.Branch.LEFT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(2)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_1, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(3)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_4, GameElement.Branch.RIGHT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(2)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_1, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(3)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_4, GameElement.Branch.LEFT));
+
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine;
+    }
+
+
+
 
     private AutoRoutine getBadAuton(){
         AutoRoutine routine = autoFactory.newRoutine("imbad");

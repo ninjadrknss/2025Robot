@@ -1,7 +1,6 @@
 package frc.robot.subsystems.elevatorwrist;
 
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.StatusSignal;
 
 import com.ctre.phoenix6.controls.*;
@@ -21,7 +20,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
 
@@ -29,15 +27,15 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     public enum ElevatorState {
         // height is zero at the bottom of the elevator
         // angle is zero when the wrist is plumb to the ground
-        HOME(0, 0, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
+        HOME(0, 90, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
         // idle position 90 deg
         IDLE(0, 90, LightsSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 0, LightsSubsystem.Colors.GREEN),
+        CHUTE_INTAKE(0, 210, LightsSubsystem.Colors.GREEN),
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(30, 180, LightsSubsystem.Colors.CYAN),
-        L3_SCORE(20, 0, LightsSubsystem.Colors.AQUAMARINE),
-        L4_SCORE(0, 0, LightsSubsystem.Colors.PURPLE),
-        CLIMB(0, 0, LightsSubsystem.Colors.PINK); // just get intake out of the way
+        L2_SCORE(9, 135, LightsSubsystem.Colors.CYAN),
+        L3_SCORE(19, 135, LightsSubsystem.Colors.AQUAMARINE),
+        L4_SCORE(32, 150, LightsSubsystem.Colors.PURPLE),
+        CLIMB(0, 120, LightsSubsystem.Colors.PINK); // just get intake out of the way
 
         /**
          * The height of the elevator in inches.
@@ -64,32 +62,29 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     }
 
     /* Motors and Controls */
-    private final TalonFX leader = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
+    private final TalonFX leaderMotor = ElevatorWristConstants.rightElevatorMotorConfig.createDevice(TalonFX::new);
     private final MotionMagicVoltage leaderControl = new MotionMagicVoltage(0);
     private final VoltageOut homeControl = new VoltageOut(0).withEnableFOC(true);
-    private final TalonFX follower = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
-    private final Follower followerControl = new Follower(leader.getDeviceID(), true);
-    private final TalonFX wrist = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
+    private final TalonFX followerMotor = ElevatorWristConstants.leftElevatorMotorConfig.createDevice(TalonFX::new);
+    private final Follower followerControl = new Follower(leaderMotor.getDeviceID(), true);
+    private final TalonFX wristMotor = ElevatorWristConstants.wristMotorConfig.createDevice(TalonFX::new);
     private final PositionTorqueCurrentFOC wristControl = new PositionTorqueCurrentFOC(ElevatorState.HOME.angle);
 
     /* Sensors and Signals */
     private final Debouncer elevatorDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
-    private final StatusSignal<Angle> elevatorPositionStatus = leader.getPosition();
-    private final StatusSignal<Current> elevatorCurrentStatus = leader.getStatorCurrent();
+    private final StatusSignal<Angle> elevatorPositionStatus = leaderMotor.getPosition();
+    private final StatusSignal<Current> elevatorCurrentStatus = leaderMotor.getStatorCurrent();
     private final LinearFilter currentFilter = LinearFilter.movingAverage(5);
     private final Debouncer wristDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
     private final CANcoder wristEncoder = ElevatorWristConstants.wristEncoderConfig.createDevice(CANcoder::new);
-    private final StatusSignal<Angle> wristAngleStatus = wrist.getPosition(); // TODO: Pull data from motor
+    private final StatusSignal<Angle> wristAngleStatus = wristMotor.getPosition();
 //    private final CANcoder homeCANcoder = ElevatorWristConstants.homeHallEffect.createDevice(CANcoder::new);
     private boolean elevatorStalled = false;
 
     /* State Machine */
-    private ElevatorState prevState = null;
-
     private ElevatorState state = ElevatorState.IDLE;
+    private ElevatorState prevState = null;
     private WristOrder wristOrder = WristOrder.MOVE_BOTH;
-    private Distance requestedHeight = Units.Inches.of(-1);
-    private Angle requestedAngle = Units.Degrees.of(-1);
 
     private boolean requestHome = false;
     private boolean requestIdle = false;
@@ -101,7 +96,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private boolean requestClimb = false;
 
     /* Other Variables */
-    private boolean homedOnce = false;
+    private boolean homedOnce = true;
     private boolean elevatorAtPosition = false;
     private boolean wristAtPosition = false;
     private final LightsSubsystem lightSubsystem = LightsSubsystem.getInstance();
@@ -138,37 +133,37 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private ElevatorWristSubsystem() {
 //        if (Utils.isSimulation()) sim = ElevatorWristSim.getInstance();
 
-        leader.setControl(leaderControl);
+        leaderMotor.setControl(leaderControl);
 
-        follower.setControl(followerControl);
+        followerMotor.setControl(followerControl);
 
-        wrist.setControl(wristControl);
+        wristMotor.setControl(wristControl);
 
-        leader.setPosition(0);
+        leaderMotor.setPosition(0);
     }
 
     private void setElevatorHeight(Distance height) {
         leaderControl.withPosition(height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch));
-        if (state != ElevatorState.HOME) leader.setControl(leaderControl);
+        if (state != ElevatorState.HOME) leaderMotor.setControl(leaderControl);
     }
 
     private void setWristAngle(Angle angle) {
         wristControl.withPosition(angle).withSlot(IntakeSubsystem.getInstance().coralDetected() ? 1 : 0);
-        wrist.setControl(wristControl);
+        wristMotor.setControl(wristControl);
     }
     
     public void setBrakeMode() {
-        leader.setNeutralMode(NeutralModeValue.Brake);
-        follower.setNeutralMode(NeutralModeValue.Brake);
+        leaderMotor.setNeutralMode(NeutralModeValue.Brake);
+        followerMotor.setNeutralMode(NeutralModeValue.Brake);
 
-        wrist.setNeutralMode(NeutralModeValue.Brake);
+        wristMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
     public void setCoastMode() {
-        leader.setNeutralMode(NeutralModeValue.Coast);
-        follower.setNeutralMode(NeutralModeValue.Coast);
+        leaderMotor.setNeutralMode(NeutralModeValue.Coast);
+        followerMotor.setNeutralMode(NeutralModeValue.Coast);
 
-        wrist.setNeutralMode(NeutralModeValue.Coast);
+        wristMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     @Override
@@ -186,13 +181,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
             if (state == ElevatorState.HOME) homeElevator(); // special case for homing
             else {
-                if ((wristOrder != WristOrder.MOVE_FIRST || wristAtPosition)) { // scuffed logic to make sure the elevator doesn't move before the wrist
-                    requestedHeight = state.height;
+                if (wristOrder != WristOrder.MOVE_FIRST || wristAtPosition) { // scuffed logic to make sure the elevator doesn't move before the wrist
                     setElevatorHeight(state.height);
                 }
             }
-            if ((wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition)) { // scuffed logic to make sure the wrist doesn't move before the elevator
-                requestedAngle = state.angle;
+            if (wristOrder != WristOrder.MOVE_LAST || elevatorAtPosition) { // scuffed logic to make sure the wrist doesn't move before the elevator
                 setWristAngle(state.angle);
             }
         }
@@ -205,8 +198,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         elevatorAtPosition = elevatorDebouncer.calculate(
              elevatorPositionStatus.getValue().isNear(
              state.height.timesConversionFactor(ElevatorWristConstants.revolutionsPerInch)
-             , Units.Revolutions.of(0.1))
-        ); // 0.1 revolutions tolerance
+             , Units.Revolutions.of(0.2))
+        ); // 0.2 revolutions tolerance
         wristAtPosition = wristDebouncer.calculate(wristAngleStatus.getValue().isNear(state.angle, 0.05)); // 0.02 revolutions tolerance
         elevatorStalled = Math.abs(currentFilter.calculate(elevatorCurrentStatus.getValueAsDouble())) > 20;
 
@@ -218,16 +211,25 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     private void homeElevator() {
         // Force the elevator to move down until the home switch or current limit is reached is triggered
         homeControl.withOutput(-1.0); // kG ~ 0.35
-        leader.setControl(homeControl);
+        leaderMotor.setControl(homeControl);
+    }
+
+    /**
+     * Sets the elevator to the home position.
+     * This is used for homing the elevator. <b>(ONLY USE IN CASE OF EMERGENCY)</b>
+     */
+    public void setElevatorZero() {
+        leaderMotor.setPosition(0);
     }
 
     private void homingPeriodic() {
-        setWristAngle(ElevatorState.CLIMB.angle);
+        if (state == ElevatorState.HOME) setWristAngle(ElevatorState.CLIMB.angle);
         if (getHomeCANcoder() || state == ElevatorState.HOME && elevatorStalled) {
             homedOnce = true;
-            leader.setPosition(0);
+            leaderMotor.setPosition(0);
             if (state == ElevatorState.HOME) {
-                requestIdle(WristOrder.MOVE_BOTH);
+                state = ElevatorState.IDLE;
+                setWristAngle(ElevatorState.IDLE.angle);
                 System.out.println("At Home Position: " + (getHomeCANcoder() ? "Home Switch" : "Current"));
             }
         }

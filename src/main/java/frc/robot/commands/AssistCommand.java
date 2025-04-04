@@ -24,6 +24,7 @@ public class AssistCommand extends Command {
 
     private boolean firstWaypoint = true;
     private boolean secondWaypoint = true;
+    private boolean dynamic = true;
 
     private final StructPublisher<Pose2d> desiredPosePublisher = NetworkTableInstance.getDefault().getTable("Auton")
         .getStructTopic("Desired Pose", Pose2d.struct)
@@ -44,16 +45,17 @@ public class AssistCommand extends Command {
         this(true, true);
         this.gameElement = gameElement;
         this.selectedBranch = selectedBranch;
+        dynamic = false;
     }
 
     @Override
     public void initialize() {
         SmartDashboard.putBoolean("Assist Command Active", true);
         System.out.println("Assist Command Active");
-        if (gameElement == null) gameElement = ControlBoard.getInstance().desiredGoal;
+        if (dynamic == true) gameElement = ControlBoard.getInstance().desiredGoal;
         Pose2d elementPose = gameElement.getCenter();
         if (gameElement.hasBranches()) {
-            selectedBranch = ControlBoard.getInstance().selectedBranch;
+            if (dynamic == true) selectedBranch = ControlBoard.getInstance().selectedBranch;
             if (selectedBranch != Branch.CENTER)
                 elementPose = selectedBranch == Branch.LEFT ? gameElement.getLeftBranch() : gameElement.getRightBranch();
         }

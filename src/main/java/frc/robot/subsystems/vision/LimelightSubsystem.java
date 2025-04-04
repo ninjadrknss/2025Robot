@@ -44,7 +44,7 @@ public class LimelightSubsystem extends SubsystemBase {
         return LimelightHelpers.getSTD(name);
     }
 
-    public PoseEstimate getPoseEstimate(RobotState previousRobotState) {
+    public PoseEstimate getPoseEstimate(RobotState previousRobotState, boolean useMegaTag2) {
         Pose2d previousRobotPose = previousRobotState.getPose();
 
         double rotationRate = previousRobotState.getAngularVelocity().yaw();
@@ -54,7 +54,9 @@ public class LimelightSubsystem extends SubsystemBase {
                 0, 0, 0, 0, 0
         );
         
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.Limelight.name);
+        LimelightHelpers.PoseEstimate mt2 = null;
+        if (useMegaTag2) mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.Limelight.name);
+        else mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.Limelight.name);
 
         if (mt2 == null) return null; // Pose not found
         //if (!(Math.abs(rotationRate) < 360) || mt2.tagCount <= 0) return null;

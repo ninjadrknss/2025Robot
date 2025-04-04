@@ -129,10 +129,10 @@ public class ControlBoard {
 
     private void configureDriverBindings(PS5Controller controller) {
         /* Precise Control */
-         controller.rightTrigger.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
+         controller.rightBumper.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        // controller.leftBumper.whileTrue(new AssistCommand(FieldConstants.GameElement.REEF_BLUE_1, FieldConstants.GameElement.Branch.LEFT));
+        controller.rightTrigger.whileTrue(new AssistCommand());
 
         /* Intake Subsystem */
         controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
@@ -140,18 +140,18 @@ public class ControlBoard {
 
         controller.squareButton.whileTrue(new InstantCommand(() -> SwerveSubsystem.getInstance().resetRotation(SwerveSubsystem.getInstance().getOperatorForwardDirection())));
         controller.triangleButton.whileTrue(new InstantCommand(superstructure::requestL2Score).withName("L2 Score"));
-        controller.crossButton.whileTrue(new InstantCommand(superstructure::requestL3Score).withName("L3 Score"));
-        controller.circleButton.whileTrue(new InstantCommand(superstructure::requestL4Score).withName("L4 Score"));
+        controller.circleButton.whileTrue(new InstantCommand(superstructure::requestL3Score).withName("L3 Score"));
+        controller.crossButton.whileTrue(new InstantCommand(superstructure::requestL4Score).withName("L4 Score"));
 
         /* Climb Subsystem */
-//         controller.touchpadButton.whileTrue(new InstantCommand(climbSubsystem::requestClimbPivot, climbSubsystem));
-//         controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-//         controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-//         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
-//         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+        controller.touchpadButton.whileTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
+        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
 
-        controller.rightBumper.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
-        controller.rightTrigger.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
+//        controller.rightBumper.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
+//        controller.rightTrigger.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
     }
 
     private void configureOperatorBindings(PS5Controller controller) {
@@ -175,7 +175,7 @@ public class ControlBoard {
         controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
     }
 
-    public double getOperatorLeftVertical() {
+    public double getOperatorLeftVertical() { // used for jank climber open loop control
         return operator == null ? 0 : operator.leftVerticalJoystick.getAsDouble();
     }
 
@@ -186,9 +186,9 @@ public class ControlBoard {
         double scale = preciseControl || tippyMode ? 0.25 : 1.0;
         double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
 
-        double x = driver.leftVerticalJoystick.getAsDouble();
-        double y = driver.leftHorizontalJoystick.getAsDouble();
-        double rot = driver.rightHorizontalJoystick.getAsDouble();
+        double x = driver.leftVerticalJoystick.getAsDouble() * 0.3;
+        double y = driver.leftHorizontalJoystick.getAsDouble() * 0.3;
+        double rot = driver.rightHorizontalJoystick.getAsDouble() * 0.5;
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
                            .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                            .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));

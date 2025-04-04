@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.vision.LimelightSubsystem;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,6 +29,7 @@ import frc.robot.util.FieldConstants;
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.Constants;
 import org.photonvision.EstimatedRobotPose;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class Odometry extends SubsystemBase {
     private static Odometry instance;
@@ -439,9 +441,16 @@ public class Odometry extends SubsystemBase {
     }
 
     public void resetOdometry() {
-        resetGyro();
+        //resetGyro();
         odometryResetRequested = true;
         SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
+    }
+
+    public Command resetOdometryCommand() {
+        return new InstantCommand(() -> {
+            resetOdometry();
+        }, this)
+            .andThen(new WaitUntilCommand(() -> !odometryResetRequested));
     }
 
     public void testResetOdo(){
@@ -473,15 +482,17 @@ public class Odometry extends SubsystemBase {
         //Pose2d gePose = GameElement.getPoseWithOffset(controlBoard.desiredGoal, 1.0);
         //predictPublisher.set(new Pose3d(gePose.getX(), gePose.getY(), 0, new Rotation3d(0, 0, gePose.getRotation().getRadians())));
         if (SmartDashboard.getBoolean("Odometry/Odometry Reset Requested", false) != odometryResetRequested) {
+            System.out.println("Odometry reset requested");
             odometryResetRequested = !odometryResetRequested;
         }
 
-        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState());
+        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState(), true);
         if (odometryResetRequested) {
             // not using photonvision yet
             //EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
-            if (limelightReset && limelightPose != null && !limelightPose.pose.equals(new Pose2d())) {
-                swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
+            PoseEstimate mt1PoseWithRot = limelight.getPoseEstimate(getRobotState(), false);
+            if (limelightReset && mt1PoseWithRot != null && !mt1PoseWithRot.pose.equals(new Pose2d(0, 0, new Rotation2d(0)))) {
+                swerve.resetPose(mt1PoseWithRot.pose);
                 
                 odometryResetRequested = false;
                 SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);

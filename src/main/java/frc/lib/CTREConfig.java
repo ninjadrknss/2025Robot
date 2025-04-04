@@ -44,6 +44,11 @@ public class CTREConfig<Device extends ParentDevice, Config extends ParentConfig
 
     public Device createDevice(DeviceSupplier<Device> deviceSupplier) {
         Device device = deviceSupplier.get(canID, canbus);
+
+        if (device == null || !device.isConnected()) {
+            System.err.println("Device " + name + " not connected (" + canID + " @ " + canbus + ")");
+        }
+
         CTREUtil.applyConfiguration(device, config);
 
         if (optimizeBus && device instanceof TalonFX talon) {
@@ -65,7 +70,7 @@ public class CTREConfig<Device extends ParentDevice, Config extends ParentConfig
 
     @Override
     public String toString() {
-        return name + ": " + canID + " @ " + canbus;
+        return name + ": " + canID + " @ " + canbus.getName();
     }
 
     public interface DeviceSupplier<Device> {
