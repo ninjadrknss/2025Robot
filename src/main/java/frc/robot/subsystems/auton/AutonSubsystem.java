@@ -49,6 +49,7 @@ public class AutonSubsystem {
         autoChooser.addRoutine("Untitled", () -> getAuton("Untitled"));
         autoChooser.addRoutine("pdaddy", () -> getAuton("pdaddy"));
         autoChooser.addRoutine("hardcode auton", () -> getBadAuton());
+        autoChooser.addRoutine("MoveAuton", () -> getMoveAuton());
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
