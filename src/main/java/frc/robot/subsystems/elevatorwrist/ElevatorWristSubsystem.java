@@ -173,7 +173,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         if (state != ElevatorState.HOME) {
             if (state != nextState) {
                 lightSubsystem.requestColor(nextState.color);
-//                if (nextState == ElevatorState.CLIMB) lightSubsystem.requestRainbow();
+                if (nextState == ElevatorState.CLIMB) lightSubsystem.requestRainbow();
                 elevatorAtPosition = elevatorDebouncer.calculate(false);
                 wristAtPosition = wristDebouncer.calculate(false);
                 state = nextState;

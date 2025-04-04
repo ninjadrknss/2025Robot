@@ -107,13 +107,15 @@ public class LightsSubsystem extends SubsystemBase {
 
     public void requestRainbow() {
         candle.clearAnimation(0);
-        candle.animate(new RainbowAnimation(0.50, 0.75, LightsConstants.numLEDs, false, 0));
+        candle.animate(new RainbowAnimation(1, 0.75, LightsConstants.numLEDs, false, 0));
         isRainbow = true;
+        fading = false;
         currentState = LEDState.RAINBOW;
     }
 
     public void requestBlinking(boolean blink) {
         blinking = blink;
+        if (!blinking) candle.configBrightnessScalar(LightsConstants.brightness);
         blinkTimer.reset();
         currentState = blinking ? (fading ? LEDState.FADING_BLINKING : LEDState.BLINKING) : (fading ? LEDState.FADING : LEDState.STATIC);
     }
@@ -125,7 +127,7 @@ public class LightsSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (fading) updateFade();
-        if (blinking && currentState != LEDState.RAINBOW) updateBlink();
+        if (blinking) updateBlink();
     }
 
     private void updateFade() {
@@ -147,8 +149,8 @@ public class LightsSubsystem extends SubsystemBase {
             blinkOff = !blinkOff;
             blinkTimer.reset();
 
-            if (blinkOff) candle.setLEDs(currentColor[0] / 8, currentColor[1] / 8, currentColor[2] / 8);
-            else candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
+            if (blinkOff) candle.configBrightnessScalar(0.125);
+            else candle.configBrightnessScalar(LightsConstants.brightness);
         }
     }
 
