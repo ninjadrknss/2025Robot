@@ -28,6 +28,9 @@ import frc.robot.util.ControlBoard;
 import frc.robot.util.FieldConstants;
 import frc.robot.util.FieldConstants.GameElement;
 import frc.robot.util.Constants;
+
+import java.lang.annotation.Target;
+
 import org.photonvision.EstimatedRobotPose;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -95,9 +98,8 @@ public class Odometry extends SubsystemBase {
 
     public static class TargetPredictor {
 
-        private static final boolean ALLIANCE_IS_BLUE = true; //(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue);
+        public static boolean ALLIANCE_IS_BLUE = (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue);
 
-        
         private static GameElement lastPredictedTarget = null;
         private static double targetConfidence = 0.0;
 
@@ -174,7 +176,7 @@ public class Odometry extends SubsystemBase {
             double bestCost = Double.MAX_VALUE;
 
             for (GameElement element : GameElement.values()) {
-                if (element.isBlue() == ALLIANCE_IS_BLUE || element.shouldIgnore()) {
+                if (element.isBlue() != ALLIANCE_IS_BLUE || element.shouldIgnore()) {
                     continue;
                 }
                 Pose2d elementPose = GameElement.getPoseWithOffset(element, 1.0);
@@ -253,7 +255,7 @@ public class Odometry extends SubsystemBase {
             double radiusSq = FORCE_SELECTION_RADIUS * FORCE_SELECTION_RADIUS;
 
             for (GameElement element : GameElement.values()) {
-                if (element.isBlue() == ALLIANCE_IS_BLUE || element.shouldIgnore()) {
+                if (element.isBlue() != ALLIANCE_IS_BLUE || element.shouldIgnore()) {
                     continue;
                 }
                 Pose2d elementPose = GameElement.getPoseWithOffset(element, 1.0);
@@ -537,5 +539,9 @@ public class Odometry extends SubsystemBase {
 
         controlBoard.goalConfidence = prediction.getConfidence();
         SmartDashboard.putString("Odometry/Current Goal", controlBoard.desiredGoal.name());
+    }
+
+    public void updateAllienceColor(boolean isBlue){
+        TargetPredictor.ALLIANCE_IS_BLUE = isBlue;
     }
 }
