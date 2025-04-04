@@ -5,13 +5,14 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 
 public class LightsConstants {
     public static final int CANdleID = 5;
+    private static final int CANdleOnboardLEDs = 8;
 
-    public static final int numLEDs = 59 + 8;
-    public static final double brightness = 0.50; // TODO: change to desired brightness
+    public static final int numLEDs = 59 + CANdleOnboardLEDs;
+    public static final double brightness = 0.60; // TODO: change to desired brightness
 
     public static final double blinkInterval = 0.2;
 
-    public static final double fadeDuration = 2.0;
+    public static final double fadeDuration = 1.10;
 
     public static final CANdleConfiguration CANdleConfiguration = new CANdleConfiguration();
     static {

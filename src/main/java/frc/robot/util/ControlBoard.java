@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -111,6 +110,7 @@ public class ControlBoard {
         SmartDashboard.putBoolean("ControlBoard/preciseControl", preciseControl);
         SmartDashboard.putString("ControlBoard/Current Goal", desiredGoal.name());
         SmartDashboard.putString("ControlBoard/Current Level", scoreLevel.name());
+        SmartDashboard.putNumber("ControlBoard/Score Level", scoreLevel.ordinal() + 2);
         SmartDashboard.putString("ControlBoard/Current Branch", selectedBranch.name());
     }
 
@@ -145,10 +145,10 @@ public class ControlBoard {
 
         /* Climb Subsystem */
         controller.touchpadButton.whileTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
-        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRachetActive));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRachetInActive));
+        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
 
 //        controller.rightBumper.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
 //        controller.rightTrigger.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
@@ -161,15 +161,14 @@ public class ControlBoard {
         controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
 
         // Select Score Level (TriangleButton, XButton)
-        controller.triangleButton.onTrue(new InstantCommand(() -> { // SL 1 Up
-            if(scoreLevel != ScoreLevel.L4) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() + 1) % ScoreLevel.values().length];
-        }).withName("Score Level Up"));
-        controller.crossButton.onTrue(new InstantCommand(() -> { // SL 1 Down
-            if(scoreLevel != ScoreLevel.L2) scoreLevel = ScoreLevel.values()[(scoreLevel.ordinal() - 1 + ScoreLevel.values().length) % ScoreLevel.values().length];
-        }).withName("Score Level Down"));
+        controller.squareButton.whileTrue(new InstantCommand(superstructure::requestHome).withName("Home Elevator Command"));
+        controller.triangleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L2).withName("L2 Score Select"));
+        controller.circleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3).withName("L3 Score Select"));
+        controller.crossButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4).withName("L4 Score Select"));
 
-        controller.circleButton.onTrue(new InstantCommand(superstructure::requestHome).withName("Home Elevator Command"));
-        controller.squareButton.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
+        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
+        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
+        controller.dLeft.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
 
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
@@ -186,9 +185,9 @@ public class ControlBoard {
         double scale = preciseControl || tippyMode ? 0.25 : 1.0;
         double rotScale = preciseControl || tippyMode ? 0.50 : 1.0;
 
-        double x = driver.leftVerticalJoystick.getAsDouble() * 0.3;
-        double y = driver.leftHorizontalJoystick.getAsDouble() * 0.3;
-        double rot = driver.rightHorizontalJoystick.getAsDouble() * 0.5;
+        double x = driver.leftVerticalJoystick.getAsDouble();
+        double y = driver.leftHorizontalJoystick.getAsDouble();
+        double rot = driver.rightHorizontalJoystick.getAsDouble();
         return driveRequest.withVelocityX(SwerveConstants.maxSpeed * x * scale)
                            .withVelocityY(SwerveConstants.maxSpeed * y * scale)
                            .withRotationalRate(SwerveConstants.maxAngularSpeed * (Math.copySign(rot * rot, rot) * rotScale));

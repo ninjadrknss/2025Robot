@@ -127,10 +127,10 @@ public class LightsSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
-        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
-        SmartDashboard.putBoolean("LED/Blinking", blinking);
-        SmartDashboard.putBoolean("LED/BlinkOff", blinkOff);
+//        SmartDashboard.putNumber("LED/Current", candle.getCurrent());
+//        SmartDashboard.putNumber("LED/Voltage", candle.get5VRailVoltage());
+//        SmartDashboard.putBoolean("LED/Blinking", blinking);
+//        SmartDashboard.putBoolean("LED/BlinkOff", blinkOff);
 
         if (fading) updateFade();
         if (blinking) updateBlink();
