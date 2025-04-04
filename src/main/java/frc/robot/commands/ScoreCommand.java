@@ -17,18 +17,15 @@ public class ScoreCommand extends Command {
     private final Superstructure superstructure = Superstructure.getInstance();
     private final Level level;
     private final Debouncer atPositionDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kRising);
-    private boolean atPosition = false;
     private final Debouncer coralDebouncer = new Debouncer(0.75, Debouncer.DebounceType.kFalling);
-    private boolean coralDetected = false;
+    private boolean hasStartedSpitting;
 
-    private static final SpitCommand spitCommand = new SpitCommand();
+    public final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
     public ScoreCommand(Level level) {
         this.level = level;
 
-        // each subsystem used by the command must be passed into the
-        // addRequirements() method (which takes a vararg of Subsystem)
-        addRequirements(this.superstructure);
+        addRequirements(this.superstructure, this.intakeSubsystem);
     }
 
     @Override
@@ -39,24 +36,28 @@ public class ScoreCommand extends Command {
             case L4 -> superstructure.requestL4Score();
         }
         atPositionDebouncer.calculate(false);
+        coralDebouncer.calculate(true);
+        hasStartedSpitting = false;
     }
 
     @Override
     public void execute() {
-        atPosition = atPositionDebouncer.calculate(superstructure.isAtPosition());
-        coralDetected = coralDebouncer.calculate(IntakeSubsystem.getInstance().coralDetected());
-
-        if (atPosition && !spitCommand.isScheduled()) spitCommand.schedule();
+        if (atPositionDebouncer.calculate(superstructure.isAtPosition()) && !hasStartedSpitting) {
+            System.out.println("at position, starting spit");
+            hasStartedSpitting = true;
+            intakeSubsystem.requestSpit();
+        }
     }
 
     @Override
     public boolean isFinished() {
-        return atPositionDebouncer.calculate(superstructure.isAtPosition()) && !coralDebouncer.calculate(IntakeSubsystem.getInstance().coralDetected());
+        return !coralDebouncer.calculate(IntakeSubsystem.getInstance().coralDetected());
     }
 
     @Override
     public void end(boolean interrupted) {
-        spitCommand.cancel();
+        System.out.println("score command done");
+        intakeSubsystem.requestIdle();
         superstructure.requestIdle();
     }
 }
