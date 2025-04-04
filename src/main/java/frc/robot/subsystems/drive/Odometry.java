@@ -95,8 +95,9 @@ public class Odometry extends SubsystemBase {
 
     public static class TargetPredictor {
 
-        private static final boolean ALLIANCE_IS_BLUE = (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue);
+        private static final boolean ALLIANCE_IS_BLUE = true; //(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue);
 
+        
         private static GameElement lastPredictedTarget = null;
         private static double targetConfidence = 0.0;
 

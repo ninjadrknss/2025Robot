@@ -44,12 +44,14 @@ public class AutonSubsystem {
             false,
             swerveSubsystem
         );
-        autoChooser.addRoutine("PaigusPath", () -> getAuton("PaigusPath"));
-        autoChooser.addRoutine("TestAuton2", () -> getAuton("test2"));
-        autoChooser.addRoutine("Untitled", () -> getAuton("Untitled"));
-        autoChooser.addRoutine("pdaddy", () -> getAuton("pdaddy"));
+       
         autoChooser.addRoutine("hardcode auton", () -> getBadAuton());
         autoChooser.addRoutine("BlueRight", () -> getBlueRight());
+        autoChooser.addRoutine("BlueMid", () -> getBlueMid());
+        autoChooser.addRoutine("BlueLeft", () -> getBlueLeft());
+        autoChooser.addRoutine("RedRight", () -> getRedRight());
+        autoChooser.addRoutine("RedMid", () -> getRedMid());
+        autoChooser.addRoutine("RedLeft", () -> getRedLeft());
         autoChooser.addRoutine("MoveAuton", () -> getMoveAuton());
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
@@ -116,9 +118,135 @@ public class AutonSubsystem {
         //commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.LEFT));
         // Register the full sequence of commands to run when routine is active
         routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
-        return routine;
-        
+        return routine; 
     }
+
+    private AutoRoutine getBlueMid(){
+        AutoRoutine routine = autoFactory.newRoutine("bluemid");
+        List<Command> commandList = new ArrayList<>();
+        
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_1, GameElement.Branch.LEFT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_1, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(10)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_6, GameElement.Branch.RIGHT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine; 
+    }
+
+    private AutoRoutine getBlueLeft(){
+        AutoRoutine routine = autoFactory.newRoutine("blueleft");
+        List<Command> commandList = new ArrayList<>();
+        
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_3, GameElement.Branch.LEFT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_2, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(10)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_5, GameElement.Branch.RIGHT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine; 
+    }
+
+
+    private AutoRoutine getRedRight(){
+        AutoRoutine routine = autoFactory.newRoutine("redright");
+        List<Command> commandList = new ArrayList<>();
+        
+        commandList.add(new AssistCommand(GameElement.REEF_RED_5, GameElement.Branch.LEFT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_2, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(10)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_RED_3, GameElement.Branch.RIGHT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine; 
+    }
+
+    private AutoRoutine getRedMid(){
+        AutoRoutine routine = autoFactory.newRoutine("redmid");
+        List<Command> commandList = new ArrayList<>();
+        
+        commandList.add(new AssistCommand(GameElement.REEF_RED_6, GameElement.Branch.LEFT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_2, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(10)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.RIGHT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine; 
+    }
+
+    private AutoRoutine getRedLeft(){
+        AutoRoutine routine = autoFactory.newRoutine("redleft");
+        List<Command> commandList = new ArrayList<>();
+        
+        commandList.add(new AssistCommand(GameElement.REEF_RED_4, GameElement.Branch.LEFT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.CORAL_STATION_RED_1, null));
+        commandList.add(Commands.race(
+                new IntakeCommand(),
+                new WaitCommand(10)
+        ));
+
+        commandList.add(new AssistCommand(GameElement.REEF_RED_2, GameElement.Branch.RIGHT));
+        commandList.add(Commands.race(
+                new ScoreCommand(ScoreCommand.Level.L4),
+                new WaitCommand(5)
+        ));
+        routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
+        return routine; 
+    }
+
     private AutoRoutine getMoveAuton() {
         AutoRoutine routine = autoFactory.newRoutine("MoveAuton");
         List<Command> commandList = new ArrayList<>();
