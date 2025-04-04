@@ -135,7 +135,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
-        odometry.resetOdometryCommand().schedule();
+       // odometry.resetOdometryCommand().schedule();
         System.out.println("Auton Init");
         autonomousCommand = autonSubsystem.getSelectedAuton();
         if (autonomousCommand != null) autonomousCommand.schedule();

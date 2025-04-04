@@ -18,7 +18,7 @@ public class ScoreCommand extends Command {
     private final Level level;
     private final Debouncer atPositionDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kRising);
     private boolean atPosition = false;
-    private final Debouncer coralDebouncer = new Debouncer(0.75, Debouncer.DebounceType.kRising);
+    private final Debouncer coralDebouncer = new Debouncer(0.75, Debouncer.DebounceType.kFalling);
     private boolean coralDetected = false;
 
     private static final SpitCommand spitCommand = new SpitCommand();
@@ -38,6 +38,7 @@ public class ScoreCommand extends Command {
             case L3 -> superstructure.requestL3Score();
             case L4 -> superstructure.requestL4Score();
         }
+        atPositionDebouncer.calculate(false);
     }
 
     @Override

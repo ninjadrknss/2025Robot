@@ -21,6 +21,7 @@ public class IntakeCommand extends Command {
     public void initialize() {
         superstructure.requestChuteIntake();
         intakeSubsystem.requestIntake();
+        coralBeamBreakDebouncer.calculate(false);
     }
 
     @Override

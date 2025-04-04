@@ -91,28 +91,29 @@ public class AutonSubsystem {
         commandList.add(new AssistCommand(GameElement.REEF_BLUE_2, GameElement.Branch.LEFT));
         commandList.add(Commands.race(
                 new ScoreCommand(ScoreCommand.Level.L4),
-                new WaitCommand(2)
+                new WaitCommand(5)
         ));
 
         commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_1, null));
         commandList.add(Commands.race(
                 new IntakeCommand(),
-                new WaitCommand(3)
+                new WaitCommand(10)
         ));
+        //commandList.add(new WaitCommand(5));
 
         commandList.add(new AssistCommand(GameElement.REEF_BLUE_4, GameElement.Branch.RIGHT));
         commandList.add(Commands.race(
                 new ScoreCommand(ScoreCommand.Level.L4),
-                new WaitCommand(2)
+                new WaitCommand(5)
         ));
 
-        commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_1, null));
-        commandList.add(Commands.race(
-                new IntakeCommand(),
-                new WaitCommand(3)
-        ));
+        //commandList.add(new AssistCommand(GameElement.CORAL_STATION_BLUE_1, null));
+//        commandList.add(Commands.race(
+//                new IntakeCommand(),
+//                new WaitCommand(10)
+//        ));
 
-        commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.LEFT));
+        //commandList.add(new AssistCommand(GameElement.REEF_RED_1, GameElement.Branch.LEFT));
         // Register the full sequence of commands to run when routine is active
         routine.active().onTrue(Commands.sequence(commandList.toArray(new Command[0])));
         return routine;
