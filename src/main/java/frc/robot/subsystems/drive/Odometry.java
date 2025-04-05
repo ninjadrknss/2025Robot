@@ -108,7 +108,7 @@ public class Odometry extends SubsystemBase {
         private static final double CONFIDENCE_THRESHOLD = 0.3; // Below this threshold, target can be switched
 
         private static final double REEF_BIAS_MULTIPLIER = 0.8; // Higher = less bias (OLD = 0.7)
-        private static final double CORAL_STATION_BIAS_MULTIPLIER = 0.7; // (OLD = 0.4)
+        private static final double CORAL_STATION_BIAS_MULTIPLIER = 0.57; // (OLD = 0.4)
 
         // Cone (forced-selection) parameters
         private static final double FORCE_SELECTION_RADIUS = 0.50;
