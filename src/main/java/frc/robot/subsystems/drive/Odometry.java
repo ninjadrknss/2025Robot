@@ -107,9 +107,12 @@ public class Odometry extends SubsystemBase {
         private static final double CONFIDENCE_DECREMENT = 0.09; // Decrease per cycle when candidate changes
         private static final double CONFIDENCE_THRESHOLD = 0.3; // Below this threshold, target can be switched
 
+        private static final double REEF_BIAS_MULTIPLIER = 0.8; // Higher = less bias (OLD = 0.7)
+        private static final double CORAL_STATION_BIAS_MULTIPLIER = 0.7; // (OLD = 0.4)
+
         // Cone (forced-selection) parameters
         private static final double FORCE_SELECTION_RADIUS = 0.50;
-        private static final double FORCE_SELECTION_CONE_HALF_ANGLE = Math.toRadians(34);
+        private static final double FORCE_SELECTION_CONE_HALF_ANGLE = Math.toRadians(42); // (OLD = 34)
 
         // "Time to approach" weight in the cost function
         private static final double TIME_COST_WEIGHT = 0.29; 
@@ -217,10 +220,10 @@ public class Odometry extends SubsystemBase {
                 GameElement previousGoal = cb.previousConfirmedGoal;
                 if (previousGoal != null) {
                     if (previousGoal.name().startsWith("CORAL_STATION_") && element.hasBranches()) {
-                        cost *= 0.7;
+                        cost *= REEF_BIAS_MULTIPLIER;
                     }
                     if (previousGoal.hasBranches() && element.name().startsWith("CORAL_STATION_")) {
-                        cost *= 0.4;
+                        cost *= CORAL_STATION_BIAS_MULTIPLIER;
                     }
                 }
 

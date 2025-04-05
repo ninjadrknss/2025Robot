@@ -19,6 +19,7 @@ import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import frc.robot.subsystems.drive.Odometry;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -178,6 +179,7 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         //new AssistCommand().schedule();
+        SwerveSubsystem.getInstance().resetOdotoSim();
         // CommandScheduler.getInstance().cancelAll();
         // odometry.testResetOdo();
         // SwerveSubsystem.getInstance().resetPose(new Pose2d(2, 4, new Rotation2d()));
