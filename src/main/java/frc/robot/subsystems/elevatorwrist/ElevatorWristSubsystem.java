@@ -30,7 +30,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         HOME(0, 95, LightsSubsystem.Colors.YELLOW), // homing state, not really a position
         // idle position 90 deg
         IDLE(0, 95, LightsSubsystem.Colors.WHITE),
-        CHUTE_INTAKE(0, 210, LightsSubsystem.Colors.GREEN),
+        CHUTE_INTAKE(0, 200, LightsSubsystem.Colors.GREEN),
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
         L2_SCORE(9, 135, LightsSubsystem.Colors.CYAN),
         L3_SCORE(19, 135, LightsSubsystem.Colors.AQUAMARINE),
