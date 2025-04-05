@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MoveCommand extends Command {
-    private static final PathConstraints constraints = new PathConstraints(3.0, 2.0, 4 * Math.PI, 2 * Math.PI);
+    private static final PathConstraints constraints = new PathConstraints(3.0, 2.2, 4 * Math.PI, 2 * Math.PI);
 
     private final Pose2d targetPose;
     private final List<Pose2d> intermediatePoints;
