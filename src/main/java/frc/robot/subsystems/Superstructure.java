@@ -81,13 +81,13 @@ public class Superstructure extends SubsystemBase {
             case IDLE -> {
                 elevatorWristSubsystem.requestIdle(wristOrder);
                 if (requestL2Score) {
-                    wristOrder = WristOrder.MOVE_BOTH;
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.L2_SCORE;
                 } else if (requestL3Score) {
-                    wristOrder = WristOrder.MOVE_BOTH;
+                    wristOrder = WristOrder.MOVE_LAST;
                     nextState = SuperstructureState.L3_SCORE;
                 } else if (requestL4Score) {
-                    wristOrder = WristOrder.MOVE_BOTH; // TODO: sender might be smarter
+                    wristOrder = WristOrder.MOVE_LAST; // TODO: sender might be smarter
                     nextState = SuperstructureState.L4_SCORE;
                 } else if (requestClimb) {
                     wristOrder = WristOrder.MOVE_BOTH;
