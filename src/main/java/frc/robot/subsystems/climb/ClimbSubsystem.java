@@ -27,7 +27,7 @@ public class ClimbSubsystem extends SubsystemBase {
     private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
     private boolean pivotAtPosition = false;
 
-    private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(true);
+    private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(false);
 
     // Define the states of the climber.
     public enum ClimbState {

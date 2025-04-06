@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 
 /*
  * Portions of this code were taken from Team 9496 Lynk
@@ -157,5 +158,6 @@ public class LightsSubsystem extends SubsystemBase {
     public void requestAllianceColors() {
         requestBlinking(false);
         requestColor(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red ? Colors.RED : Colors.BLUE);
+        if (ElevatorWristSubsystem.getInstance().isClimbing()) requestRainbow();
     }
 }

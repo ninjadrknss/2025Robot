@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MoveCommand extends Command {
-    private static final PathConstraints constraints = new PathConstraints(5.5, 3, 4 * Math.PI, 2 * Math.PI);
+    private static final PathConstraints constraints = new PathConstraints(6.5, 3.5, 4 * Math.PI, 2 * Math.PI);
 
     private final Pose2d targetPose;
     private final List<Pose2d> intermediatePoints;
@@ -58,7 +58,7 @@ public class MoveCommand extends Command {
         path = new PathPlannerPath(
             waypoints,
             constraints,
-            new IdealStartingState(1, targetPose.getRotation()),
+            new IdealStartingState(3, targetPose.getRotation()),
             new GoalEndState(0.5, targetPose.getRotation())
         );
 

@@ -32,10 +32,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         IDLE(0, 95, LightsSubsystem.Colors.WHITE),
         CHUTE_INTAKE(0, 200, LightsSubsystem.Colors.GREEN),
         //        L1_SCORE(0, 0, LightsSubsystem.Colors.BLUE),
-        L2_SCORE(9, 135, LightsSubsystem.Colors.CYAN),
-        L3_SCORE(19, 135, LightsSubsystem.Colors.AQUAMARINE),
+        L2_SCORE(7.5, 145, LightsSubsystem.Colors.CYAN),
+        L3_SCORE(18, 145, LightsSubsystem.Colors.AQUAMARINE),
         L4_SCORE(32, 150, LightsSubsystem.Colors.PURPLE),
-        CLIMB(0, 120, LightsSubsystem.Colors.PINK); // just get intake out of the way
+        CLIMB(8.5, 180, LightsSubsystem.Colors.PINK); // just get intake out of the way
 
         /**
          * The height of the elevator in inches.
@@ -356,5 +356,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("ElevatorWrist/Elevator At Position", elevatorAtPosition);
         SmartDashboard.putBoolean("ElevatorWrist/Wrist At Position", wristAtPosition);
         SmartDashboard.putBoolean("ElevatorWrist/Both At Position", elevatorAtPosition && wristAtPosition);
+    }
+
+    public boolean isClimbing() {
+        return state == ElevatorState.CLIMB;
     }
 }

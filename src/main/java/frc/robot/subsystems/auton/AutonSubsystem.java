@@ -150,7 +150,7 @@ public class AutonSubsystem {
         AutoRoutine routine = autoFactory.newRoutine("blueleft");
         List<Command> commandList = new ArrayList<>();
         
-        commandList.add(new AssistCommand(GameElement.REEF_BLUE_3, GameElement.Branch.LEFT));
+        commandList.add(new AssistCommand(GameElement.REEF_BLUE_3, GameElement.Branch.RIGHT));
         commandList.add(Commands.race(
                 new ScoreCommand(ScoreCommand.Level.L4),
                 new WaitCommand(5)
@@ -226,7 +226,7 @@ public class AutonSubsystem {
         AutoRoutine routine = autoFactory.newRoutine("redleft");
         List<Command> commandList = new ArrayList<>();
         
-        commandList.add(new AssistCommand(GameElement.REEF_RED_4, GameElement.Branch.LEFT));
+        commandList.add(new AssistCommand(GameElement.REEF_RED_4, GameElement.Branch.RIGHT));
         commandList.add(Commands.race(
                 new ScoreCommand(ScoreCommand.Level.L4),
                 new WaitCommand(5)

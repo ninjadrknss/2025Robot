@@ -119,11 +119,11 @@ public class Odometry extends SubsystemBase {
         private static final double TIME_COST_WEIGHT = 0.29; 
 
         // Kinetic-energy penalty weight
-        private static final double ENERGY_COST_WEIGHT = 0.5;
+        private static final double ENERGY_COST_WEIGHT = 0.4;
 
         // Each reef (a GameElement with branches) has a wall extended on each side
         // from the central AprilTag
-        private static final double WALL_EXTENSION = 0.825; // actual reef wall half-length
+        private static final double WALL_EXTENSION = 0.875; // actual reef wall half-length // old = 0.825 length
 
         public static class PredictionResult {
             private final GameElement target;
@@ -510,7 +510,7 @@ public class Odometry extends SubsystemBase {
         } else {
         }
 
-        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 1){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 2){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             //TODO: tune
             swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
             //swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds, VecBuilder.fill(0.1, 0.1, 9999999));

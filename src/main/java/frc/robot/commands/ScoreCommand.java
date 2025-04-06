@@ -16,8 +16,8 @@ public class ScoreCommand extends Command {
 
     private final Superstructure superstructure = Superstructure.getInstance();
     private final Level level;
-    private final Debouncer atPositionDebouncer = new Debouncer(0.5, Debouncer.DebounceType.kRising);
-    private final Debouncer coralDebouncer = new Debouncer(0.75, Debouncer.DebounceType.kFalling);
+    private final Debouncer atPositionDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kRising);
+    private final Debouncer coralDebouncer = new Debouncer(0.15, Debouncer.DebounceType.kFalling);
     private boolean hasStartedSpitting;
 
     public final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
