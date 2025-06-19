@@ -4,10 +4,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.CANrange;
-import com.ctre.phoenix6.hardware.ParentDevice;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.*;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -38,10 +35,15 @@ public class CTREUtil {
         return tryUntilOK(() -> cancoder.getConfigurator().apply(config), cancoder.getDeviceID());
     }
 
+    public static StatusCode applyConfiguration(CANdle candle, CANdleConfiguration config) {
+        return tryUntilOK(() -> candle.getConfigurator().apply(config), candle.getDeviceID());
+    }
+
     public static StatusCode applyConfiguration(ParentDevice device, ParentConfiguration config) {
         if (device instanceof TalonFX) return applyConfiguration((TalonFX) device, (TalonFXConfiguration) config);
         else if (device instanceof CANcoder) return applyConfiguration((CANcoder) device, (CANcoderConfiguration) config);
         else if (device instanceof CANrange) return applyConfiguration((CANrange) device, (CANrangeConfiguration) config);
+        else if (device instanceof CANdle) return applyConfiguration((CANdle) device, (CANdleConfiguration) config);
         throw new IllegalArgumentException("Device type not supported");
     }
 

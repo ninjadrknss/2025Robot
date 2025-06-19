@@ -1,13 +1,15 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.RainbowAnimation;
+import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.hardware.CANdle;
 
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
+import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 
 /*
@@ -18,7 +20,7 @@ public class LightsSubsystem extends SubsystemBase {
     private static LightsSubsystem instance = null;
     private static final boolean doFadePercent = false;
 
-    private final CANdle candle = new CANdle(LightsConstants.CANdleID, Robot.riobus.getName());
+    private final CANdle candle = LightsConstants.CANdleConfig.createDevice(CANdle::new);
 
     private boolean fading = false;
     private double fadeStartTime = 0.0;
@@ -36,16 +38,6 @@ public class LightsSubsystem extends SubsystemBase {
 
     private enum LEDState { STATIC, FADING, BLINKING, FADING_BLINKING, RAINBOW }
     private LEDState currentState = LEDState.STATIC;
-
-    public static class Color {
-        public final int R, G, B;
-
-        public Color(int r, int g, int b) {
-            R = r;
-            G = g;
-            B = b;
-        }
-    }
 
     public static final class Colors {
         public static final Color OFF = new Color(0, 0, 0);
@@ -76,16 +68,12 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     private LightsSubsystem() {
-        candle.configAllSettings(LightsConstants.CANdleConfiguration);
         blinkTimer.start();
         requestColor(Colors.RED, true);
     }
 
     public void requestColor(Color color, boolean blink) {
-        if (isRainbow) {
-            candle.clearAnimation(0);
-            isRainbow = false;
-        }
+        isRainbow = false;
         blinking = blink;
         blinkTimer.reset();
         fadeBetweenColors(new Color(currentColor[0], currentColor[1], currentColor[2]), color);
@@ -103,12 +91,14 @@ public class LightsSubsystem extends SubsystemBase {
         fadeStartTime = Timer.getFPGATimestamp();
         fading = true;
 
-        candle.setLEDs(start.R, start.G, start.B);
+        candle.setControl(new SolidColor(0, LightsConstants.numLEDs).withColor(new RGBWColor(start)));
     }
 
     public void requestRainbow() {
-        candle.clearAnimation(0);
-        candle.animate(new RainbowAnimation(1, 0.75, LightsConstants.numLEDs, false, 0));
+        candle.setControl(new com.ctre.phoenix6.controls.RainbowAnimation(0, LightsConstants.numLEDs)
+                .withBrightness(1)
+                .withDirection(AnimationDirectionValue.Forward)
+        );
         isRainbow = true;
         fading = false;
         currentState = LEDState.RAINBOW;
@@ -116,9 +106,17 @@ public class LightsSubsystem extends SubsystemBase {
 
     public void requestBlinking(boolean blink) {
         blinking = blink;
-        if (!blinking) candle.configBrightnessScalar(LightsConstants.brightness);
+        if (!blinking) setBrightness(1);
         blinkTimer.reset();
         currentState = blinking ? (fading ? LEDState.FADING_BLINKING : LEDState.BLINKING) : (fading ? LEDState.FADING : LEDState.STATIC);
+    }
+
+    private void setBrightness(double brightness) {
+        candle.getConfigurator().apply(
+                LightsConstants.CANdleConfig.config.withLED(
+                        LightsConstants.CANdleConfig.config.LED.withBrightnessScalar(brightness)
+                )
+        );
     }
 
     public void requestToggleBlinking() {
@@ -136,11 +134,11 @@ public class LightsSubsystem extends SubsystemBase {
         double fraction = doFadePercent ? MathUtil.clamp(fadePercent, 0, 1) : elapsed / LightsConstants.fadeDuration;
         fraction = Math.min(fraction, 1.0);
 
-        currentColor[0] = (int) MathUtil.interpolate(fadeStartColor.R, fadeEndColor.R, fraction);
-        currentColor[1] = (int) MathUtil.interpolate(fadeStartColor.G, fadeEndColor.G, fraction);
-        currentColor[2] = (int) MathUtil.interpolate(fadeStartColor.B, fadeEndColor.B, fraction);
+        currentColor[0] = (int) MathUtil.interpolate(fadeStartColor.red, fadeEndColor.red, fraction);
+        currentColor[1] = (int) MathUtil.interpolate(fadeStartColor.green, fadeEndColor.green, fraction);
+        currentColor[2] = (int) MathUtil.interpolate(fadeStartColor.green, fadeEndColor.green, fraction);
 
-        candle.setLEDs(currentColor[0], currentColor[1], currentColor[2]);
+        candle.setControl(new SolidColor(0, LightsConstants.numLEDs).withColor(new RGBWColor(fadeStartColor)));
 
         if (fraction >= 1.0) fading = false;
     }
@@ -150,12 +148,12 @@ public class LightsSubsystem extends SubsystemBase {
             blinkOff = !blinkOff;
             blinkTimer.reset();
 
-            if (blinkOff) candle.configBrightnessScalar(0.125);
-            else candle.configBrightnessScalar(LightsConstants.brightness);
+            if (blinkOff) setBrightness(0.125);
+            else setBrightness(1);
         }
     }
 
-    public void requestAllianceColors() {
+    public void requestAllianceColor() {
         requestBlinking(false);
         requestColor(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red ? Colors.RED : Colors.BLUE);
         if (ElevatorWristSubsystem.getInstance().isClimbing()) requestRainbow();

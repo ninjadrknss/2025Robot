@@ -98,6 +98,7 @@ public class Robot extends TimedRobot {
         // SignalLogger.start();
 
         // get alliance color from FMS (defaults to Blue if unavailable)
+        LightsSubsystem.getInstance().requestAllianceColor();
     }
 
     @Override
@@ -113,7 +114,7 @@ public class Robot extends TimedRobot {
     @Override
     public void driverStationConnected() {
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
-        LightsSubsystem.getInstance().requestAllianceColors();
+        LightsSubsystem.getInstance().requestAllianceColor();
         ControlBoard.getInstance().tryInit();
 
         odometry.updateAllianceColor(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Blue));
@@ -123,7 +124,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
 //        ElevatorWristSubsystem.getInstance().setCoastMode();
         SignalLogger.stop();
-        LightsSubsystem.getInstance().requestAllianceColors();
+        LightsSubsystem.getInstance().requestAllianceColor();
     }
 
     @Override

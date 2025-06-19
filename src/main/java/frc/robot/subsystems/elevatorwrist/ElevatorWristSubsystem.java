@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -46,9 +47,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
          */
         private final Angle angle;
 
-        private final LightsSubsystem.Color color;
+        private final Color color;
 
-        ElevatorState(double height, double angle, LightsSubsystem.Color color) {
+        ElevatorState(double height, double angle, Color color) {
             this.height = Units.Inches.of(height);
             this.angle = Units.Degrees.of(angle);
             this.color = color;
