@@ -93,10 +93,10 @@ public class FieldConstants {
                 true),
 
         // Coral stations
-        CORAL_STATION_RED_1(new Pose2d(16.6878, 0.6604, Rotation2d.fromDegrees(126)), false),
-        CORAL_STATION_RED_2(new Pose2d(16.6878, 7.3914, Rotation2d.fromDegrees(234)), false),
-        CORAL_STATION_BLUE_1(new Pose2d(0.8636, 0.6604, Rotation2d.fromDegrees(54)), true),
-        CORAL_STATION_BLUE_2(new Pose2d(0.8636, 7.3914, Rotation2d.fromDegrees(306)), true),
+        CORAL_STATION_RED_1(new Pose2d(16.6878, 0.6604, Rotation2d.fromDegrees(126)), false, true),
+        CORAL_STATION_RED_2(new Pose2d(16.6878, 7.3914, Rotation2d.fromDegrees(234)), false, true),
+        CORAL_STATION_BLUE_1(new Pose2d(0.8636, 0.6604, Rotation2d.fromDegrees(54)), true, true),
+        CORAL_STATION_BLUE_2(new Pose2d(0.8636, 7.3914, Rotation2d.fromDegrees(306)), true, true),
 
         // Cages on the barge
         CAGE_RED_1(new Pose2d(8.7630, 0.0000, Rotation2d.fromDegrees(0)), false, true),

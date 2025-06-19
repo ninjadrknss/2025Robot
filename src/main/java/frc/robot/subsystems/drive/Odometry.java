@@ -4,7 +4,6 @@ import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -12,14 +11,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.LimelightSubsystem;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -28,11 +25,7 @@ import frc.robot.subsystems.vision.PhotonvisionSubsystem;
 import frc.robot.util.ControlBoard;
 import frc.robot.util.FieldConstants;
 import frc.robot.util.FieldConstants.GameElement;
-import frc.robot.util.Constants;
 
-import java.lang.annotation.Target;
-
-import org.photonvision.EstimatedRobotPose;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class Odometry extends SubsystemBase {
@@ -492,14 +485,14 @@ public class Odometry extends SubsystemBase {
             odometryResetRequested = !odometryResetRequested;
         }
 
-        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState(), true);
+        PoseEstimate limelightPose = limelight.getPoseEstimate(getRobotState(), false);
         if (odometryResetRequested) {
             // not using photonvision yet
             //EstimatedRobotPose photonVisionPose = photonvision.update(getRobotState().pose);
             PoseEstimate mt1PoseWithRot = limelight.getPoseEstimate(getRobotState(), false);
             if (limelightReset && mt1PoseWithRot != null && !mt1PoseWithRot.pose.equals(new Pose2d(0, 0, new Rotation2d(0)))) {
                 swerve.resetPose(mt1PoseWithRot.pose);
-                
+
                 odometryResetRequested = false;
                 SmartDashboard.putBoolean("Odometry/Odometry Reset Requested", odometryResetRequested);
             }
@@ -510,7 +503,7 @@ public class Odometry extends SubsystemBase {
         } else {
         }
 
-        if (limelightPose != null && limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 2){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
+        if (limelightPose != null /*&& limelightPose.pose.getTranslation().getDistance(globalPose.getTranslation()) < 2*/){//&& limelightPose.pose.getTranslation().getDistance(previousRobotState.getPose().getTranslation()) < 1) {
             //TODO: tune
             swerve.resetPose(new Pose2d(limelightPose.pose.getTranslation(), globalPose.getRotation()));
             //swerve.addVisionMeasurement(limelightPose.pose, limelightPose.timestampSeconds, VecBuilder.fill(0.1, 0.1, 9999999));
@@ -544,7 +537,7 @@ public class Odometry extends SubsystemBase {
         SmartDashboard.putString("Odometry/Current Goal", controlBoard.desiredGoal.name());
     }
 
-    public void updateAllienceColor(boolean isBlue){
+    public void updateAllianceColor(boolean isBlue){
         TargetPredictor.ALLIANCE_IS_BLUE = isBlue;
     }
 }

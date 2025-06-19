@@ -148,15 +148,15 @@ public class ControlBoard {
 
     private void configureOperatorBindings(PS5Controller controller) {
         // Select Score Branch (LeftBumper, TouchpadClick, RightBumper)
-        controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).withName("Select Left Branch"));
-        controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).withName("Select Center Branch"));
-        controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).withName("Select Right Branch"));
+        controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).ignoringDisable(true).withName("Select Left Branch"));
+        controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).ignoringDisable(true).withName("Select Center Branch"));
+        controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).ignoringDisable(true).withName("Select Right Branch"));
 
         // Select Score Level (TriangleButton, XButton)
         controller.squareButton.whileTrue(new InstantCommand(superstructure::requestHome).withName("Home Elevator Command"));
-        controller.triangleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L2).withName("L2 Score Select"));
-        controller.circleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3).withName("L3 Score Select"));
-        controller.crossButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4).withName("L4 Score Select"));
+        controller.triangleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L2).ignoringDisable(true).withName("L2 Score Select"));
+        controller.circleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3).ignoringDisable(true).withName("L3 Score Select"));
+        controller.crossButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4).ignoringDisable(true).withName("L4 Score Select"));
 
         controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
         controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));

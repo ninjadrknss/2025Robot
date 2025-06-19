@@ -6,9 +6,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import frc.robot.subsystems.elevatorwrist.ElevatorWristSubsystem;
 import frc.robot.subsystems.lights.LightsSubsystem;
 import frc.robot.subsystems.simulation.PhotonvisionSim;
 import frc.robot.subsystems.vision.LimelightSubsystem;
@@ -19,7 +17,6 @@ import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import frc.robot.subsystems.drive.Odometry;
-import frc.robot.subsystems.drive.SwerveSubsystem;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -82,7 +79,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        odometry.updateAllienceColor((DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue));
+        odometry.updateAllianceColor((DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue));
         for (int port = 5800; port <= 5809; port++) {
             PortForwarder.add(port, "limelight.local", port);
         }
@@ -118,6 +115,8 @@ public class Robot extends TimedRobot {
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
         LightsSubsystem.getInstance().requestAllianceColors();
         ControlBoard.getInstance().tryInit();
+
+        odometry.updateAllianceColor(DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue).equals(DriverStation.Alliance.Blue));
     }
 
     @Override
@@ -158,7 +157,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        odometry.updateAllienceColor((DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue));
+        odometry.updateAllianceColor((DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue));
         LimelightSubsystem.getInstance().setAprilTagFilters(); // set the tag filters to the alliance color
         if (autonomousCommand != null) autonomousCommand.cancel();
 
