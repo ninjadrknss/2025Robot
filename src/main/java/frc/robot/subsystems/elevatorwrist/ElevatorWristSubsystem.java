@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.LinearFilter;
 
@@ -18,7 +19,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -47,9 +47,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
          */
         private final Angle angle;
 
-        private final Color color;
+        private final RGBWColor color;
 
-        ElevatorState(double height, double angle, Color color) {
+        ElevatorState(double height, double angle, RGBWColor color) {
             this.height = Units.Inches.of(height);
             this.angle = Units.Degrees.of(angle);
             this.color = color;

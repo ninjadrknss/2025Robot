@@ -124,7 +124,7 @@ public class ControlBoard {
          controller.rightBumper.whileTrue(new StartEndCommand(() -> preciseControl = true, () -> preciseControl = false).withName("Precise Control Toggle")); // Fight me owen
 
         /* Driver Assist */
-        controller.rightTrigger.whileTrue(new AssistCommand());
+        // controller.rightTrigger.whileTrue(new AssistCommand());
 
         /* Intake Subsystem */
         controller.leftTrigger.whileTrue(intakeCommand); // Run intakeSubsystem intaking, moving EWS to chute position
@@ -137,10 +137,10 @@ public class ControlBoard {
 
         /* Climb Subsystem */
         controller.touchpadButton.whileTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
-        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
-        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
+//        controller.dRight.whileTrue(new InstantCommand(climbSubsystem::requestDeployFlap));
+//        controller.dLeft.whileTrue(new InstantCommand(climbSubsystem::requestStoreFlap));
+//        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
+//        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
 
 //        controller.rightBumper.onTrue(new InstantCommand(SignalLogger::start).withName("Start Signal Logger"));
 //        controller.rightTrigger.onTrue(new InstantCommand(SignalLogger::stop).withName("Stop Signal Logger"));
@@ -148,9 +148,9 @@ public class ControlBoard {
 
     private void configureOperatorBindings(PS5Controller controller) {
         // Select Score Branch (LeftBumper, TouchpadClick, RightBumper)
-        controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).ignoringDisable(true).withName("Select Left Branch"));
-        controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).ignoringDisable(true).withName("Select Center Branch"));
-        controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).ignoringDisable(true).withName("Select Right Branch"));
+//        controller.leftBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.LEFT).ignoringDisable(true).withName("Select Left Branch"));
+//        controller.touchpadButton.onTrue(new InstantCommand(() -> selectedBranch = Branch.CENTER).ignoringDisable(true).withName("Select Center Branch"));
+//        controller.rightBumper.onTrue(new InstantCommand(() -> selectedBranch = Branch.RIGHT).ignoringDisable(true).withName("Select Right Branch"));
 
         // Select Score Level (TriangleButton, XButton)
         controller.squareButton.whileTrue(new InstantCommand(superstructure::requestHome).withName("Home Elevator Command"));
@@ -158,9 +158,9 @@ public class ControlBoard {
         controller.circleButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L3).ignoringDisable(true).withName("L3 Score Select"));
         controller.crossButton.onTrue(new InstantCommand(() -> scoreLevel = ScoreLevel.L4).ignoringDisable(true).withName("L4 Score Select"));
 
-        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
-        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
-        controller.dLeft.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
+//        controller.dUp.whileTrue(new InstantCommand(climbSubsystem::requestRatchetActive));
+//        controller.dDown.whileTrue(new InstantCommand(climbSubsystem::requestRatchetInActive));
+//        controller.dLeft.onTrue(new InstantCommand(superstructure::requestClimb).withName("Climb Elevator Command"));
 
         // Elevator Go To Selected Position (RightTrigger)
         controller.rightTrigger.whileTrue(new ElevatorWristCommand()); // Go to selected position while held, on release go to idle
