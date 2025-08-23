@@ -1,10 +1,8 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix6.controls.RainbowAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
 
-import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -84,10 +82,10 @@ public class LightsSubsystem extends SubsystemBase {
     }
 
     public void requestRainbow() {
-        candle.setControl(new RainbowAnimation(0, LightsConstants.numLEDs)
-                .withBrightness(1)
-                .withDirection(AnimationDirectionValue.Forward)
-        );
+//        candle.setControl(new RainbowAnimation(0, LightsConstants.numLEDs)
+//                .withBrightness(1)
+//                .withDirection(AnimationDirectionValue.Forward)
+//        );
         fading = false;
     }
 
