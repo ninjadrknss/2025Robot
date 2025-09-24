@@ -1,7 +1,6 @@
 package frc.robot.subsystems.elevatorwrist;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -16,114 +15,124 @@ import frc.lib.CTREConfig;
 import frc.robot.Robot;
 
 public class ElevatorWristConstants {
-    // 36 teeth of pulley, 5mm spacing, with a 10:58 gear ratio
-    public static final Per<AngleUnit, DistanceUnit> revolutionsPerInch = Units.Revolutions.of(
-            36.0 * Units.Millimeter.of(5.0).in(Units.Inches) * 10.0 / 58.0
-    ).per(Units.Inch); // I think
+  // 36 teeth of pulley, 5mm spacing, with a 10:58 gear ratio
+  public static final Per<AngleUnit, DistanceUnit> revolutionsPerInch =
+      Units.Revolutions.of(36.0 * Units.Millimeter.of(5.0).in(Units.Inches) * 10.0 / 58.0)
+          .per(Units.Inch); // I think
 
-    public static final CTREConfig<CANcoder, CANcoderConfiguration> homeHallEffect = new CTREConfig<>(CANcoderConfiguration::new);
-    static {
-        homeHallEffect.withName("Home Hall Effect CANcoder")
-                .withCanID(33)
-                .withBus(Robot.elevatorbus);
-    }
+  public static final CTREConfig<CANcoder, CANcoderConfiguration> homeHallEffect =
+      new CTREConfig<>(CANcoderConfiguration::new);
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> rightElevatorMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
-    static {
-        rightElevatorMotorConfig.withName("Right Elevator Motor")
-                .withCanID(31)
-                .withBus(Robot.elevatorbus);
-        TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
-        leaderConfig.Slot0.kG = (0.45 + 0.25) / 2; // Increase until elevator holds steady
-        leaderConfig.Slot0.kS = (0.45 - 0.25) / 2; // Increase until just before motor starts moving
-        leaderConfig.Slot0.kV = 0.24547; // Voltage required to maintain speed
-        leaderConfig.Slot0.kP = 5; // Increase to get measured velocity to match target velocity
-        leaderConfig.Slot0.kI = 0; // Don't touch
-        leaderConfig.Slot0.kD = 0; // Don't touch
-        leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
-        leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
+  static {
+    homeHallEffect.withName("Home Hall Effect CANcoder").withCanID(33).withBus(Robot.elevatorbus);
+  }
 
-        leaderConfig.MotionMagic.MotionMagicCruiseVelocity = 100; // push until motor is commanding 12 volts
-        leaderConfig.MotionMagic.MotionMagicAcceleration = 200; // push until motor is commanding current limit
-        leaderConfig.MotionMagic.MotionMagicJerk = 360;
+  public static final CTREConfig<TalonFX, TalonFXConfiguration> rightElevatorMotorConfig =
+      new CTREConfig<>(TalonFXConfiguration::new);
 
-        leaderConfig.Feedback.RotorToSensorRatio = 1;
-        leaderConfig.Feedback.SensorToMechanismRatio = 1;
+  static {
+    rightElevatorMotorConfig
+        .withName("Right Elevator Motor")
+        .withCanID(31)
+        .withBus(Robot.elevatorbus);
+    TalonFXConfiguration leaderConfig = rightElevatorMotorConfig.config;
+    leaderConfig.Slot0.kG = (0.45 + 0.25) / 2; // Increase until elevator holds steady
+    leaderConfig.Slot0.kS = (0.45 - 0.25) / 2; // Increase until just before motor starts moving
+    leaderConfig.Slot0.kV = 0.24547; // Voltage required to maintain speed
+    leaderConfig.Slot0.kP = 5; // Increase to get measured velocity to match target velocity
+    leaderConfig.Slot0.kI = 0; // Don't touch
+    leaderConfig.Slot0.kD = 0; // Don't touch
+    leaderConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+    leaderConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
 
-        // leaderConfig.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.RemoteCANcoder;
-        // leaderConfig.HardwareLimitSwitch.ReverseLimitRemoteSensorID = ElevatorWristConstants.homeHallEffect.canID;
+    leaderConfig.MotionMagic.MotionMagicCruiseVelocity =
+        100; // push until motor is commanding 12 volts
+    leaderConfig.MotionMagic.MotionMagicAcceleration =
+        200; // push until motor is commanding current limit
+    leaderConfig.MotionMagic.MotionMagicJerk = 360;
 
-        leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-        leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9999; // TODO: Change
+    leaderConfig.Feedback.RotorToSensorRatio = 1;
+    leaderConfig.Feedback.SensorToMechanismRatio = 1;
 
-        leaderConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: probably should try to reduce current limit
-        leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    // leaderConfig.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.RemoteCANcoder;
+    // leaderConfig.HardwareLimitSwitch.ReverseLimitRemoteSensorID =
+    // ElevatorWristConstants.homeHallEffect.canID;
 
-        leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    }
+    leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    leaderConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 9999; // TODO: Change
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> leftElevatorMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
-    static {
-        leftElevatorMotorConfig.withName("Left Elevator Motor")
-                .withCanID(32)
-                .withBus(Robot.elevatorbus);
+    leaderConfig.CurrentLimits.StatorCurrentLimit =
+        80; // TODO: probably should try to reduce current limit
+    leaderConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        TalonFXConfiguration followerConfig = leftElevatorMotorConfig.config;
-        followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    }
+    leaderConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    leaderConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  }
 
-    public static final CTREConfig<CANcoder, CANcoderConfiguration> wristEncoderConfig = new CTREConfig<>(CANcoderConfiguration::new);
-    static {
-        wristEncoderConfig.withName("Wrist Encoder")
-                .withCanID(42)
-                .withBus(Robot.elevatorbus);
+  public static final CTREConfig<TalonFX, TalonFXConfiguration> leftElevatorMotorConfig =
+      new CTREConfig<>(TalonFXConfiguration::new);
 
-        CANcoderConfiguration wristConfig = wristEncoderConfig.config;
-        wristConfig.MagnetSensor.MagnetOffset = -0.348876953125 + 0.25; // in revs
-        wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        wristConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-    }
+  static {
+    leftElevatorMotorConfig
+        .withName("Left Elevator Motor")
+        .withCanID(32)
+        .withBus(Robot.elevatorbus);
 
-    public static final CTREConfig<TalonFX, TalonFXConfiguration> wristMotorConfig = new CTREConfig<>(TalonFXConfiguration::new);
-    static {
-        wristMotorConfig.withName("Wrist Motor")
-                .withCanID(41)
-                .withBus(Robot.elevatorbus);
+    TalonFXConfiguration followerConfig = leftElevatorMotorConfig.config;
+    followerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  }
 
-        TalonFXConfiguration wristConfig = wristMotorConfig.config;
-        wristConfig.Slot0.kG = -(21.5 + 13.5) / 2; // Increase until wrist holds steady
-        wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
-        // wristConfig.Slot0.kV = 0.5 / 10;
-        // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
-        wristConfig.Slot0.kP = 55; // Increase until wrist oscillates
-        wristConfig.Slot0.kI = 0; // Don't touch
-        wristConfig.Slot0.kD = 16.7; // Increase to reduce overshoot
-        wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-        wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+  public static final CTREConfig<CANcoder, CANcoderConfiguration> wristEncoderConfig =
+      new CTREConfig<>(CANcoderConfiguration::new);
 
-        wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0));
-        wristConfig.Slot1.kG = -25; // increase kG when holding coral
-        wristConfig.Slot1.kD = 21; // increase kD when holding coral
+  static {
+    wristEncoderConfig.withName("Wrist Encoder").withCanID(42).withBus(Robot.elevatorbus);
 
-        wristConfig.Feedback.RotorToSensorRatio = 10;
-        wristConfig.Feedback.SensorToMechanismRatio = 1;
-        wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristEncoderConfig.canID;
-        wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        wristConfig.Feedback.FeedbackRotorOffset = 0;
+    CANcoderConfiguration wristConfig = wristEncoderConfig.config;
+    wristConfig.MagnetSensor.MagnetOffset = -0.348876953125 + 0.25; // in revs
+    wristConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    wristConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+  }
 
-        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.57;
-        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.05;
+  public static final CTREConfig<TalonFX, TalonFXConfiguration> wristMotorConfig =
+      new CTREConfig<>(TalonFXConfiguration::new);
 
-        wristConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
-        wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+  static {
+    wristMotorConfig.withName("Wrist Motor").withCanID(41).withBus(Robot.elevatorbus);
 
-        wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
-        wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+    TalonFXConfiguration wristConfig = wristMotorConfig.config;
+    wristConfig.Slot0.kG = -(21.5 + 13.5) / 2; // Increase until wrist holds steady
+    wristConfig.Slot0.kS = (21.5 - 13.5) / 2; // Increase to overcome static friction
+    // wristConfig.Slot0.kV = 0.5 / 10;
+    // wristConfig.Slot0.kA = 0.25 / 10; // Acceleration for given TorqueCurrent
+    wristConfig.Slot0.kP = 55; // Increase until wrist oscillates
+    wristConfig.Slot0.kI = 0; // Don't touch
+    wristConfig.Slot0.kD = 16.7; // Increase to reduce overshoot
+    wristConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+    wristConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
 
-        wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    }
+    wristConfig.Slot1 = Slot1Configs.from(SlotConfigs.from(wristConfig.Slot0));
+    wristConfig.Slot1.kG = -25; // increase kG when holding coral
+    wristConfig.Slot1.kD = 21; // increase kD when holding coral
+
+    wristConfig.Feedback.RotorToSensorRatio = 10;
+    wristConfig.Feedback.SensorToMechanismRatio = 1;
+    wristConfig.Feedback.FeedbackRemoteSensorID = ElevatorWristConstants.wristEncoderConfig.canID;
+    wristConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    wristConfig.Feedback.FeedbackRotorOffset = 0;
+
+    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    wristConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.57;
+    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    wristConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.05;
+
+    wristConfig.CurrentLimits.StatorCurrentLimit = 80; // TODO: Change
+    wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    wristConfig.TorqueCurrent.PeakForwardTorqueCurrent = 80;
+    wristConfig.TorqueCurrent.PeakReverseTorqueCurrent = -80;
+
+    wristConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    wristConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  }
 }
