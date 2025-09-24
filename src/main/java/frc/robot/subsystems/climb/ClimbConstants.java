@@ -12,7 +12,7 @@ import frc.robot.Robot;
 
 public class ClimbConstants {
   public static final int flapServoPort = 8;
-  public static final int rachetServoPort = 7;
+  public static final int ratchetServoPort = 7;
 
   public static final CTREConfig<CANcoder, CANcoderConfiguration> pivotEncoderConfig =
       new CTREConfig<>(CANcoderConfiguration::new);

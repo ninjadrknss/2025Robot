@@ -20,7 +20,7 @@ public class ClimbSubsystem extends SubsystemBase {
   // private final CANcoder pivotEncoder =
   // ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
   private final Servo flapServo = new Servo(ClimbConstants.flapServoPort);
-  private final PWM rachetServo = new PWM(ClimbConstants.rachetServoPort);
+  private final PWM rachetServo = new PWM(ClimbConstants.ratchetServoPort);
 
   // private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
   private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
