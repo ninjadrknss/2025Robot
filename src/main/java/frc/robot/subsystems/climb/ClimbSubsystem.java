@@ -1,9 +1,7 @@
-    package frc.robot.subsystems.climb;
-
-import com.ctre.phoenix6.hardware.TalonFX;
+package frc.robot.subsystems.climb;
 
 import com.ctre.phoenix6.controls.VoltageOut;
-
+import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -14,120 +12,125 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.ControlBoard;
 
 public class ClimbSubsystem extends SubsystemBase {
-    private static ClimbSubsystem instance;
+  private static ClimbSubsystem instance;
 
-    // Motor, sensor, and servo devices.
-     private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
-//    private final MotionMagicTorqueCurrentFOC pivotControl = new MotionMagicTorqueCurrentFOC(0);
-    // private final CANcoder pivotEncoder = ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
-    private final Servo flapServo = new Servo(ClimbConstants.flapServoPort);
-    private final PWM rachetServo = new PWM(ClimbConstants.rachetServoPort);
+  // Motor, sensor, and servo devices.
+  private final TalonFX pivotMotor = ClimbConstants.pivotMotorConfig.createDevice(TalonFX::new);
+  //    private final MotionMagicTorqueCurrentFOC pivotControl = new MotionMagicTorqueCurrentFOC(0);
+  // private final CANcoder pivotEncoder =
+  // ClimbConstants.pivotEncoderConfig.createDevice(CANcoder::new);
+  private final Servo flapServo = new Servo(ClimbConstants.flapServoPort);
+  private final PWM rachetServo = new PWM(ClimbConstants.ratchetServoPort);
 
-    // private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
-    private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
-    private boolean pivotAtPosition = false;
+  // private final StatusSignal<Angle> pivotAngleStatus = pivotMotor.getPosition();
+  private final Debouncer pivotDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+  private boolean pivotAtPosition = false;
 
-    private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(true);
+  private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(true);
 
-    // Define the states of the climber.
-    public enum ClimbState {
-        STORE,
-        DEPLOY,
-        CLIMB,
-        CONTROL
-    }
+  // Define the states of the climber.
+  public enum ClimbState {
+    STORE,
+    DEPLOY,
+    CLIMB,
+    CONTROL
+  }
 
-    private ClimbState currentState = ClimbState.STORE;
+  private ClimbState currentState = ClimbState.STORE;
 
-    // Target angles for pivot and flap (tunable via ClimbConstants).
-    private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
-    private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
+  // Target angles for pivot and flap (tunable via ClimbConstants).
+  private Angle targetPivotAngle = ClimbConstants.pivotStoreAngle;
+  private Angle targetFlapAngle = ClimbConstants.flapStoreAngle;
 
-    private boolean ratchetActive = false;
+  private boolean ratchetActive = false;
 
-    public static ClimbSubsystem getInstance() {
-        if (instance == null) instance = new ClimbSubsystem();
-        return instance;
-    }
-    
-    private ClimbSubsystem() {
-        // pivotMotor.setControl(pivotControl);
-    }
+  public static ClimbSubsystem getInstance() {
+    if (instance == null) instance = new ClimbSubsystem();
+    return instance;
+  }
 
-    public void requestStorePivot() {
-        targetPivotAngle = ClimbConstants.pivotStoreAngle;
-        currentState = ClimbState.STORE;
-    }
+  private ClimbSubsystem() {
+    // pivotMotor.setControl(pivotControl);
+  }
 
-    public void requestDeployPivot() {
-        targetPivotAngle = ClimbConstants.pivotDeployAngle;
-        currentState = ClimbState.DEPLOY;
-    }
+  public void requestStorePivot() {
+    targetPivotAngle = ClimbConstants.pivotStoreAngle;
+    currentState = ClimbState.STORE;
+  }
 
-    public void requestClimbPivot() {
-        targetPivotAngle = ClimbConstants.pivotClimbAngle;
-        currentState = ClimbState.CLIMB;
-    }
+  public void requestDeployPivot() {
+    targetPivotAngle = ClimbConstants.pivotDeployAngle;
+    currentState = ClimbState.DEPLOY;
+  }
 
-    public void requestStore(){
-        requestStorePivot();
-        requestStoreFlap();
-    }
+  public void requestClimbPivot() {
+    targetPivotAngle = ClimbConstants.pivotClimbAngle;
+    currentState = ClimbState.CLIMB;
+  }
 
-    public void requestStoreFlap() {
-        targetFlapAngle = ClimbConstants.flapStoreAngle;
-        currentState = ClimbState.STORE;
-    }
+  public void requestStore() {
+    requestStorePivot();
+    requestStoreFlap();
+  }
 
-    public void requestDeployFlap() {
-        targetFlapAngle = ClimbConstants.flapDeployAngle;
-        currentState = ClimbState.DEPLOY;
-    }
+  public void requestStoreFlap() {
+    targetFlapAngle = ClimbConstants.flapStoreAngle;
+    currentState = ClimbState.STORE;
+  }
 
-    public void requestDeploy(){
-        requestDeployPivot();
-        requestDeployFlap();
-    }
+  public void requestDeployFlap() {
+    targetFlapAngle = ClimbConstants.flapDeployAngle;
+    currentState = ClimbState.DEPLOY;
+  }
 
-    public void requestRatchetActive() {
-        ratchetActive = true;
-    }
+  public void requestDeploy() {
+    requestDeployPivot();
+    requestDeployFlap();
+  }
 
-    public void requestRatchetInActive() {
-        ratchetActive = false;
-    }
+  public void requestRatchetActive() {
+    ratchetActive = true;
+  }
 
-    public void modifyPivotAngle(Angle delta) {
-        targetPivotAngle = targetPivotAngle.plus(delta);
-        currentState = ClimbState.CONTROL;
-    }
+  public void requestRatchetInActive() {
+    ratchetActive = false;
+  }
 
-    @Override
-    public void periodic() {
-//        pivotControl.withPosition(targetPivotAngle);
-        // pivotMotor.setControl(pivotControl);
+  public void modifyPivotAngle(Angle delta) {
+    targetPivotAngle = targetPivotAngle.plus(delta);
+    currentState = ClimbState.CONTROL;
+  }
 
-        double rawInput = ControlBoard.getInstance().getOperatorLeftVertical();
-        double output = Math.copySign(rawInput * rawInput, rawInput) * 12.5;
+  @Override
+  public void periodic() {
+    //        pivotControl.withPosition(targetPivotAngle);
+    // pivotMotor.setControl(pivotControl);
 
-        voltageControl.withOutput(output);
-        pivotMotor.setControl(voltageControl);
-        flapServo.set(targetFlapAngle.in(Units.Rotations));
+    double rawInput = ControlBoard.getInstance().getOperatorLeftVertical();
+    double output = Math.copySign(rawInput * rawInput, rawInput) * 12.5;
 
-        // pivotAngleStatus.refresh(false);
+    voltageControl.withOutput(output);
+    pivotMotor.setControl(voltageControl);
+    flapServo.set(targetFlapAngle.in(Units.Rotations));
 
-        rachetServo.setSpeed(ratchetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive);
+    // pivotAngleStatus.refresh(false);
 
-        // pivotAtPosition = pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02 revolutions tolerance
+    rachetServo.setSpeed(
+        ratchetActive ? ClimbConstants.rachetActive : ClimbConstants.rachetInActive);
 
-        SmartDashboard.putString("Climb/Current State", currentState.name());
-        SmartDashboard.putBoolean("Climb/Ratchet Active", ratchetActive);
-        SmartDashboard.putBoolean("Climb/Flap Active", targetFlapAngle.isNear(ClimbConstants.flapDeployAngle, 0.05));
-        SmartDashboard.putNumber("Climb/VoltageOut", output);
-        // SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
-    }
+    // pivotAtPosition =
+    // pivotDebouncer.calculate(pivotAngleStatus.getValue().isNear(targetPivotAngle, 0.02)); // 0.02
+    // revolutions tolerance
 
-    public boolean pivotAtPosition() {
-        return pivotAtPosition;
-    }
+    SmartDashboard.putString("Climb/Current State", currentState.name());
+    SmartDashboard.putBoolean("Climb/Ratchet Active", ratchetActive);
+    SmartDashboard.putBoolean(
+        "Climb/Flap Active", targetFlapAngle.isNear(ClimbConstants.flapDeployAngle, 0.05));
+    SmartDashboard.putNumber("Climb/VoltageOut", output);
+    // SmartDashboard.putNumber("Climb/Pivot Angle", pivotAngleStatus.getValue().in(Units.Degrees));
+  }
+
+  public boolean pivotAtPosition() {
+    return pivotAtPosition;
+  }
 }
